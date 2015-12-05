@@ -1,4 +1,7 @@
 # Banana Service
+
+[![Build Status](http://jenkins.sirwellington.tech/view/Banana/job/Banana%20Service/badge/icon)](http://jenkins.sirwellington.tech/view/Banana/job/Banana%20Service/)
+
 The Famed Banana Service!
 
 The Banana Service is Service Notifications for Developers.
@@ -8,5 +11,3 @@ within the Micro-Services.
 
 The Banana Service can also be used to setup Service
 Health Checks and Alerts.
-
-[![Build Status](http://jenkins.sirwellington.tech/job/Banana%Service/badge/icon)](http://jenkins.sirwellington.tech/job/Banana%Service/)
