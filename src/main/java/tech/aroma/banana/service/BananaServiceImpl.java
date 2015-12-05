@@ -17,15 +17,108 @@
 package tech.aroma.banana.service;
 
 
+import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
+import tech.aroma.banana.thrift.exceptions.OperationFailedException;
+import tech.aroma.banana.thrift.exceptions.ServiceAlreadyRegisteredException;
+import tech.aroma.banana.thrift.exceptions.ServiceDoesNotExistException;
+import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
+import tech.aroma.banana.thrift.service.BananaService;
+import tech.aroma.banana.thrift.service.GetServiceInfoRequest;
+import tech.aroma.banana.thrift.service.GetServiceInfoResponse;
+import tech.aroma.banana.thrift.service.GetServiceSubscribersRequest;
+import tech.aroma.banana.thrift.service.GetServiceSubscribersResponse;
+import tech.aroma.banana.thrift.service.ProvisionServiceRequest;
+import tech.aroma.banana.thrift.service.ProvisionServiceResponse;
+import tech.aroma.banana.thrift.service.RegenerateTokenRequest;
+import tech.aroma.banana.thrift.service.RegenerateTokenResponse;
+import tech.aroma.banana.thrift.service.RegisterHealthCheckRequest;
+import tech.aroma.banana.thrift.service.RegisterHealthCheckResponse;
+import tech.aroma.banana.thrift.service.RenewServiceTokenRequest;
+import tech.aroma.banana.thrift.service.RenewServiceTokenResponse;
+import tech.aroma.banana.thrift.service.SearchForServicesRequest;
+import tech.aroma.banana.thrift.service.SearchForServicesResponse;
+import tech.aroma.banana.thrift.service.SendMessageRequest;
+import tech.aroma.banana.thrift.service.SendMessageResponse;
+import tech.aroma.banana.thrift.service.SignInRequest;
+import tech.aroma.banana.thrift.service.SignInResponse;
+import tech.aroma.banana.thrift.service.SubscribeToServiceRequest;
+import tech.aroma.banana.thrift.service.SubscribeToServiceResponse;
 
 /**
  *
  * @author SirWellington
  */
-final class BananaServiceImpl 
+final class BananaServiceImpl implements BananaService.Iface
 {
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
+
+    @Override
+    public SignInResponse signIn(SignInRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public ProvisionServiceResponse provisionService(ProvisionServiceRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public SubscribeToServiceResponse subscribeToService(SubscribeToServiceRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, ServiceAlreadyRegisteredException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public RegisterHealthCheckResponse registerHealthCheck(RegisterHealthCheckRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public RenewServiceTokenResponse renewServiceToken(RenewServiceTokenRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public RegenerateTokenResponse regenerateToken(RegenerateTokenRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public GetServiceInfoResponse getServiceInfo(GetServiceInfoRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public SearchForServicesResponse searchForServices(SearchForServicesRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public GetServiceSubscribersResponse getServiceSubscribers(GetServiceSubscribersRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public SendMessageResponse sendMessage(SendMessageRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
+    {
+        return null;
+    }
+
+    @Override
+    public void sendMessageAsync(SendMessageRequest request) throws TException
+    {
+    }
 
 }
