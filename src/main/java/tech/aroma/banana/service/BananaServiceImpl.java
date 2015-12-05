@@ -16,7 +16,6 @@
 
 package tech.aroma.banana.service;
 
-
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,7 @@ import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
 import tech.aroma.banana.thrift.service.SubscribeToServiceRequest;
 import tech.aroma.banana.thrift.service.SubscribeToServiceResponse;
+import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
  *
@@ -54,7 +54,17 @@ import tech.aroma.banana.thrift.service.SubscribeToServiceResponse;
  */
 final class BananaServiceImpl implements BananaService.Iface
 {
+
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
+
+    private ThriftOperation<SignInRequest, SignInResponse> signIn;
+    private ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionService;
+
+    BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signIn, ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionService)
+    {
+        this.signIn = signIn;
+        this.provisionService = provisionService;
+    }
 
     @Override
     public SignInResponse signIn(SignInRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
