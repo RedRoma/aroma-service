@@ -44,19 +44,40 @@
     <!-- END OF POM METADATA -->
 
     <dependencies>
+       
+        <!--BANANA-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>banana-thrift</artifactId>
             <version>1.1-SNAPSHOT</version>
         </dependency>
+        
+        <!--TEST DEPENDENCIES-->
+        
+        <!--LOGGING-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+
+        <!--LOGBACK-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        
+        <!--GUICE-->
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
         </dependency>
+        
+        <!--ALCHEMY-->
+        <dependency>
+            <groupId>tech.sirwellington.alchemy</groupId>
+            <artifactId>alchemy-thrift</artifactId>
+        </dependency>
+        
     </dependencies>
 
     <build>
