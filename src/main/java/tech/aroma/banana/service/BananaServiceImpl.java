@@ -48,6 +48,9 @@ import tech.aroma.banana.thrift.service.SubscribeToServiceRequest;
 import tech.aroma.banana.thrift.service.SubscribeToServiceResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+
 /**
  *
  * @author SirWellington
@@ -57,25 +60,34 @@ final class BananaServiceImpl implements BananaService.Iface
 
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
 
-    private ThriftOperation<SignInRequest, SignInResponse> signIn;
-    private ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionService;
+    private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
+    private ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
 
-    BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signIn, ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionService)
+    BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signInOperation,
+                      ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation)
     {
-        this.signIn = signIn;
-        this.provisionService = provisionService;
+        this.signInOperation = signInOperation;
+        this.provisionServiceOperation = provisionServiceOperation;
     }
 
     @Override
     public SignInResponse signIn(SignInRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
     {
-        return null;
+        checkThat(request)
+            .throwing(InvalidArgumentException.class)
+            .is(notNull());
+
+        return signInOperation.process(request);
     }
 
     @Override
     public ProvisionServiceResponse provisionService(ProvisionServiceRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, TException
     {
-        return null;
+        checkThat(request)
+            .throwing(ex -> new InvalidArgumentException("missing request"))
+            .is(notNull());
+        
+        return provisionServiceOperation.process(request);
     }
 
     @Override
