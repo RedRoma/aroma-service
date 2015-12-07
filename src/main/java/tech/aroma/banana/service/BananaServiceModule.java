@@ -18,6 +18,7 @@ package tech.aroma.banana.service;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
+import javax.inject.Singleton;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import tech.aroma.banana.thrift.service.ProvisionServiceRequest;
 import tech.aroma.banana.thrift.service.ProvisionServiceResponse;
 import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
+import tech.sirwellington.alchemy.http.AlchemyHttp;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
@@ -58,6 +60,15 @@ public class BananaServiceModule extends AbstractModule
         return new TypeLiteral<ThriftOperation<Request, Response>>()
         {
         };
+    }
+    
+    
+    @Singleton
+    AlchemyHttp provideAlchemyHttpClient()
+    {
+        return AlchemyHttp.newBuilder()
+            .enableAsyncCallbacks()
+            .build();
     }
     
 }

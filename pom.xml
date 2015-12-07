@@ -48,8 +48,14 @@
         <!--ALCHEMY-->
         <dependency>
             <groupId>tech.sirwellington.alchemy</groupId>
+            <artifactId>alchemy-http</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-thrift</artifactId>
         </dependency>
+        
       
         <!--BANANA-->
         <dependency>
@@ -103,7 +109,7 @@
             <artifactId>alchemy-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
+ 
     </dependencies>
 
     <build>
