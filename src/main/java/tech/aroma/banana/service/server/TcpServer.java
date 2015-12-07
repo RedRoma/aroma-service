@@ -27,13 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.service.BananaServiceModule;
 import tech.aroma.banana.thrift.service.BananaService;
+import tech.sirwellington.alchemy.annotations.access.Internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
- *
+ * This Main Class runs the Banana Service on a Server Socket.
+ * 
  * @author SirWellington
  */
+@Internal
 public final class TcpServer
 {
 
