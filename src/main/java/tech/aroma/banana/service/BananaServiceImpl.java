@@ -16,6 +16,7 @@
 
 package tech.aroma.banana.service;
 
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
 import tech.aroma.banana.thrift.service.SubscribeToServiceRequest;
 import tech.aroma.banana.thrift.service.SubscribeToServiceResponse;
+import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
@@ -55,14 +57,17 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
  *
  * @author SirWellington
  */
+@Internal
 final class BananaServiceImpl implements BananaService.Iface
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
 
-    private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
-    private ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
+    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
+    private final ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
 
+    
+    @Inject
     BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signInOperation,
                       ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation)
     {
