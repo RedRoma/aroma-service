@@ -60,12 +60,11 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 @Internal
 final class BananaServiceImpl implements BananaService.Iface
 {
-
+    
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
-
+    
     private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
     private final ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
-
     
     @Inject
     BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signInOperation,
@@ -74,17 +73,19 @@ final class BananaServiceImpl implements BananaService.Iface
         this.signInOperation = signInOperation;
         this.provisionServiceOperation = provisionServiceOperation;
     }
-
+    
     @Override
     public SignInResponse signIn(SignInRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
     {
         checkThat(request)
             .throwing(InvalidArgumentException.class)
             .is(notNull());
-
+        
+        LOG.info("Received request to Sign In: {}", request);
+        
         return signInOperation.process(request);
     }
-
+    
     @Override
     public ProvisionServiceResponse provisionService(ProvisionServiceRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, TException
     {
@@ -92,60 +93,62 @@ final class BananaServiceImpl implements BananaService.Iface
             .throwing(ex -> new InvalidArgumentException("missing request"))
             .is(notNull());
         
+        LOG.info("Received request to Provision a new Service {}", request);
+        
         return provisionServiceOperation.process(request);
     }
-
+    
     @Override
     public SubscribeToServiceResponse subscribeToService(SubscribeToServiceRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, ServiceAlreadyRegisteredException, TException
     {
         return null;
     }
-
+    
     @Override
     public RegisterHealthCheckResponse registerHealthCheck(RegisterHealthCheckRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
     {
         return null;
     }
-
+    
     @Override
     public RenewServiceTokenResponse renewServiceToken(RenewServiceTokenRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
     {
         return null;
     }
-
+    
     @Override
     public RegenerateTokenResponse regenerateToken(RegenerateTokenRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
     {
         return null;
     }
-
+    
     @Override
     public GetServiceInfoResponse getServiceInfo(GetServiceInfoRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
     {
         return null;
     }
-
+    
     @Override
     public SearchForServicesResponse searchForServices(SearchForServicesRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
     {
         return null;
     }
-
+    
     @Override
     public GetServiceSubscribersResponse getServiceSubscribers(GetServiceSubscribersRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
     {
         return null;
     }
-
+    
     @Override
     public SendMessageResponse sendMessage(SendMessageRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
     {
         return null;
     }
-
+    
     @Override
     public void sendMessageAsync(SendMessageRequest request) throws TException
     {
     }
-
+    
 }
