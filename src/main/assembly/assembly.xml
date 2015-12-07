@@ -21,7 +21,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/bin</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>/bin</outputDirectory>
             <includes>
                 <include>*.bat</include>
             </includes>
@@ -29,7 +29,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/bin</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>/bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
             </includes>
