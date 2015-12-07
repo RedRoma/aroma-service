@@ -16,6 +16,7 @@
 
 package tech.aroma.banana.service;
 
+import java.util.concurrent.ExecutorService;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -63,16 +64,23 @@ final class BananaServiceImpl implements BananaService.Iface
     
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
     
+    private ExecutorService executor;
+    
     private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
     private final ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
-    
+    private final ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation;
+
     @Inject
-    BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signInOperation,
-                      ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation)
+    BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signInOperation, 
+                      ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation, 
+                      ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation)
     {
         this.signInOperation = signInOperation;
         this.provisionServiceOperation = provisionServiceOperation;
+        this.sendMessageOperation = sendMessageOperation;
     }
+    
+
     
     @Override
     public SignInResponse signIn(SignInRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
@@ -143,12 +151,17 @@ final class BananaServiceImpl implements BananaService.Iface
     @Override
     public SendMessageResponse sendMessage(SendMessageRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
     {
-        return null;
+        checkThat(request)
+            .throwing(ex -> new InvalidArgumentException("missing request"))
+            .is(notNull());
+        
+        return sendMessageOperation.process(request);
     }
     
     @Override
     public void sendMessageAsync(SendMessageRequest request) throws TException
     {
+        executor.submit(() -> this.sendMessage(request));
     }
     
 }
