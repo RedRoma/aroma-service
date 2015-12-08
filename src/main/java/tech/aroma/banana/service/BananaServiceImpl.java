@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.exceptions.ChannelDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
@@ -28,6 +29,8 @@ import tech.aroma.banana.thrift.exceptions.ServiceAlreadyRegisteredException;
 import tech.aroma.banana.thrift.exceptions.ServiceDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
 import tech.aroma.banana.thrift.service.BananaService;
+import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
+import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.banana.thrift.service.GetServiceInfoRequest;
 import tech.aroma.banana.thrift.service.GetServiceInfoResponse;
 import tech.aroma.banana.thrift.service.GetServiceSubscribersRequest;
@@ -38,8 +41,12 @@ import tech.aroma.banana.thrift.service.RegenerateTokenRequest;
 import tech.aroma.banana.thrift.service.RegenerateTokenResponse;
 import tech.aroma.banana.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.banana.thrift.service.RegisterHealthCheckResponse;
+import tech.aroma.banana.thrift.service.RemoveSavedChannelRequest;
+import tech.aroma.banana.thrift.service.RemoveSavedChannelResponse;
 import tech.aroma.banana.thrift.service.RenewServiceTokenRequest;
 import tech.aroma.banana.thrift.service.RenewServiceTokenResponse;
+import tech.aroma.banana.thrift.service.SaveChannelRequest;
+import tech.aroma.banana.thrift.service.SaveChannelResponse;
 import tech.aroma.banana.thrift.service.SearchForServicesRequest;
 import tech.aroma.banana.thrift.service.SearchForServicesResponse;
 import tech.aroma.banana.thrift.service.SendMessageRequest;
@@ -162,6 +169,24 @@ final class BananaServiceImpl implements BananaService.Iface
     public void sendMessageAsync(SendMessageRequest request) throws TException
     {
         executor.submit(() -> this.sendMessage(request));
+    }
+
+    @Override
+    public SaveChannelResponse saveChannel(SaveChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public RemoveSavedChannelResponse removeSavedChannel(RemoveSavedChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, ChannelDoesNotExistException, TException
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public GetMySavedChannelsResponse getMySavedChannels(GetMySavedChannelsRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
