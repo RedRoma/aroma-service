@@ -17,14 +17,13 @@
 package tech.aroma.banana.service;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.TypeLiteral;
 import javax.inject.Singleton;
-import org.apache.thrift.TBase;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.thrift.service.BananaService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
-import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
  *
@@ -42,19 +41,14 @@ public class BananaServiceModule extends AbstractModule
       
     }
     
-    private static <Request extends TBase, Response extends TBase> TypeLiteral<ThriftOperation<Request, Response>> operationType(Class<Request> requestClass,
-                                                                                                                                  Class<Response> responseClass)
-    {
-        return new TypeLiteral<ThriftOperation<Request, Response>>()
-        {
-        };
-    }
-    
-    
     @Singleton
     AlchemyHttp provideAlchemyHttpClient()
     {
+        HttpClient apacheHttpClient = HttpClientBuilder.create()
+            .build();
+
         return AlchemyHttp.newBuilder()
+            .usingApacheHttpClient(apacheHttpClient)
             .enableAsyncCallbacks()
             .build();
     }
