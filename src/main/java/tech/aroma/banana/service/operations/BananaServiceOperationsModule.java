@@ -18,27 +18,35 @@
 package tech.aroma.banana.service.operations;
 
 
-import org.apache.thrift.TException;
+import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.service.ProvisionServiceRequest;
+import tech.aroma.banana.thrift.service.ProvisionServiceResponse;
 import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
-import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
- *
+ * This Module defines the bindings for the implementations of the
+ * Banana Service Operations.
+ * 
  * @author SirWellington
  */
-@Internal
-final class SignInOperation implements ThriftOperation<SignInRequest, SignInResponse>
+public class BananaServiceOperationsModule extends AbstractModule
 {
-    private final static Logger LOG = LoggerFactory.getLogger(SignInOperation.class);
+    private final static Logger LOG = LoggerFactory.getLogger(BananaServiceOperationsModule.class);
 
     @Override
-    public SignInResponse process(SignInRequest request) throws TException
+    protected void configure()
     {
-        return new SignInResponse();
+          //Service Operations
+        bind(new TypeLiteral<ThriftOperation<SignInRequest, SignInResponse>>(){})
+            .to(SignInOperation.class);
+        
+        bind(new TypeLiteral<ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse>>(){})
+            .to(ProvisionServiceOperation.class);
     }
-    
+
 }

@@ -22,13 +22,7 @@ import javax.inject.Singleton;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.service.operations.ProvisionServiceOperation;
-import tech.aroma.banana.service.operations.SignInOperation;
 import tech.aroma.banana.thrift.service.BananaService;
-import tech.aroma.banana.thrift.service.ProvisionServiceRequest;
-import tech.aroma.banana.thrift.service.ProvisionServiceResponse;
-import tech.aroma.banana.thrift.service.SignInRequest;
-import tech.aroma.banana.thrift.service.SignInResponse;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -45,13 +39,7 @@ public class BananaServiceModule extends AbstractModule
     protected void configure()
     {
         bind(BananaService.Iface.class).to(BananaServiceImpl.class);
-
-        //Service Operations
-        bind(new TypeLiteral<ThriftOperation<SignInRequest, SignInResponse>>(){})
-            .to(SignInOperation.class);
-        
-        bind(new TypeLiteral<ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse>>(){})
-            .to(ProvisionServiceOperation.class);
+      
     }
     
     private static <Request extends TBase, Response extends TBase> TypeLiteral<ThriftOperation<Request, Response>> operationType(Class<Request> requestClass,

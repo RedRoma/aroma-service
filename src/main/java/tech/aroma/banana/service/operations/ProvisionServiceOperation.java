@@ -31,7 +31,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
  * @author SirWellington
  */
 @Internal
-public final class ProvisionServiceOperation implements ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse>
+final class ProvisionServiceOperation implements ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(ProvisionServiceOperation.class);
 
