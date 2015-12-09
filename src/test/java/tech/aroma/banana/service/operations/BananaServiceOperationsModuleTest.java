@@ -16,18 +16,17 @@
 
 package tech.aroma.banana.service.operations;
 
+import com.google.inject.Guice;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 
 /**
  *
  * @author SirWellington
  */
-@Repeat(10)
 @RunWith(AlchemyTestRunner.class)
 public class BananaServiceOperationsModuleTest 
 {
@@ -42,8 +41,7 @@ public class BananaServiceOperationsModuleTest
     @Test
     public void testConfigure()
     {
-        //Ensure it doesn't crash just by running it
-        instance.configure();
+        Guice.createInjector(instance);
     }
 
 }
