@@ -75,19 +75,54 @@ final class BananaServiceImpl implements BananaService.Iface
     
     private ExecutorService executor;
     
-    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
-    private final ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
-    private final ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation;
+    private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
+    private ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
+    private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
+    private ThriftOperation<GetServiceInfoRequest, GetServiceInfoResponse> getServiceInfoOperation;
+    private ThriftOperation<RegenerateTokenRequest, RegenerateTokenResponse> regerateTokenOperation;
+    private ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
+    private ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
+    private ThriftOperation<RenewServiceTokenRequest, RenewServiceTokenResponse> renewServiceTokenOperation;
+    private ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
+    private ThriftOperation<SearchForServicesRequest, SearchForServicesResponse> searchForServicesOperation;
+    private ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation;
+    private ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
+    private ThriftOperation<SubscribeToServiceRequest, SubscribeToServiceResponse> subscribeToChannelOperation;
 
     @Inject
-    BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signInOperation, 
+    BananaServiceImpl(ExecutorService executor, 
+                      ThriftOperation<SignInRequest, SignInResponse> signInOperation, 
                       ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation, 
-                      ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation)
+                      ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation, 
+                      ThriftOperation<GetServiceInfoRequest, GetServiceInfoResponse> getServiceInfoOperation, 
+                      ThriftOperation<RegenerateTokenRequest, RegenerateTokenResponse> regerateTokenOperation, 
+                      ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
+                      ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
+                      ThriftOperation<RenewServiceTokenRequest, RenewServiceTokenResponse> renewServiceTokenOperation, 
+                      ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
+                      ThriftOperation<SearchForServicesRequest, SearchForServicesResponse> searchForServicesOperation,
+                      ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation,
+                      ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
+                      ThriftOperation<SubscribeToServiceRequest, SubscribeToServiceResponse> subscribeToChannelOperation)
     {
+        this.executor = executor;
         this.signInOperation = signInOperation;
         this.provisionServiceOperation = provisionServiceOperation;
+        this.getMySavedChannelsOperation = getMySavedChannelsOperation;
+        this.getServiceInfoOperation = getServiceInfoOperation;
+        this.regerateTokenOperation = regerateTokenOperation;
+        this.registerHealthCheckOperation = registerHealthCheckOperation;
+        this.removeSavedChannelOperation = removeSavedChannelOperation;
+        this.renewServiceTokenOperation = renewServiceTokenOperation;
+        this.saveChannelOperation = saveChannelOperation;
+        this.searchForServicesOperation = searchForServicesOperation;
         this.sendMessageOperation = sendMessageOperation;
+        this.snoozeChannelOperation = snoozeChannelOperation;
+        this.subscribeToChannelOperation = subscribeToChannelOperation;
     }
+
+
+    
     
 
     
