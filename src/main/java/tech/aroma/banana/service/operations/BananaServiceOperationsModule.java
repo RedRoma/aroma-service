@@ -34,7 +34,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
  * 
  * @author SirWellington
  */
-public class BananaServiceOperationsModule extends AbstractModule
+public final class BananaServiceOperationsModule extends AbstractModule
 {
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceOperationsModule.class);
 
