@@ -53,6 +53,8 @@ import tech.aroma.banana.thrift.service.SendMessageRequest;
 import tech.aroma.banana.thrift.service.SendMessageResponse;
 import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
+import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
+import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
 import tech.aroma.banana.thrift.service.SubscribeToServiceRequest;
 import tech.aroma.banana.thrift.service.SubscribeToServiceResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
@@ -116,43 +118,43 @@ final class BananaServiceImpl implements BananaService.Iface
     @Override
     public SubscribeToServiceResponse subscribeToService(SubscribeToServiceRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, ServiceAlreadyRegisteredException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
     
     @Override
     public RegisterHealthCheckResponse registerHealthCheck(RegisterHealthCheckRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
     
     @Override
     public RenewServiceTokenResponse renewServiceToken(RenewServiceTokenRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
     
     @Override
     public RegenerateTokenResponse regenerateToken(RegenerateTokenRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
     
     @Override
     public GetServiceInfoResponse getServiceInfo(GetServiceInfoRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
     
     @Override
     public SearchForServicesResponse searchForServices(SearchForServicesRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
     
     @Override
     public GetServiceSubscribersResponse getServiceSubscribers(GetServiceSubscribersRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
     
     @Override
@@ -174,19 +176,25 @@ final class BananaServiceImpl implements BananaService.Iface
     @Override
     public SaveChannelResponse saveChannel(SaveChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
 
     @Override
     public RemoveSavedChannelResponse removeSavedChannel(RemoveSavedChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, ChannelDoesNotExistException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
 
     @Override
     public GetMySavedChannelsResponse getMySavedChannels(GetMySavedChannelsRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
     {
-        return null;
+        throw new OperationFailedException("Operation Not Implemented Yet.");
+    }
+
+    @Override
+    public SnoozeChannelResponse snoozeChannel(SnoozeChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, ChannelDoesNotExistException, TException
+    {
+        throw new OperationFailedException("Operation Not Implemented Yet.");
     }
     
 }
