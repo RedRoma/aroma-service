@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.banana.thrift.exceptions.ChannelDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
@@ -53,6 +54,8 @@ import tech.aroma.banana.thrift.service.SendMessageRequest;
 import tech.aroma.banana.thrift.service.SendMessageResponse;
 import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
+import tech.aroma.banana.thrift.service.SignUpRequest;
+import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
 import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
 import tech.aroma.banana.thrift.service.SubscribeToServiceRequest;
@@ -228,6 +231,14 @@ final class BananaServiceImpl implements BananaService.Iface
 
     @Override
     public SnoozeChannelResponse snoozeChannel(SnoozeChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, ChannelDoesNotExistException, TException
+    {
+        throw new OperationFailedException("Operation Not Implemented Yet.");
+    }
+
+    @Override
+    public SignUpResponse signUp(SignUpRequest request) throws OperationFailedException, InvalidArgumentException,
+                                                               InvalidCredentialsException,
+                                                               AccountAlreadyExistsException, TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
