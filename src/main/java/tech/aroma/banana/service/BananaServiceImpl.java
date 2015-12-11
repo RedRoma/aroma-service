@@ -73,11 +73,11 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 @Internal
 final class BananaServiceImpl implements BananaService.Iface
 {
-    
+
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
-    
+
     private ExecutorService executor;
-    
+
     private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
     private ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
@@ -93,15 +93,15 @@ final class BananaServiceImpl implements BananaService.Iface
     private ThriftOperation<SubscribeToServiceRequest, SubscribeToServiceResponse> subscribeToChannelOperation;
 
     @Inject
-    BananaServiceImpl(ExecutorService executor, 
-                      ThriftOperation<SignInRequest, SignInResponse> signInOperation, 
-                      ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation, 
-                      ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation, 
-                      ThriftOperation<GetServiceInfoRequest, GetServiceInfoResponse> getServiceInfoOperation, 
-                      ThriftOperation<RegenerateTokenRequest, RegenerateTokenResponse> regerateTokenOperation, 
+    BananaServiceImpl(ExecutorService executor,
+                      ThriftOperation<SignInRequest, SignInResponse> signInOperation,
+                      ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation,
+                      ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
+                      ThriftOperation<GetServiceInfoRequest, GetServiceInfoResponse> getServiceInfoOperation,
+                      ThriftOperation<RegenerateTokenRequest, RegenerateTokenResponse> regerateTokenOperation,
                       ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
                       ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
-                      ThriftOperation<RenewServiceTokenRequest, RenewServiceTokenResponse> renewServiceTokenOperation, 
+                      ThriftOperation<RenewServiceTokenRequest, RenewServiceTokenResponse> renewServiceTokenOperation,
                       ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
                       ThriftOperation<SearchForServicesRequest, SearchForServicesResponse> searchForServicesOperation,
                       ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation,
@@ -124,87 +124,121 @@ final class BananaServiceImpl implements BananaService.Iface
         this.subscribeToChannelOperation = subscribeToChannelOperation;
     }
 
-
-    
-    
-
-    
     @Override
-    public SignInResponse signIn(SignInRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
+    public SignInResponse signIn(SignInRequest request) throws OperationFailedException, 
+                                                               InvalidArgumentException,
+                                                               InvalidCredentialsException,
+                                                               TException
     {
         checkThat(request)
             .throwing(InvalidArgumentException.class)
             .is(notNull());
-        
+
         LOG.info("Received request to Sign In: {}", request);
-        
+
         return signInOperation.process(request);
     }
-    
+
     @Override
-    public ProvisionServiceResponse provisionService(ProvisionServiceRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, TException
+    public ProvisionServiceResponse provisionService(ProvisionServiceRequest request) throws OperationFailedException,
+                                                                                             InvalidArgumentException,
+                                                                                             InvalidCredentialsException,
+                                                                                             ServiceDoesNotExistException,
+                                                                                             TException
     {
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException("missing request"))
             .is(notNull());
-        
+
         LOG.info("Received request to Provision a new Service {}", request);
-        
+
         return provisionServiceOperation.process(request);
     }
-    
+
     @Override
-    public SubscribeToServiceResponse subscribeToService(SubscribeToServiceRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, ServiceAlreadyRegisteredException, TException
+    public SubscribeToServiceResponse subscribeToService(SubscribeToServiceRequest request) throws OperationFailedException,
+                                                                                                   InvalidArgumentException,
+                                                                                                   InvalidCredentialsException,
+                                                                                                   ServiceDoesNotExistException,
+                                                                                                   ServiceAlreadyRegisteredException,
+                                                                                                   TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
-    
+
     @Override
-    public RegisterHealthCheckResponse registerHealthCheck(RegisterHealthCheckRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
+    public RegisterHealthCheckResponse registerHealthCheck(RegisterHealthCheckRequest request) throws OperationFailedException,
+                                                                                                      InvalidArgumentException,
+                                                                                                      InvalidCredentialsException,
+                                                                                                      ServiceDoesNotExistException,
+                                                                                                      UnauthorizedException,
+                                                                                                      TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
-    
+
     @Override
-    public RenewServiceTokenResponse renewServiceToken(RenewServiceTokenRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
+    public RenewServiceTokenResponse renewServiceToken(RenewServiceTokenRequest request) throws OperationFailedException,
+                                                                                                InvalidArgumentException,
+                                                                                                InvalidCredentialsException,
+                                                                                                ServiceDoesNotExistException,
+                                                                                                UnauthorizedException,
+                                                                                                TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
-    
+
     @Override
-    public RegenerateTokenResponse regenerateToken(RegenerateTokenRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
+    public RegenerateTokenResponse regenerateToken(RegenerateTokenRequest request) throws OperationFailedException,
+                                                                                          InvalidArgumentException,
+                                                                                          InvalidCredentialsException,
+                                                                                          ServiceDoesNotExistException,
+                                                                                          UnauthorizedException,
+                                                                                          TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
-    
+
     @Override
-    public GetServiceInfoResponse getServiceInfo(GetServiceInfoRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, ServiceDoesNotExistException, UnauthorizedException, TException
+    public GetServiceInfoResponse getServiceInfo(GetServiceInfoRequest request) throws OperationFailedException,
+                                                                                       InvalidArgumentException,
+                                                                                       InvalidCredentialsException,
+                                                                                       ServiceDoesNotExistException,
+                                                                                       UnauthorizedException, TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
-    
+
     @Override
-    public SearchForServicesResponse searchForServices(SearchForServicesRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
+    public SearchForServicesResponse searchForServices(SearchForServicesRequest request) throws OperationFailedException,
+                                                                                                InvalidArgumentException,
+                                                                                                InvalidCredentialsException,
+                                                                                                UnauthorizedException,
+                                                                                                TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
-    
+
     @Override
-    public GetServiceSubscribersResponse getServiceSubscribers(GetServiceSubscribersRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
+    public GetServiceSubscribersResponse getServiceSubscribers(GetServiceSubscribersRequest request) throws
+        OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException,
+        TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
-    
+
     @Override
-    public SendMessageResponse sendMessage(SendMessageRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, TException
+    public SendMessageResponse sendMessage(SendMessageRequest request) throws OperationFailedException,
+                                                                              InvalidArgumentException,
+                                                                              InvalidCredentialsException, TException
     {
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException("missing request"))
             .is(notNull());
-        
+
         return sendMessageOperation.process(request);
     }
-    
+
     @Override
     public void sendMessageAsync(SendMessageRequest request) throws TException
     {
@@ -212,35 +246,54 @@ final class BananaServiceImpl implements BananaService.Iface
     }
 
     @Override
-    public SaveChannelResponse saveChannel(SaveChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
+    public SaveChannelResponse saveChannel(SaveChannelRequest request) throws OperationFailedException,
+                                                                              InvalidArgumentException,
+                                                                              InvalidCredentialsException,
+                                                                              UnauthorizedException, TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
 
     @Override
-    public RemoveSavedChannelResponse removeSavedChannel(RemoveSavedChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, ChannelDoesNotExistException, TException
+    public RemoveSavedChannelResponse removeSavedChannel(RemoveSavedChannelRequest request) throws OperationFailedException,
+                                                                                                   InvalidArgumentException,
+                                                                                                   InvalidCredentialsException,
+                                                                                                   UnauthorizedException,
+                                                                                                   ChannelDoesNotExistException,
+                                                                                                   TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
 
     @Override
-    public GetMySavedChannelsResponse getMySavedChannels(GetMySavedChannelsRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, TException
+    public GetMySavedChannelsResponse getMySavedChannels(GetMySavedChannelsRequest request) throws OperationFailedException,
+                                                                                                   InvalidArgumentException,
+                                                                                                   InvalidCredentialsException,
+                                                                                                   UnauthorizedException,
+                                                                                                   TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
 
     @Override
-    public SnoozeChannelResponse snoozeChannel(SnoozeChannelRequest request) throws OperationFailedException, InvalidArgumentException, InvalidCredentialsException, UnauthorizedException, ChannelDoesNotExistException, TException
+    public SnoozeChannelResponse snoozeChannel(SnoozeChannelRequest request) throws OperationFailedException,
+                                                                                    InvalidArgumentException,
+                                                                                    InvalidCredentialsException,
+                                                                                    UnauthorizedException,
+                                                                                    ChannelDoesNotExistException,
+                                                                                    TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
 
     @Override
-    public SignUpResponse signUp(SignUpRequest request) throws OperationFailedException, InvalidArgumentException,
+    public SignUpResponse signUp(SignUpRequest request) throws OperationFailedException,
+                                                               InvalidArgumentException,
                                                                InvalidCredentialsException,
-                                                               AccountAlreadyExistsException, TException
+                                                               AccountAlreadyExistsException,
+                                                               TException
     {
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
-    
+
 }
