@@ -32,6 +32,8 @@ import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
 import tech.aroma.banana.thrift.service.BananaService;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.banana.thrift.service.GetMyServicesRequest;
+import tech.aroma.banana.thrift.service.GetMyServicesResponse;
 import tech.aroma.banana.thrift.service.GetServiceInfoRequest;
 import tech.aroma.banana.thrift.service.GetServiceInfoResponse;
 import tech.aroma.banana.thrift.service.GetServiceSubscribersRequest;
@@ -67,7 +69,9 @@ import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
+ * This is the Top Level of the Banana Service. All of the Operations arrive here and routed to their
+ * respective {@linkplain ThriftOperation Operation}.
+ * 
  * @author SirWellington
  */
 @Internal
@@ -81,47 +85,23 @@ final class BananaServiceImpl implements BananaService.Iface
     private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
     private ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
-    private ThriftOperation<GetServiceInfoRequest, GetServiceInfoResponse> getServiceInfoOperation;
-    private ThriftOperation<RegenerateTokenRequest, RegenerateTokenResponse> regerateTokenOperation;
-    private ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
-    private ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
-    private ThriftOperation<RenewServiceTokenRequest, RenewServiceTokenResponse> renewServiceTokenOperation;
-    private ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
-    private ThriftOperation<SearchForServicesRequest, SearchForServicesResponse> searchForServicesOperation;
+    private ThriftOperation<GetMyServicesRequest, GetMyServicesResponse> getMyServicesOperation;
     private ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation;
-    private ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
-    private ThriftOperation<SubscribeToServiceRequest, SubscribeToServiceResponse> subscribeToChannelOperation;
 
     @Inject
-    BananaServiceImpl(ExecutorService executor,
+    BananaServiceImpl(ExecutorService executor, 
                       ThriftOperation<SignInRequest, SignInResponse> signInOperation,
                       ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation,
                       ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
-                      ThriftOperation<GetServiceInfoRequest, GetServiceInfoResponse> getServiceInfoOperation,
-                      ThriftOperation<RegenerateTokenRequest, RegenerateTokenResponse> regerateTokenOperation,
-                      ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
-                      ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
-                      ThriftOperation<RenewServiceTokenRequest, RenewServiceTokenResponse> renewServiceTokenOperation,
-                      ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
-                      ThriftOperation<SearchForServicesRequest, SearchForServicesResponse> searchForServicesOperation,
-                      ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation,
-                      ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
-                      ThriftOperation<SubscribeToServiceRequest, SubscribeToServiceResponse> subscribeToChannelOperation)
+                      ThriftOperation<GetMyServicesRequest, GetMyServicesResponse> getMyServicesOperation,
+                      ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation)
     {
         this.executor = executor;
         this.signInOperation = signInOperation;
         this.provisionServiceOperation = provisionServiceOperation;
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
-        this.getServiceInfoOperation = getServiceInfoOperation;
-        this.regerateTokenOperation = regerateTokenOperation;
-        this.registerHealthCheckOperation = registerHealthCheckOperation;
-        this.removeSavedChannelOperation = removeSavedChannelOperation;
-        this.renewServiceTokenOperation = renewServiceTokenOperation;
-        this.saveChannelOperation = saveChannelOperation;
-        this.searchForServicesOperation = searchForServicesOperation;
+        this.getMyServicesOperation = getMyServicesOperation;
         this.sendMessageOperation = sendMessageOperation;
-        this.snoozeChannelOperation = snoozeChannelOperation;
-        this.subscribeToChannelOperation = subscribeToChannelOperation;
     }
 
     @Override

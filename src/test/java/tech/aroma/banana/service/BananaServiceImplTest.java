@@ -26,6 +26,8 @@ import org.mockito.Mock;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.banana.thrift.service.GetMyServicesRequest;
+import tech.aroma.banana.thrift.service.GetMyServicesResponse;
 import tech.aroma.banana.thrift.service.GetServiceInfoRequest;
 import tech.aroma.banana.thrift.service.GetServiceInfoResponse;
 import tech.aroma.banana.thrift.service.ProvisionServiceRequest;
@@ -80,6 +82,9 @@ public class BananaServiceImplTest
     private ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation;
 
     @Mock
+    private ThriftOperation<GetMyServicesRequest, GetMyServicesResponse> getMyServicesOperation;
+    
+    @Mock
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
 
     @Mock
@@ -122,16 +127,8 @@ public class BananaServiceImplTest
                                          signInOperation,
                                          provisionServiceOperation,
                                          getMySavedChannelsOperation,
-                                         getServiceInfoOperation,
-                                         regerateTokenOperation,
-                                         registerHealthCheckOperation,
-                                         removeSavedChannelOperation,
-                                         renewServiceTokenOperation,
-                                         saveChannelOperation,
-                                         searchForServicesOperation,
-                                         sendMessageOperation,
-                                         snoozeChannelOperation,
-                                         subscribeToChannelOperation);
+                                         getMyServicesOperation,
+                                         sendMessageOperation);
         
         verifyZeroInteractions(signInOperation,
                                provisionServiceOperation,
@@ -230,6 +227,31 @@ public class BananaServiceImplTest
 
     @Test
     public void testSendMessageAsync() throws Exception
+    {
+    }
+
+    @Test
+    public void testSaveChannel() throws Exception
+    {
+    }
+
+    @Test
+    public void testRemoveSavedChannel() throws Exception
+    {
+    }
+
+    @Test
+    public void testGetMySavedChannels() throws Exception
+    {
+    }
+
+    @Test
+    public void testSnoozeChannel() throws Exception
+    {
+    }
+
+    @Test
+    public void testSignUp() throws Exception
     {
     }
 
