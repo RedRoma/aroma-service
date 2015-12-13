@@ -281,7 +281,13 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                     InvalidArgumentException,
                                                                                     InvalidCredentialsException, TException
     {
-        throw new OperationFailedException("Operation Not Implemented Yet.");
+        LOG.debug("Received request to getMyServices {}", request);
+
+        checkThat(request)
+            .throwing(InvalidArgumentException.class)
+            .is(notNull());
+        
+        return this.getMyServicesOperation.process(request);
     }
 
 }

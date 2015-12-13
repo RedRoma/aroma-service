@@ -49,7 +49,8 @@ public class BananaServiceModuleTest
     @Test
     public void testConfigure()
     {
-        Guice.createInjector(instance);
+        BananaServiceOperationsModule operations = new BananaServiceOperationsModule();
+        Guice.createInjector(operations, instance);
     }
 
     @Test

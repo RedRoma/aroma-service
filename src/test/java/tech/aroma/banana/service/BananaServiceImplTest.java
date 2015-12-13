@@ -58,6 +58,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
@@ -154,6 +155,7 @@ public class BananaServiceImplTest
 
         SignInResponse response = instance.signIn(request);
         assertThat(response, is(expectedResponse));
+        verify(signInOperation).process(request);
 
         //Edge cases
         assertThrows(() -> instance.signIn(null))
@@ -169,6 +171,7 @@ public class BananaServiceImplTest
 
         ProvisionServiceResponse response = instance.provisionService(request);
         assertThat(response, is(expectedResponse));
+        verify(provisionServiceOperation).process(request);
 
         //Edge cases
         assertThrows(() -> instance.provisionService(null))
@@ -219,6 +222,7 @@ public class BananaServiceImplTest
 
         SendMessageResponse response = instance.sendMessage(request);
         assertThat(response, is(expectedResponse));
+        verify(sendMessageOperation).process(request);
 
         //Edge cases
         assertThrows(() -> instance.sendMessage(null))
@@ -253,6 +257,22 @@ public class BananaServiceImplTest
     @Test
     public void testSignUp() throws Exception
     {
+    }
+
+    @Test
+    public void testGetMyServices() throws Exception
+    {
+        GetMyServicesRequest request = pojos(GetMyServicesRequest.class).get();
+        GetMyServicesResponse expectedResponse = pojos(GetMyServicesResponse.class).get();
+        when(getMyServicesOperation.process(request)).thenReturn(expectedResponse);
+        
+        GetMyServicesResponse response = instance.getMyServices(request);
+        assertThat(response, is(expectedResponse));
+        verify(getMyServicesOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.getMyServices(null))
+            .isInstanceOf(InvalidArgumentException.class);
     }
 
 }
