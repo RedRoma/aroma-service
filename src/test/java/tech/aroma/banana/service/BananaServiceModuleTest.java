@@ -18,7 +18,6 @@ package tech.aroma.banana.service;
 
 import com.google.inject.Guice;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.service.operations.BananaServiceOperationsModule;
@@ -29,7 +28,9 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 /**
- *
+ * This Test Class can be considered an Integration level test, because it tests the validity of
+ * the Dependency Injection Framework and Object Graph.
+ * 
  * @author SirWellington
  */
 @RunWith(AlchemyTestRunner.class)
@@ -45,7 +46,7 @@ public class BananaServiceModuleTest
         instance = new BananaServiceModule();
     }
 
-    @Ignore //Ignore for now
+//    @Ignore //Ignore for now
     @Test
     public void testConfigure()
     {
