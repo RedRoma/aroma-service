@@ -276,4 +276,12 @@ final class BananaServiceImpl implements BananaService.Iface
         throw new OperationFailedException("Operation Not Implemented Yet.");
     }
 
+    @Override
+    public GetMyServicesResponse getMyServices(GetMyServicesRequest request) throws OperationFailedException,
+                                                                                    InvalidArgumentException,
+                                                                                    InvalidCredentialsException, TException
+    {
+        throw new OperationFailedException("Operation Not Implemented Yet.");
+    }
+
 }
