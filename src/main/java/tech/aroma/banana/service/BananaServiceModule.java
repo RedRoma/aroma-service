@@ -17,6 +17,8 @@
 package tech.aroma.banana.service;
 
 import com.google.inject.AbstractModule;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.inject.Singleton;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -38,7 +40,8 @@ public class BananaServiceModule extends AbstractModule
     protected void configure()
     {
         bind(BananaService.Iface.class).to(BananaServiceImpl.class);
-      
+        
+        bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool(10));
     }
     
     @Singleton
