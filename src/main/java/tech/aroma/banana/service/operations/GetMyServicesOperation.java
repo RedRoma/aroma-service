@@ -27,7 +27,9 @@ import tech.sirwellington.alchemy.generator.AlchemyGenerator;
 import tech.sirwellington.alchemy.generator.ObjectGenerators;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
+import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
 
 /**
  *
@@ -43,7 +45,9 @@ final class GetMyServicesOperation implements ThriftOperation<GetMyServicesReque
     {
         LOG.debug("Received request to GetMyServices {}", request);
         AlchemyGenerator<Service> serviceGenerator = ObjectGenerators.pojos(Service.class);
-        List<Service> fakeServices = listOf(serviceGenerator, 15);
+        
+        int count = one(integers(3, 40));
+        List<Service> fakeServices = listOf(serviceGenerator, count);
 
         LOG.info("Returning {} Services for {}", fakeServices.size(), request);
 
