@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
- 
 package tech.aroma.banana.service.operations;
-
 
 import java.util.List;
 import org.apache.thrift.TException;
@@ -37,6 +35,7 @@ import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
  */
 final class GetMyServicesOperation implements ThriftOperation<GetMyServicesRequest, GetMyServicesResponse>
 {
+
     private final static Logger LOG = LoggerFactory.getLogger(GetMyServicesOperation.class);
 
     @Override
@@ -45,10 +44,11 @@ final class GetMyServicesOperation implements ThriftOperation<GetMyServicesReque
         LOG.debug("Received request to GetMyServices {}", request);
         AlchemyGenerator<Service> serviceGenerator = ObjectGenerators.pojos(Service.class);
         List<Service> fakeServices = listOf(serviceGenerator, 15);
-        
+
+        LOG.info("Returning {} Services for {}", fakeServices.size(), request);
+
         return new GetMyServicesResponse()
             .setServices(fakeServices);
     }
-    
-    
+
 }
