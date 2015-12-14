@@ -18,12 +18,18 @@
 package tech.aroma.banana.service.operations;
 
 
+import java.util.List;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.Service;
 import tech.aroma.banana.thrift.service.GetMyServicesRequest;
 import tech.aroma.banana.thrift.service.GetMyServicesResponse;
+import tech.sirwellington.alchemy.generator.AlchemyGenerator;
+import tech.sirwellington.alchemy.generator.ObjectGenerators;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
+
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 
 /**
  *
@@ -37,8 +43,12 @@ final class GetMyServicesOperation implements ThriftOperation<GetMyServicesReque
     public GetMyServicesResponse process(GetMyServicesRequest request) throws TException
     {
         LOG.debug("Received request to GetMyServices {}", request);
+        AlchemyGenerator<Service> serviceGenerator = ObjectGenerators.pojos(Service.class);
+        List<Service> fakeServices = listOf(serviceGenerator, 15);
         
-        return new GetMyServicesResponse();
+        return new GetMyServicesResponse()
+            .setServices(fakeServices);
     }
-
+    
+    
 }
