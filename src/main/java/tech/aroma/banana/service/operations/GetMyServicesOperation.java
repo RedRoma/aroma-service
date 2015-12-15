@@ -46,18 +46,28 @@ final class GetMyServicesOperation implements ThriftOperation<GetMyServicesReque
     public GetMyServicesResponse process(GetMyServicesRequest request) throws TException
     {
         LOG.debug("Received request to GetMyServices {}", request);
+
+        GetMyServicesResponse response = new GetMyServicesResponse();
+
+        int count = one(integers(0, 40));
+
+        if (count == 0)
+        {
+            return response;
+        }
+
         AlchemyGenerator<Service> serviceGenerator = ObjectGenerators.pojos(Service.class);
         AlchemyGenerator<String> nameGenerator = PeopleGenerators.names();
-        
-        int count = one(integers(0, 40));
+
         List<Service> fakeServices = listOf(serviceGenerator, count).stream()
             .map(s -> s.setName(nameGenerator.get()))
             .collect(Collectors.toList());
 
         LOG.info("Returning {} Services for {}", fakeServices.size(), request);
+        response.setServices(fakeServices);
 
-        return new GetMyServicesResponse()
-            .setServices(fakeServices);
+        return response;
+
     }
 
 }
