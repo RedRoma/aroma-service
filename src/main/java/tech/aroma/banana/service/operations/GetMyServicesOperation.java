@@ -46,7 +46,7 @@ final class GetMyServicesOperation implements ThriftOperation<GetMyServicesReque
         LOG.debug("Received request to GetMyServices {}", request);
         AlchemyGenerator<Service> serviceGenerator = ObjectGenerators.pojos(Service.class);
         
-        int count = one(integers(3, 40));
+        int count = one(integers(0, 40));
         List<Service> fakeServices = listOf(serviceGenerator, count);
 
         LOG.info("Returning {} Services for {}", fakeServices.size(), request);
