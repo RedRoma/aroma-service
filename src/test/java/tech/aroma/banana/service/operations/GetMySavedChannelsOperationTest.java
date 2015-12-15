@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
+import tech.sirwellington.alchemy.generator.ObjectGenerators;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
@@ -27,7 +28,7 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(100)
 @RunWith(AlchemyTestRunner.class)
 public class GetMySavedChannelsOperationTest 
 {
@@ -38,6 +39,8 @@ public class GetMySavedChannelsOperationTest
     @Before
     public void setUp()
     {
+        request = ObjectGenerators.pojos(GetMySavedChannelsRequest.class).get();
+        
         instance = new GetMySavedChannelsOperation();
     }
 

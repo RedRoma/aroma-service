@@ -23,6 +23,8 @@ import tech.aroma.banana.thrift.service.GetMyServicesRequest;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+
 /**
  *
  * @author SirWellington
@@ -38,6 +40,7 @@ public class GetMyServicesOperationTest
     @Before
     public void setUp()
     {
+        request = pojos(GetMyServicesRequest.class).get();
         instance = new GetMyServicesOperation();
     }
 

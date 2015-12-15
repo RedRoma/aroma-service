@@ -29,21 +29,21 @@ import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(100)
 @RunWith(AlchemyTestRunner.class)
-public class SendMessageOperationTest 
+public class SendMessageOperationTest
 {
-    
+
     private SendMessageRequest request;
-    
+
     private SendMessageOperation instance;
-    
-    
+
     @Before
     public void setUp()
     {
-        instance = new SendMessageOperation();
         request = pojos(SendMessageRequest.class).get();
+
+        instance = new SendMessageOperation();
     }
 
     @Test
