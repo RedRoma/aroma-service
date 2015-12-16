@@ -30,6 +30,8 @@ import tech.aroma.banana.thrift.exceptions.ServiceAlreadyRegisteredException;
 import tech.aroma.banana.thrift.exceptions.ServiceDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
 import tech.aroma.banana.thrift.service.BananaService;
+import tech.aroma.banana.thrift.service.GetDashboardRequest;
+import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.banana.thrift.service.GetMyServicesRequest;
@@ -87,6 +89,7 @@ final class BananaServiceImpl implements BananaService.Iface
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
     private ThriftOperation<GetMyServicesRequest, GetMyServicesResponse> getMyServicesOperation;
     private ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation;
+    private ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
 
     @Inject
     BananaServiceImpl(ExecutorService executor, 
@@ -94,7 +97,8 @@ final class BananaServiceImpl implements BananaService.Iface
                       ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse> provisionServiceOperation,
                       ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
                       ThriftOperation<GetMyServicesRequest, GetMyServicesResponse> getMyServicesOperation,
-                      ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation)
+                      ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation,
+                      ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation)
     {
         this.executor = executor;
         this.signInOperation = signInOperation;
@@ -102,6 +106,7 @@ final class BananaServiceImpl implements BananaService.Iface
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
         this.getMyServicesOperation = getMyServicesOperation;
         this.sendMessageOperation = sendMessageOperation;
+        this.getDashboardOperation = getDashboardOperation;
     }
 
     @Override
@@ -252,7 +257,11 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                    UnauthorizedException,
                                                                                                    TException
     {
-        throw new OperationFailedException("Operation Not Implemented Yet.");
+        checkThat(request)
+            .throwing(ex -> new InvalidArgumentException("missing request"))
+            .is(notNull());
+        
+        return getMySavedChannelsOperation.process(request);
     }
 
     @Override
@@ -288,6 +297,18 @@ final class BananaServiceImpl implements BananaService.Iface
             .is(notNull());
         
         return this.getMyServicesOperation.process(request);
+    }
+
+    @Override
+    public GetDashboardResponse getDashboard(GetDashboardRequest request) throws OperationFailedException,
+                                                                                 InvalidArgumentException,
+                                                                                 InvalidCredentialsException, TException
+    {
+        checkThat(request)
+            .throwing(InvalidArgumentException.class)
+            .is(notNull());
+        
+        return this.getDashboardOperation.process(request);
     }
 
 }

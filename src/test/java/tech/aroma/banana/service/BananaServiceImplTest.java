@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package tech.aroma.banana.service;
 
 import com.google.common.util.concurrent.MoreExecutors;
@@ -24,6 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.service.GetDashboardRequest;
+import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.banana.thrift.service.GetMyServicesRequest;
@@ -84,7 +85,7 @@ public class BananaServiceImplTest
 
     @Mock
     private ThriftOperation<GetMyServicesRequest, GetMyServicesResponse> getMyServicesOperation;
-    
+
     @Mock
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
 
@@ -118,6 +119,9 @@ public class BananaServiceImplTest
     @Mock
     private ThriftOperation<SubscribeToServiceRequest, SubscribeToServiceResponse> subscribeToChannelOperation;
 
+    @Mock
+    private ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
+
     private BananaServiceImpl instance;
 
     @Before
@@ -129,8 +133,9 @@ public class BananaServiceImplTest
                                          provisionServiceOperation,
                                          getMySavedChannelsOperation,
                                          getMyServicesOperation,
-                                         sendMessageOperation);
-        
+                                         sendMessageOperation,
+                                         getDashboardOperation);
+
         verifyZeroInteractions(signInOperation,
                                provisionServiceOperation,
                                getMySavedChannelsOperation,
@@ -143,23 +148,67 @@ public class BananaServiceImplTest
                                searchForServicesOperation,
                                sendMessageOperation,
                                snoozeChannelOperation,
-                               subscribeToChannelOperation);
+                               subscribeToChannelOperation,
+                               getDashboardOperation);
     }
 
     @Test
-    public void testSignIn() throws Exception
+    public void testGetDashboard() throws Exception
     {
-        SignInRequest request = pojos(SignInRequest.class).get();
-        SignInResponse expectedResponse = pojos(SignInResponse.class).get();
-        when(signInOperation.process(request)).thenReturn(expectedResponse);
+        GetDashboardRequest request = one(pojos(GetDashboardRequest.class));
+        GetDashboardResponse expectedResponse = one(pojos(GetDashboardResponse.class));
+        when(getDashboardOperation.process(request)).thenReturn(expectedResponse);
 
-        SignInResponse response = instance.signIn(request);
+        GetDashboardResponse response = instance.getDashboard(request);
         assertThat(response, is(expectedResponse));
-        verify(signInOperation).process(request);
+        verify(getDashboardOperation).process(request);
 
         //Edge cases
-        assertThrows(() -> instance.signIn(null))
+        assertThrows(() -> instance.getDashboard(null))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testGetMySavedChannels() throws Exception
+    {
+        GetMySavedChannelsRequest request = one(pojos(GetMySavedChannelsRequest.class));
+        GetMySavedChannelsResponse expectedResponse = one(pojos(GetMySavedChannelsResponse.class));
+
+        when(getMySavedChannelsOperation.process(request)).thenReturn(expectedResponse);
+
+        GetMySavedChannelsResponse response = instance.getMySavedChannels(request);
+        assertThat(response, is(expectedResponse));
+        verify(getMySavedChannelsOperation).process(request);
+
+        //Edge Cases
+        assertThrows(() -> instance.getMySavedChannels(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testGetMyServices() throws Exception
+    {
+        GetMyServicesRequest request = pojos(GetMyServicesRequest.class).get();
+        GetMyServicesResponse expectedResponse = pojos(GetMyServicesResponse.class).get();
+        when(getMyServicesOperation.process(request)).thenReturn(expectedResponse);
+
+        GetMyServicesResponse response = instance.getMyServices(request);
+        assertThat(response, is(expectedResponse));
+        verify(getMyServicesOperation).process(request);
+
+        //Edge cases
+        assertThrows(() -> instance.getMyServices(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testGetServiceInfo() throws Exception
+    {
+    }
+
+    @Test
+    public void testGetServiceSubscribers() throws Exception
+    {
     }
 
     @Test
@@ -179,7 +228,7 @@ public class BananaServiceImplTest
     }
 
     @Test
-    public void testSubscribeToService() throws Exception
+    public void testRegenerateToken() throws Exception
     {
     }
 
@@ -189,27 +238,22 @@ public class BananaServiceImplTest
     }
 
     @Test
+    public void testRemoveSavedChannel() throws Exception
+    {
+    }
+
+    @Test
     public void testRenewServiceToken() throws Exception
     {
     }
 
     @Test
-    public void testRegenerateToken() throws Exception
-    {
-    }
-
-    @Test
-    public void testGetServiceInfo() throws Exception
+    public void testSaveChannel() throws Exception
     {
     }
 
     @Test
     public void testSearchForServices() throws Exception
-    {
-    }
-
-    @Test
-    public void testGetServiceSubscribers() throws Exception
     {
     }
 
@@ -235,17 +279,23 @@ public class BananaServiceImplTest
     }
 
     @Test
-    public void testSaveChannel() throws Exception
+    public void testSignIn() throws Exception
     {
+        SignInRequest request = pojos(SignInRequest.class).get();
+        SignInResponse expectedResponse = pojos(SignInResponse.class).get();
+        when(signInOperation.process(request)).thenReturn(expectedResponse);
+
+        SignInResponse response = instance.signIn(request);
+        assertThat(response, is(expectedResponse));
+        verify(signInOperation).process(request);
+
+        //Edge cases
+        assertThrows(() -> instance.signIn(null))
+            .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
-    public void testRemoveSavedChannel() throws Exception
-    {
-    }
-
-    @Test
-    public void testGetMySavedChannels() throws Exception
+    public void testSignUp() throws Exception
     {
     }
 
@@ -255,24 +305,8 @@ public class BananaServiceImplTest
     }
 
     @Test
-    public void testSignUp() throws Exception
+    public void testSubscribeToService() throws Exception
     {
-    }
-
-    @Test
-    public void testGetMyServices() throws Exception
-    {
-        GetMyServicesRequest request = pojos(GetMyServicesRequest.class).get();
-        GetMyServicesResponse expectedResponse = pojos(GetMyServicesResponse.class).get();
-        when(getMyServicesOperation.process(request)).thenReturn(expectedResponse);
-        
-        GetMyServicesResponse response = instance.getMyServices(request);
-        assertThat(response, is(expectedResponse));
-        verify(getMyServicesOperation).process(request);
-        
-        //Edge cases
-        assertThrows(() -> instance.getMyServices(null))
-            .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

@@ -22,6 +22,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.service.GetDashboardRequest;
+import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.banana.thrift.service.GetMyServicesRequest;
@@ -49,20 +51,23 @@ public final class BananaServiceOperationsModule extends AbstractModule
     {
         //SERVICE OPERATIONS
         
+        bind(new TypeLiteral<ThriftOperation<GetDashboardRequest, GetDashboardResponse>>() {})
+            .to(GetDashboardOperation.class);
+        
         bind(new TypeLiteral<ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse>>(){})
             .to(GetMySavedChannelsOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetMyServicesRequest, GetMyServicesResponse>>(){})
             .to(GetMyServicesOperation.class);
+                
+        bind(new TypeLiteral<ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse>>(){})
+            .to(ProvisionServiceOperation.class);
+                
+        bind(new TypeLiteral<ThriftOperation<SendMessageRequest, SendMessageResponse>>(){})
+            .to(SendMessageOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<SignInRequest, SignInResponse>>(){})
             .to(SignInOperation.class);
-        
-        bind(new TypeLiteral<ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse>>(){})
-            .to(ProvisionServiceOperation.class);
-        
-        bind(new TypeLiteral<ThriftOperation<SendMessageRequest, SendMessageResponse>>(){})
-            .to(SendMessageOperation.class);
         
     }
 
