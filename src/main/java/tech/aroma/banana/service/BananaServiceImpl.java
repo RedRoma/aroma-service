@@ -30,6 +30,7 @@ import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
 import tech.aroma.banana.thrift.service.BananaService;
+import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
 import tech.aroma.banana.thrift.service.GetApplicationSubscribersRequest;
@@ -347,4 +348,10 @@ final class BananaServiceImpl implements BananaService.Iface
         return getDashboardOperation.process(request);
     }
     
+    
+    @Override
+    public double getApiVersion() throws TException
+    {
+        return BananaServiceConstants.API_VERSION;
+    }
 }

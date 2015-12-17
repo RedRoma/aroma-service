@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
 import tech.aroma.banana.thrift.service.GetApplicationSubscribersRequest;
@@ -308,6 +309,18 @@ public class BananaServiceImplTest
     @Test
     public void testSubscribeToApplication() throws Exception
     {
+    }
+
+    @Test
+    public void testRegenerateToken() throws Exception
+    {
+    }
+
+    @Test
+    public void testGetApiVersion() throws Exception
+    {
+        double apiVersion = instance.getApiVersion();
+        assertThat(apiVersion, is(BananaServiceConstants.API_VERSION));
     }
 
 }
