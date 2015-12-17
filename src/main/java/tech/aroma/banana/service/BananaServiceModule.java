@@ -41,7 +41,7 @@ public class BananaServiceModule extends AbstractModule
     {
         bind(BananaService.Iface.class).to(BananaServiceImpl.class);
         
-        bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool(10));
+        bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool(15));
     }
     
     @Singleton

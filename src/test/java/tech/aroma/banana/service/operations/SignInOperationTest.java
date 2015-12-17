@@ -20,14 +20,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.service.SendMessageRequest;
-import tech.aroma.banana.thrift.service.SendMessageResponse;
+import tech.aroma.banana.thrift.service.SignInRequest;
+import tech.aroma.banana.thrift.service.SignInResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
@@ -36,32 +36,32 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class SendMessageOperationTest
+public class SignInOperationTest
 {
 
     @GeneratePojo
-    private SendMessageRequest request;
-
-    private SendMessageOperation instance;
-
+    private SignInRequest request;
+    
+    private SignInOperation instance;
+    
     @Before
     public void setUp()
     {
-        instance = new SendMessageOperation();
+        instance = new SignInOperation();
     }
-
+    
     @Test
     public void testProcess() throws Exception
     {
-        SendMessageResponse response = instance.process(request);
-
+        SignInResponse response = instance.process(request);
         assertThat(response, notNullValue());
     }
-
+    
     @Test
     public void testProcessEdgeCases()
     {
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
+    
 }

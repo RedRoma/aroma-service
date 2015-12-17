@@ -19,19 +19,26 @@ package tech.aroma.banana.service.operations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
-import tech.sirwellington.alchemy.generator.ObjectGenerators;
+import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
+import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
  *
  * @author SirWellington
  */
-@Repeat(100)
+@Repeat(10)
 @RunWith(AlchemyTestRunner.class)
 public class GetMySavedChannelsOperationTest 
 {
+    @GeneratePojo
     private GetMySavedChannelsRequest request;
    
     private GetMySavedChannelsOperation instance;
@@ -39,15 +46,21 @@ public class GetMySavedChannelsOperationTest
     @Before
     public void setUp()
     {
-        request = ObjectGenerators.pojos(GetMySavedChannelsRequest.class).get();
-        
         instance = new GetMySavedChannelsOperation();
     }
 
     @Test
     public void testProcess() throws Exception
     {
-        instance.process(request);
+        GetMySavedChannelsResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+    }
+    
+    @Test
+    public void testProcessEdgeCases()
+    {
+        assertThrows(() -> instance.process(null))
+            .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

@@ -14,30 +14,38 @@
  * limitations under the License.
  */
 
- 
 package tech.aroma.banana.service.operations;
-
 
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.service.ProvisionServiceRequest;
-import tech.aroma.banana.thrift.service.ProvisionServiceResponse;
+import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
+import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
+
+import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
  *
  * @author SirWellington
  */
 @Internal
-final class ProvisionServiceOperation implements ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse>
+final class ProvisionApplicationOperation implements ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse>
 {
-    private final static Logger LOG = LoggerFactory.getLogger(ProvisionServiceOperation.class);
+
+    private final static Logger LOG = LoggerFactory.getLogger(ProvisionApplicationOperation.class);
 
     @Override
-    public ProvisionServiceResponse process(ProvisionServiceRequest request) throws TException
+    public ProvisionApplicationResponse process(ProvisionApplicationRequest request) throws TException
     {
-        return new ProvisionServiceResponse();
+        checkNotNull(request);
+        
+        LOG.info("Received request to provision an Application", request);
+        
+        ProvisionApplicationResponse response = one(pojos(ProvisionApplicationResponse.class));
+        return response;
     }
 }

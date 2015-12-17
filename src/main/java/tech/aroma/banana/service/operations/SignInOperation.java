@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
- 
 package tech.aroma.banana.service.operations;
-
 
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -26,6 +24,10 @@ import tech.aroma.banana.thrift.service.SignInResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+
 /**
  *
  * @author SirWellington
@@ -33,12 +35,19 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 @Internal
 final class SignInOperation implements ThriftOperation<SignInRequest, SignInResponse>
 {
+    
     private final static Logger LOG = LoggerFactory.getLogger(SignInOperation.class);
-
+    
     @Override
     public SignInResponse process(SignInRequest request) throws TException
     {
-        return new SignInResponse();
+        checkNotNull(request);
+        
+        LOG.info("Received request to sign in: {}", request);
+        
+        SignInResponse response = one(pojos(SignInResponse.class));
+        
+        return response;
     }
     
 }

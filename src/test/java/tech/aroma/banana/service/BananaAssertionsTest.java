@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package tech.aroma.banana.service.operations;
+package tech.aroma.banana.service;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.SendMessageRequest;
-import tech.aroma.banana.thrift.service.SendMessageResponse;
+import tech.sirwellington.alchemy.arguments.FailedAssertionException;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
+import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
@@ -36,32 +36,41 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class SendMessageOperationTest
+public class BananaAssertionsTest 
 {
-
-    @GeneratePojo
-    private SendMessageRequest request;
-
-    private SendMessageOperation instance;
 
     @Before
     public void setUp()
     {
-        instance = new SendMessageOperation();
+    }
+    
+    @DontRepeat
+    @Test
+    public void testCannotInstantiate()
+    {
+        assertThrows(() -> BananaAssertions.class.newInstance())
+            .isInstanceOf(IllegalAccessException.class);
     }
 
     @Test
-    public void testProcess() throws Exception
+    public void testNotMissing()
     {
-        SendMessageResponse response = instance.process(request);
-
-        assertThat(response, notNullValue());
+        SendMessageRequest request = pojos(SendMessageRequest.class).get();
+        BananaAssertions.notMissing().check(request);
+        
+        assertThrows(() -> BananaAssertions.notMissing().check(null))
+            .isInstanceOf(FailedAssertionException.class);
     }
 
+   
     @Test
-    public void testProcessEdgeCases()
+    public void testCheckNotNull() throws Exception
     {
-        assertThrows(() -> instance.process(null))
+        ProvisionApplicationRequest request = pojos(ProvisionApplicationRequest.class).get();
+        BananaAssertions.checkNotNull(request);
+        
+        assertThrows(() -> BananaAssertions.checkNotNull(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
+
 }

@@ -19,11 +19,13 @@ package tech.aroma.banana.service.operations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import tech.aroma.banana.thrift.service.GetMyServicesRequest;
+import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
  *
@@ -31,23 +33,30 @@ import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class GetMyServicesOperationTest 
+public class GetMyApplicationsOperationTest 
 {
-    private GetMyServicesRequest request;
+    private GetMyApplicationsRequest request;
     
-    private GetMyServicesOperation instance;
+    private GetMyApplicationsOperation instance;
     
     @Before
     public void setUp()
     {
-        request = pojos(GetMyServicesRequest.class).get();
-        instance = new GetMyServicesOperation();
+        request = pojos(GetMyApplicationsRequest.class).get();
+        instance = new GetMyApplicationsOperation();
     }
 
     @Test
     public void testProcess() throws Exception
     {
         instance.process(request);
+    }
+    
+    @Test
+    public void testProcessEdgeCases()
+    {
+        assertThrows(() -> instance.process(null))
+            .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

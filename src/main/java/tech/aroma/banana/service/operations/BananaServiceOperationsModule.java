@@ -24,12 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
+import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
+import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
-import tech.aroma.banana.thrift.service.GetMyServicesRequest;
-import tech.aroma.banana.thrift.service.GetMyServicesResponse;
-import tech.aroma.banana.thrift.service.ProvisionServiceRequest;
-import tech.aroma.banana.thrift.service.ProvisionServiceResponse;
+import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
+import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.banana.thrift.service.SendMessageRequest;
 import tech.aroma.banana.thrift.service.SendMessageResponse;
 import tech.aroma.banana.thrift.service.SignInRequest;
@@ -57,11 +57,11 @@ public final class BananaServiceOperationsModule extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse>>(){})
             .to(GetMySavedChannelsOperation.class);
         
-        bind(new TypeLiteral<ThriftOperation<GetMyServicesRequest, GetMyServicesResponse>>(){})
-            .to(GetMyServicesOperation.class);
+        bind(new TypeLiteral<ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse>>(){})
+            .to(GetMyApplicationsOperation.class);
                 
-        bind(new TypeLiteral<ThriftOperation<ProvisionServiceRequest, ProvisionServiceResponse>>(){})
-            .to(ProvisionServiceOperation.class);
+        bind(new TypeLiteral<ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse>>(){})
+            .to(ProvisionApplicationOperation.class);
                 
         bind(new TypeLiteral<ThriftOperation<SendMessageRequest, SendMessageResponse>>(){})
             .to(SendMessageOperation.class);

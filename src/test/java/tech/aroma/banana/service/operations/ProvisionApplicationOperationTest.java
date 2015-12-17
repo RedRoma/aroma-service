@@ -20,8 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.service.SendMessageRequest;
-import tech.aroma.banana.thrift.service.SendMessageResponse;
+import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
+import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
@@ -36,25 +36,24 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class SendMessageOperationTest
+public class ProvisionApplicationOperationTest
 {
 
     @GeneratePojo
-    private SendMessageRequest request;
+    private ProvisionApplicationRequest request;
 
-    private SendMessageOperation instance;
+    private ProvisionApplicationOperation instance;
 
     @Before
     public void setUp()
     {
-        instance = new SendMessageOperation();
+        instance = new ProvisionApplicationOperation();
     }
 
     @Test
     public void testProcess() throws Exception
     {
-        SendMessageResponse response = instance.process(request);
-
+        ProvisionApplicationResponse response = instance.process(request);
         assertThat(response, notNullValue());
     }
 
@@ -64,4 +63,5 @@ public class SendMessageOperationTest
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
+
 }

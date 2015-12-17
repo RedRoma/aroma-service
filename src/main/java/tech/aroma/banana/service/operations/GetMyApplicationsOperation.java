@@ -21,14 +21,15 @@ import java.util.stream.Collectors;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.Service;
-import tech.aroma.banana.thrift.service.GetMyServicesRequest;
-import tech.aroma.banana.thrift.service.GetMyServicesResponse;
+import tech.aroma.banana.thrift.Application;
+import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
+import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.sirwellington.alchemy.generator.AlchemyGenerator;
 import tech.sirwellington.alchemy.generator.ObjectGenerators;
 import tech.sirwellington.alchemy.generator.PeopleGenerators;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
@@ -37,17 +38,19 @@ import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
  *
  * @author SirWellington
  */
-final class GetMyServicesOperation implements ThriftOperation<GetMyServicesRequest, GetMyServicesResponse>
+final class GetMyApplicationsOperation implements ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse>
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(GetMyServicesOperation.class);
+    private final static Logger LOG = LoggerFactory.getLogger(GetMyApplicationsOperation.class);
 
     @Override
-    public GetMyServicesResponse process(GetMyServicesRequest request) throws TException
+    public GetMyApplicationsResponse process(GetMyApplicationsRequest request) throws TException
     {
-        LOG.debug("Received request to GetMyServices {}", request);
+        checkNotNull(request);
+        
+        LOG.debug("Received request to GetMyApplications {}", request);
 
-        GetMyServicesResponse response = new GetMyServicesResponse();
+        GetMyApplicationsResponse response = new GetMyApplicationsResponse();
 
         int count = one(integers(0, 40));
 
@@ -56,15 +59,15 @@ final class GetMyServicesOperation implements ThriftOperation<GetMyServicesReque
             return response;
         }
 
-        AlchemyGenerator<Service> serviceGenerator = ObjectGenerators.pojos(Service.class);
+        AlchemyGenerator<Application> serviceGenerator = ObjectGenerators.pojos(Application.class);
         AlchemyGenerator<String> nameGenerator = PeopleGenerators.names();
 
-        List<Service> fakeServices = listOf(serviceGenerator, count).stream()
+        List<Application> fakeApplications = listOf(serviceGenerator, count).stream()
             .map(s -> s.setName(nameGenerator.get()))
             .collect(Collectors.toList());
 
-        LOG.info("Returning {} Services for {}", fakeServices.size(), request);
-        response.setServices(fakeServices);
+        LOG.info("Returning {} Applications for {}", fakeApplications.size(), request);
+        response.setApplications(fakeApplications);
 
         return response;
 

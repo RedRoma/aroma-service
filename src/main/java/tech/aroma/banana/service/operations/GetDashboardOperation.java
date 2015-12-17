@@ -21,7 +21,6 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.thrift.Message;
-import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.sirwellington.alchemy.generator.AlchemyGenerator;
@@ -29,8 +28,7 @@ import tech.sirwellington.alchemy.generator.NumberGenerators;
 import tech.sirwellington.alchemy.generator.ObjectGenerators;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
-import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
@@ -47,9 +45,7 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
     @Override
     public GetDashboardResponse process(GetDashboardRequest request) throws TException
     {
-        checkThat(request)
-            .throwing(InvalidArgumentException.class)
-            .is(notNull());
+        checkNotNull(request);
 
         LOG.debug("Received request to get Dashboard: {}", request);
 
