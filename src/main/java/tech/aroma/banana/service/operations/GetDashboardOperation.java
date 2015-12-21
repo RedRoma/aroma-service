@@ -68,15 +68,12 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
     
     private final AlchemyGenerator<String> hostnames = () ->
     {
-        AlchemyGenerator<String> networkNames = StringGenerators.alphabeticString(5);
+        AlchemyGenerator<String> domains = PeopleGenerators.popularEmailDomains();
         
         return new StringBuilder()
-            .append(networkNames.get())
+            .append(StringGenerators.alphabeticString(7).get())
             .append(".")
-            .append(networkNames.get())
-            .append(".")
-            .append(networkNames.get())
-            .append(".")
+            .append(domains.get())
             .toString();
     };
     
