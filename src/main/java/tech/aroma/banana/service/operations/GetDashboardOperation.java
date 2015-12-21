@@ -58,7 +58,7 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
     
     private final AlchemyGenerator<String> names = PeopleGenerators.names();
     
-    private final AlchemyGenerator<Integer> messageCounters = NumberGenerators.integers(0, 3_000);
+    private final AlchemyGenerator<Integer> messageCounters = NumberGenerators.integers(0, 150);
     
     private final AlchemyGenerator<Integer> numberOfMessages = NumberGenerators.integers(0, 6);
     
