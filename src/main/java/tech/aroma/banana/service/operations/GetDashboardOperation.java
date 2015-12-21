@@ -57,7 +57,7 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
             .setTotalMessagesLast24hrs(integers.get())
             .setUnreadMessageCount(integers.get());
 
-        int numberOfMessages = one(integers(0, 3));
+        int numberOfMessages = one(integers(0, 6));
 
         if (numberOfMessages > 0)
         {
