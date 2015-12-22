@@ -32,7 +32,7 @@
     <scm>
         <connection>scm:git:git@github.com:AromaTech/banana-service.git</connection>
         <developerConnection>scm:git:git@github.com:AromaTech/banana-service.git</developerConnection>
-        <url>git@github.com:AromaTech/banana-service-annotations.git</url>
+        <url>git@github.com:AromaTech/banana-service.git</url>
     </scm>
 
     <inceptionYear>2015</inceptionYear>
@@ -44,7 +44,7 @@
     <!-- END OF POM METADATA -->
 
     <dependencies>
-           
+
         <!--ALCHEMY-->
         <dependency>
             <groupId>tech.sirwellington.alchemy</groupId>
@@ -56,26 +56,26 @@
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-http</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-thrift</artifactId>
         </dependency>
-        
-      
+
+
         <!--BANANA-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>banana-thrift</artifactId>
             <version>1.3</version>
         </dependency>
-               
+
         <!--GUICE-->
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
         </dependency>
-    
+
         <!--LOGGING-->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -88,7 +88,7 @@
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>
- 
+
         <!--TEST DEPENDENCIES-->
         <dependency>
             <groupId>junit</groupId>
@@ -105,13 +105,13 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
         </dependency>
-       
+
         <dependency>
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-test</artifactId>
         </dependency>
 
-        
+
     </dependencies>
 
     <build>
@@ -131,7 +131,7 @@
                     </archive>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -152,7 +152,7 @@
                     </execution>
                 </executions>
             </plugin>
-         
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -171,8 +171,8 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            
+
+
         </plugins>
     </build>
 
