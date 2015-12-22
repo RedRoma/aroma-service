@@ -1,6 +1,10 @@
-# Banana Service
+Banana Service
+==============================================
+
+[<img src="https://raw.githubusercontent.com/AromaTech/banana/develop/Graphics/Logo.png" width="300">](https://github.com/AromaTech/banana)
 
 [![Build Status](http://jenkins.sirwellington.tech/view/Banana/job/Banana%20Service/badge/icon)](http://jenkins.sirwellington.tech/view/Banana/job/Banana%20Service/)
+
 
 The Famed Banana Service!
 
@@ -19,5 +23,5 @@ The Open Source version of the Banana Service is fully functional, with the foll
 There are no payment collection systems built into the Service.
 
 ## No Authentication
-There is no authentication system provided, although the interface is defined. 
+There is no authentication system provided, although the interface is defined.
 This is because we assume that you will host your own instance behind your firewall.
