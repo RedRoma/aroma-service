@@ -4,13 +4,12 @@
 
 The Famed Banana Service!
 
-The Banana Service is Service Notifications for Developers.
+The Banana Service is Application Notifications for Developers.
 
-Developers are able to be notified of Urgent events that occur
-within the Micro-Services.
+Developers can be conveniently notified of Urgent events that occur
+within their Applications or Micro-Service, with a system designed and built from the ground up for that purpose.
 
-The Banana Service can also be used to setup Service
-Health Checks and Alerts.
+The Banana Service can also be used to setup Service Health Checks and Alerts.
 
 # Open Source
 
