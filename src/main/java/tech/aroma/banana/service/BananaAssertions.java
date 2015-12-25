@@ -24,6 +24,7 @@ import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.access.NonInstantiable;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
+import tech.sirwellington.alchemy.arguments.ExceptionMapper;
 
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
@@ -60,4 +61,9 @@ public final class BananaAssertions
             .is(notMissing());
     }
 
+    public static ExceptionMapper<InvalidArgumentException> withMessage(String message)
+    {
+        return ex -> new InvalidArgumentException(message);
+    }
+    
 }

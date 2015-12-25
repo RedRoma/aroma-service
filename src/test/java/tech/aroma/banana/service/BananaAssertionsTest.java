@@ -22,12 +22,18 @@ import org.junit.runner.RunWith;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.SendMessageRequest;
+import tech.sirwellington.alchemy.arguments.ExceptionMapper;
 import tech.sirwellington.alchemy.arguments.FailedAssertionException;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphanumericString;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
@@ -71,6 +77,19 @@ public class BananaAssertionsTest
         
         assertThrows(() -> BananaAssertions.checkNotNull(null))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testWithMessage()
+    {
+        String message = one(alphanumericString());
+        
+        ExceptionMapper<InvalidArgumentException> result = BananaAssertions.withMessage(message);
+        assertThat(result, notNullValue());
+        
+        InvalidArgumentException ex = result.apply(null);
+        assertThat(ex, notNullValue());
+        assertThat(ex.getMessage(), is(message));
     }
 
 }
