@@ -69,6 +69,9 @@ import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.aroma.banana.service.BananaAssertions.withMessage;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
  * This is the Top Level of the Banana Service. All of the Operations arrive here and routed to their respective
@@ -83,7 +86,6 @@ final class BananaServiceImpl implements BananaService.Iface
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
 
     private ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation;
-    private ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageAsyncOperation;
     private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
     private ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
     private ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
@@ -107,14 +109,25 @@ final class BananaServiceImpl implements BananaService.Iface
                       ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
                       ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation,
                       ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
-                      ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation)
+                      ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
+                      ThriftOperation<GetApplicationSubscribersRequest,GetApplicationSubscribersResponse> getApplicationSubscribersResponse)
     {
+        checkThat(sendMessageOperation,
+                  signInOperation,
+                  provisionApplicationOperation,
+                  getMyApplicationsOperation,
+                  getMySavedChannelsOperation,
+                  getDashboardOperation,
+                  getApplicationSubscribersResponse)
+            .are(notNull());
+        
         this.sendMessageOperation = sendMessageOperation;
         this.signInOperation = signInOperation;
         this.provisionApplicationOperation = provisionApplicationOperation;
         this.getMyApplicationsOperation = getMyApplicationsOperation;
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
         this.getDashboardOperation = getDashboardOperation;
+        this.getApplicationSubscribersOperation = getApplicationSubscribersResponse;
     }
 
     
@@ -291,9 +304,11 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                                         UnauthorizedException,
                                                                                                                         TException
     {
-        checkNotNull(request);
+        checkThat(request)
+            .throwing(withMessage("request missing"))
+            .is(notNull());
         
-        throw new OperationFailedException("Not Yet Implemented");
+        return getApplicationSubscribersOperation.process(request);
     }
     
     @Override

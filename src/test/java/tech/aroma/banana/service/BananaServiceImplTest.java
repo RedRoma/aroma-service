@@ -57,6 +57,7 @@ import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
 import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
 import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
+import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -73,7 +74,7 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class BananaServiceImplTest
 {
@@ -119,7 +120,11 @@ public class BananaServiceImplTest
 
     @Mock
     private ThriftOperation<GetApplicationSubscribersRequest, GetApplicationSubscribersResponse> getApplicationSubscribersOperation;
-
+    @GeneratePojo
+    private GetApplicationSubscribersRequest getApplicationSubscribersRequest;
+    @GeneratePojo
+    private GetApplicationSubscribersResponse getApplicationSubscribersResponse;
+    
     @Mock
     private ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
     
@@ -143,14 +148,16 @@ public class BananaServiceImplTest
                                          provisionApplicationOperation,
                                          getMyApplicationsOperation,
                                          getMySavedChannelsOperation,
-                                         getDashboardOperation);
+                                         getDashboardOperation,
+                                         getApplicationSubscribersOperation);
 
         verifyZeroInteractions(sendMessageOperation,
                                signInOperation,
                                provisionApplicationOperation,
                                getMyApplicationsOperation,
                                getMySavedChannelsOperation,
-                               getDashboardOperation);
+                               getDashboardOperation,
+                               getApplicationSubscribersOperation);
 
     }
 
@@ -211,6 +218,13 @@ public class BananaServiceImplTest
     @Test
     public void testGetApplicationSubscribers() throws Exception
     {
+        when(getApplicationSubscribersOperation.process(getApplicationSubscribersRequest))
+            .thenReturn(getApplicationSubscribersResponse);
+        
+        GetApplicationSubscribersResponse response = instance.getApplicationSubscribers(getApplicationSubscribersRequest);
+        assertThat(response, is(getApplicationSubscribersResponse));
+        verify(getApplicationSubscribersOperation).process(getApplicationSubscribersRequest);
+        
     }
 
     @Test
