@@ -68,7 +68,6 @@ import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
 import static tech.aroma.banana.service.BananaAssertions.withMessage;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
@@ -137,7 +136,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                               InvalidCredentialsException,
                                                                               TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         LOG.debug("Received request to send a message: {}", request);
         
@@ -147,7 +146,7 @@ final class BananaServiceImpl implements BananaService.Iface
     @Override
     public void sendMessageAsync(SendMessageRequest request) throws TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         LOG.debug("Received request to send async message: {}", request);
         
@@ -160,7 +159,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                InvalidCredentialsException,
                                                                TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         LOG.debug("Received request to Sign In: {}", request);
         
@@ -174,7 +173,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                AccountAlreadyExistsException,
                                                                TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         LOG.info("Received request to Sign Up: {}", request);
         
@@ -188,7 +187,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                          ApplicationDoesNotExistException,
                                                                                                          TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         LOG.debug("Received request to Provision a new Application: {}", request);
         
@@ -204,7 +203,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                                CustomChannelUnreachableException,
                                                                                                                TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -217,7 +216,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                       UnauthorizedException,
                                                                                                       TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -230,7 +229,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                             UnauthorizedException,
                                                                                                             TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -243,7 +242,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                                 UnauthorizedException,
                                                                                                                 TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -255,7 +254,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                             UnauthorizedException,
                                                                                                             TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -267,7 +266,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                               UnauthorizedException,
                                                                               TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -280,7 +279,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                    ChannelDoesNotExistException,
                                                                                                    TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -292,7 +291,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                     UnauthorizedException,
                                                                                     ChannelDoesNotExistException, TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -304,9 +303,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                                         UnauthorizedException,
                                                                                                                         TException
     {
-        checkThat(request)
-            .throwing(withMessage("request missing"))
-            .is(notNull());
+        ensureRequestNotNull(request);
         
         return getApplicationSubscribersOperation.process(request);
     }
@@ -317,7 +314,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                    InvalidCredentialsException,
                                                                                                    TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         LOG.debug("Receive request to GetMySavedChannels: {}", request);
         
@@ -330,7 +327,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                 InvalidCredentialsException,
                                                                                                 TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         LOG.debug("Received request to getMyApplications() {}", request);
         
@@ -345,7 +342,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                                    UnauthorizedException,
                                                                                                    TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         throw new OperationFailedException("Not Yet Implemented");
     }
@@ -356,7 +353,7 @@ final class BananaServiceImpl implements BananaService.Iface
                                                                                  InvalidCredentialsException,
                                                                                  TException
     {
-        checkNotNull(request);
+        ensureRequestNotNull(request);
         
         LOG.debug("Received request to GetDashboard: {}", request);
         
@@ -368,5 +365,12 @@ final class BananaServiceImpl implements BananaService.Iface
     public double getApiVersion() throws TException
     {
         return BananaServiceConstants.API_VERSION;
+    }
+
+    private void ensureRequestNotNull(Object request) throws InvalidArgumentException
+    {
+        checkThat(request)
+            .throwing(withMessage("request is missing"))
+            .is(notNull());
     }
 }
