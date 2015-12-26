@@ -22,6 +22,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
+import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
 import tech.aroma.banana.thrift.service.GetApplicationSubscribersRequest;
 import tech.aroma.banana.thrift.service.GetApplicationSubscribersResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
@@ -73,6 +75,9 @@ public final class BananaServiceOperationsModule extends AbstractModule
         
         bind(new TypeLiteral<ThriftOperation<GetApplicationSubscribersRequest, GetApplicationSubscribersResponse>>() {})
             .to(GetApplicationSubscribersOperation.class);
+        
+        bind(new TypeLiteral<ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse>>() {})
+            .to(GetApplicationInfoOperation.class);
     }
 
 }
