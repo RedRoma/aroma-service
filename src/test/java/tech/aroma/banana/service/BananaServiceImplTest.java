@@ -62,6 +62,7 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -133,6 +134,10 @@ public class BananaServiceImplTest
 
     @Mock
     private ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
+    @GeneratePojo
+    private GetApplicationInfoRequest getApplicationInfoRequest;
+    @GeneratePojo
+    private GetApplicationInfoResponse getApplicationInfoResponse;
 
     @Mock
     private ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
@@ -149,7 +154,8 @@ public class BananaServiceImplTest
                                          getMyApplicationsOperation,
                                          getMySavedChannelsOperation,
                                          getDashboardOperation,
-                                         getApplicationSubscribersOperation);
+                                         getApplicationSubscribersOperation,
+                                         getApplicationInfoOperation);
 
         verifyZeroInteractions(sendMessageOperation,
                                signInOperation,
@@ -157,7 +163,8 @@ public class BananaServiceImplTest
                                getMyApplicationsOperation,
                                getMySavedChannelsOperation,
                                getDashboardOperation,
-                               getApplicationSubscribersOperation);
+                               getApplicationSubscribersOperation,
+                               getApplicationInfoOperation);
 
     }
 
@@ -213,6 +220,17 @@ public class BananaServiceImplTest
     @Test
     public void testGetApplicationInfo() throws Exception
     {
+        when(getApplicationInfoOperation.process(getApplicationInfoRequest))
+            .thenReturn(getApplicationInfoResponse);
+        
+        GetApplicationInfoResponse response = instance.getApplicationInfo(getApplicationInfoRequest);
+        assertThat(response, notNullValue());
+        assertThat(response, is(getApplicationInfoResponse));
+        
+        verify(getApplicationInfoOperation).process(getApplicationInfoRequest);
+        
+        assertThrows(() -> instance.getApplicationInfo(null))
+            .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test

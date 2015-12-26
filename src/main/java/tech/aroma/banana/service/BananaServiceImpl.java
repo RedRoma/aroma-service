@@ -109,7 +109,8 @@ final class BananaServiceImpl implements BananaService.Iface
                       ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation,
                       ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
                       ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
-                      ThriftOperation<GetApplicationSubscribersRequest,GetApplicationSubscribersResponse> getApplicationSubscribersResponse)
+                      ThriftOperation<GetApplicationSubscribersRequest,GetApplicationSubscribersResponse> getApplicationSubscribersResponse,
+                      ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation)
     {
         checkThat(sendMessageOperation,
                   signInOperation,
@@ -117,7 +118,8 @@ final class BananaServiceImpl implements BananaService.Iface
                   getMyApplicationsOperation,
                   getMySavedChannelsOperation,
                   getDashboardOperation,
-                  getApplicationSubscribersResponse)
+                  getApplicationSubscribersResponse,
+                  getApplicationInfoOperation)
             .are(notNull());
         
         this.sendMessageOperation = sendMessageOperation;
@@ -127,6 +129,7 @@ final class BananaServiceImpl implements BananaService.Iface
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
         this.getDashboardOperation = getDashboardOperation;
         this.getApplicationSubscribersOperation = getApplicationSubscribersResponse;
+        this.getApplicationInfoOperation = getApplicationInfoOperation;
     }
 
     
@@ -344,7 +347,7 @@ final class BananaServiceImpl implements BananaService.Iface
     {
         ensureRequestNotNull(request);
         
-        throw new OperationFailedException("Not Yet Implemented");
+        return getApplicationInfoOperation.process(request);
     }
     
     @Override
