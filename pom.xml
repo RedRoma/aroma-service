@@ -45,7 +45,9 @@
 
     <dependencies>
 
+        <!--=======================-->
         <!--TEST DEPENDENCIES-->
+        <!--=======================-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -66,9 +68,17 @@
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-test</artifactId>
         </dependency>
-        <!--====================-->
 
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!--=======================-->
         <!--ALCHEMY-->
+        <!--=======================-->
         <dependency>
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-generator</artifactId>
@@ -85,45 +95,41 @@
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-thrift</artifactId>
         </dependency>
-        <!--====================-->
 
 
+        <!--=======================-->
         <!--BANANA-->
+        <!--=======================-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>banana-thrift</artifactId>
             <version>1.3</version>
         </dependency>
-        <!--====================-->
 
 
+        <!--=======================-->
         <!--GUICE-->
+        <!--=======================-->
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
         </dependency>
-        <!--====================-->
 
+
+        <!--=======================-->
         <!--LOGGING-->
+        <!--=======================-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
         
-        <!--Logback-->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>  
             
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!--====================-->
-
     </dependencies>
 
     <build>
