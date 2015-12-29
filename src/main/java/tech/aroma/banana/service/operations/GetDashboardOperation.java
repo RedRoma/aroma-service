@@ -85,7 +85,7 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
             .setBody(StringGenerators.alphabeticString().get())
             .setTimeMessageReceived(times.get().toEpochMilli())
             .setMessageId(one(uuids))
-            .setTimeMessageSent(times.get().toEpochMilli())
+            .setTimeOfCreation(times.get().toEpochMilli())
             .setUrgency(urgencies.get())
             .setHostname(hostnames.get())
             .setMacAddress(StringGenerators.hexadecimalString(10).get())

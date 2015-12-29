@@ -22,12 +22,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
+import tech.aroma.banana.thrift.service.GetActivityRequest;
+import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
-import tech.aroma.banana.thrift.service.GetApplicationSubscribersRequest;
-import tech.aroma.banana.thrift.service.GetApplicationSubscribersResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
+import tech.aroma.banana.thrift.service.GetFullMessageRequest;
+import tech.aroma.banana.thrift.service.GetFullMessageResponse;
+import tech.aroma.banana.thrift.service.GetMessagesRequest;
+import tech.aroma.banana.thrift.service.GetMessagesResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -46,8 +50,6 @@ import tech.aroma.banana.thrift.service.SaveChannelRequest;
 import tech.aroma.banana.thrift.service.SaveChannelResponse;
 import tech.aroma.banana.thrift.service.SearchForApplicationsRequest;
 import tech.aroma.banana.thrift.service.SearchForApplicationsResponse;
-import tech.aroma.banana.thrift.service.SendMessageRequest;
-import tech.aroma.banana.thrift.service.SendMessageResponse;
 import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
 import tech.aroma.banana.thrift.service.SignUpRequest;
@@ -57,7 +59,6 @@ import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
 import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
 import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -79,68 +80,61 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
 @RunWith(AlchemyTestRunner.class)
 public class BananaServiceImplTest
 {
-    
-    @Mock
-    private ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageOperation;
-
-    @Mock
-    private ThriftOperation<SendMessageRequest, SendMessageResponse> sendMessageAsyncOperation;
-
+        //Action and Save Operations
     @Mock
     private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
-
+    
     @Mock
     private ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
-
+    
     @Mock
     private ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
-
+    
+    @Mock
+    private ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
+    
     @Mock
     private ThriftOperation<SubscribeToApplicationRequest, SubscribeToApplicationResponse> subscriveToApplicationOperation;
-
+    
     @Mock
     private ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
-
+    
     @Mock
     private ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
-
-    @Mock
-    private ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> renerateApplicationTokenOperation;
-
+    
     @Mock
     private ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
-
+    
     @Mock
     private ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
-
+    
     @Mock
     private ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
-
+    
     @Mock
     private ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
-
+    
+    //Query and GET Operations
     @Mock
-    private ThriftOperation<GetApplicationSubscribersRequest, GetApplicationSubscribersResponse> getApplicationSubscribersOperation;
-    @GeneratePojo
-    private GetApplicationSubscribersRequest getApplicationSubscribersRequest;
-    @GeneratePojo
-    private GetApplicationSubscribersResponse getApplicationSubscribersResponse;
+    private ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
     
     @Mock
     private ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
     
     @Mock
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
-
+    
     @Mock
     private ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
-    @GeneratePojo
-    private GetApplicationInfoRequest getApplicationInfoRequest;
-    @GeneratePojo
-    private GetApplicationInfoResponse getApplicationInfoResponse;
-
+    
     @Mock
     private ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
+    
+    @Mock
+    private ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation;
+    
+    @Mock
+    private ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
 
 
     private BananaServiceImpl instance;
@@ -148,23 +142,43 @@ public class BananaServiceImplTest
     @Before
     public void setUp()
     {
-        instance = new BananaServiceImpl(sendMessageOperation,
-                                         signInOperation,
+        instance = new BananaServiceImpl(signInOperation,
+                                         signUpOperation,
                                          provisionApplicationOperation,
+                                         regenerateApplicationTokenOperation,
+                                         subscriveToApplicationOperation,
+                                         registerHealthCheckOperation,
+                                         renewApplicationTokenOperation,
+                                         searchForApplicationsOperation,
+                                         saveChannelOperation,
+                                         removeSavedChannelOperation,
+                                         snoozeChannelOperation,
+                                         getActivityOperation,
                                          getMyApplicationsOperation,
                                          getMySavedChannelsOperation,
+                                         getApplicationInfoOperation,
                                          getDashboardOperation,
-                                         getApplicationSubscribersOperation,
-                                         getApplicationInfoOperation);
+                                         getMessagesOperation,
+                                         getFullMessageOperation);
 
-        verifyZeroInteractions(sendMessageOperation,
-                               signInOperation,
-                               provisionApplicationOperation,
-                               getMyApplicationsOperation,
-                               getMySavedChannelsOperation,
-                               getDashboardOperation,
-                               getApplicationSubscribersOperation,
-                               getApplicationInfoOperation);
+        verifyZeroInteractions(signInOperation,
+                                         signUpOperation,
+                                         provisionApplicationOperation,
+                                         regenerateApplicationTokenOperation,
+                                         subscriveToApplicationOperation,
+                                         registerHealthCheckOperation,
+                                         renewApplicationTokenOperation,
+                                         searchForApplicationsOperation,
+                                         saveChannelOperation,
+                                         removeSavedChannelOperation,
+                                         snoozeChannelOperation,
+                                         getActivityOperation,
+                                         getMyApplicationsOperation,
+                                         getMySavedChannelsOperation,
+                                         getApplicationInfoOperation,
+                                         getDashboardOperation,
+                                         getMessagesOperation,
+                                         getFullMessageOperation);
 
     }
 
@@ -220,30 +234,24 @@ public class BananaServiceImplTest
     @Test
     public void testGetApplicationInfo() throws Exception
     {
-        when(getApplicationInfoOperation.process(getApplicationInfoRequest))
-            .thenReturn(getApplicationInfoResponse);
         
-        GetApplicationInfoResponse response = instance.getApplicationInfo(getApplicationInfoRequest);
+        GetApplicationInfoRequest request = pojos(GetApplicationInfoRequest.class).get();
+        GetApplicationInfoResponse expectedResponse = pojos(GetApplicationInfoResponse.class).get();
+        
+        when(getApplicationInfoOperation.process(request))
+            .thenReturn(expectedResponse);
+        
+        GetApplicationInfoResponse response = instance.getApplicationInfo(request);
         assertThat(response, notNullValue());
-        assertThat(response, is(getApplicationInfoResponse));
+        assertThat(response, is(expectedResponse));
         
-        verify(getApplicationInfoOperation).process(getApplicationInfoRequest);
+        verify(getApplicationInfoOperation).process(request);
         
         assertThrows(() -> instance.getApplicationInfo(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
 
-    @Test
-    public void testGetApplicationSubscribers() throws Exception
-    {
-        when(getApplicationSubscribersOperation.process(getApplicationSubscribersRequest))
-            .thenReturn(getApplicationSubscribersResponse);
-        
-        GetApplicationSubscribersResponse response = instance.getApplicationSubscribers(getApplicationSubscribersRequest);
-        assertThat(response, is(getApplicationSubscribersResponse));
-        verify(getApplicationSubscribersOperation).process(getApplicationSubscribersRequest);
-        
-    }
+   
 
     @Test
     public void testProvisionApplication() throws Exception
@@ -291,21 +299,6 @@ public class BananaServiceImplTest
     {
     }
 
-    @Test
-    public void testSendMessage() throws Exception
-    {
-        SendMessageRequest request = pojos(SendMessageRequest.class).get();
-        SendMessageResponse expectedResponse = pojos(SendMessageResponse.class).get();
-        when(sendMessageOperation.process(request)).thenReturn(expectedResponse);
-
-        SendMessageResponse response = instance.sendMessage(request);
-        assertThat(response, is(expectedResponse));
-        verify(sendMessageOperation).process(request);
-
-        //Edge cases
-        assertThrows(() -> instance.sendMessage(null))
-            .isInstanceOf(InvalidArgumentException.class);
-    }
 
     @Test
     public void testSendMessageAsync() throws Exception
@@ -353,6 +346,21 @@ public class BananaServiceImplTest
     {
         double apiVersion = instance.getApiVersion();
         assertThat(apiVersion, is(BananaServiceConstants.API_VERSION));
+    }
+
+    @Test
+    public void testGetActivity() throws Exception
+    {
+    }
+
+    @Test
+    public void testGetMessages() throws Exception
+    {
+    }
+
+    @Test
+    public void testGetFullMessage() throws Exception
+    {
     }
 
 }

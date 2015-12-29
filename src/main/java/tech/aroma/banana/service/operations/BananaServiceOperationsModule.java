@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
-import tech.aroma.banana.thrift.service.GetApplicationSubscribersRequest;
-import tech.aroma.banana.thrift.service.GetApplicationSubscribersResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
@@ -34,8 +32,6 @@ import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.banana.thrift.service.SendMessageRequest;
-import tech.aroma.banana.thrift.service.SendMessageResponse;
 import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
@@ -67,14 +63,8 @@ public final class BananaServiceOperationsModule extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse>>(){})
             .to(ProvisionApplicationOperation.class);
                 
-        bind(new TypeLiteral<ThriftOperation<SendMessageRequest, SendMessageResponse>>(){})
-            .to(SendMessageOperation.class);
-        
         bind(new TypeLiteral<ThriftOperation<SignInRequest, SignInResponse>>(){})
             .to(SignInOperation.class);
-        
-        bind(new TypeLiteral<ThriftOperation<GetApplicationSubscribersRequest, GetApplicationSubscribersResponse>>() {})
-            .to(GetApplicationSubscribersOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse>>() {})
             .to(GetApplicationInfoOperation.class);
