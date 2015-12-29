@@ -23,6 +23,7 @@ import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
+import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
@@ -56,6 +57,12 @@ public class GetActivityOperationTest
         GetActivityResponse response = instance.process(request);
         assertThat(response, notNullValue());
         
+    }
+    
+    @DontRepeat
+    @Test
+    public void testWithBadRequest() throws Exception
+    {
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
