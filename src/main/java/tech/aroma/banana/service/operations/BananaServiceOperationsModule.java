@@ -40,6 +40,8 @@ import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
+import tech.aroma.banana.thrift.service.SignUpRequest;
+import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
@@ -71,6 +73,9 @@ public final class BananaServiceOperationsModule extends AbstractModule
                 
         bind(new TypeLiteral<ThriftOperation<SignInRequest, SignInResponse>>(){})
             .to(SignInOperation.class);
+        
+        bind(new TypeLiteral<ThriftOperation<SignUpRequest, SignUpResponse>>(){})
+            .to(SignUpOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse>>() {})
             .to(GetApplicationInfoOperation.class);
