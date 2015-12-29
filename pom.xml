@@ -155,6 +155,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
+                            <useUniqueVersions>false</useUniqueVersions>
                             <mainClass>tech.aroma.banana.service.server.TcpServer</mainClass>
                         </manifest>
                     </archive>
