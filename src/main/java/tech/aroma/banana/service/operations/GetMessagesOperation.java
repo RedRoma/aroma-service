@@ -33,6 +33,7 @@ import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.EnumGenerators.enumValueOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
+import static tech.sirwellington.alchemy.generator.PeopleGenerators.names;
 import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
 import static tech.sirwellington.alchemy.generator.StringGenerators.alphanumericString;
 import static tech.sirwellington.alchemy.generator.StringGenerators.hexadecimalString;
@@ -80,6 +81,7 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
             
             return new Message()
                 .setMessageId(one(hexadecimalString(16)))
+                .setApplicationName(one(names()))
                 .setBody(one(alphabeticString(bodyLength)))
                 .setHostname(one(alphanumericString()))
                 .setUrgency(enumValueOf(Urgency.class).get())
