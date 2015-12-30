@@ -21,12 +21,22 @@ package tech.aroma.banana.service.operations;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.Message;
+import tech.aroma.banana.thrift.Urgency;
 import tech.aroma.banana.thrift.service.GetMessagesRequest;
 import tech.aroma.banana.thrift.service.GetMessagesResponse;
+import tech.sirwellington.alchemy.generator.AlchemyGenerator;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
+import static tech.sirwellington.alchemy.generator.EnumGenerators.enumValueOf;
+import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphanumericString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.hexadecimalString;
+import static tech.sirwellington.alchemy.generator.TimeGenerators.pastInstants;
 
 /**
  *
@@ -41,8 +51,46 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
     {
         checkNotNull(request);
         
-        GetMessagesResponse response = pojos(GetMessagesResponse.class).get();
+        GetMessagesResponse response = new GetMessagesResponse();
+        
+        int max;
+        int numberOfMessages;
+        
+        if (hasLimit(request))
+        {
+            max = request.limit;
+        }
+        else
+        {
+            max = 1000;
+        }
+        
+        numberOfMessages = one(integers(0, max));
+        LOG.debug("Sending back {} messages", numberOfMessages);
+        response.setMessages(listOf(messages(), numberOfMessages));
+        
         return response;
+    }
+    
+    private AlchemyGenerator<Message> messages()
+    {
+        return () ->
+        {
+            int bodyLength = one(integers(10, 1_000));
+            
+            return new Message()
+                .setMessageId(one(hexadecimalString(16)))
+                .setBody(one(alphabeticString(bodyLength)))
+                .setHostname(one(alphanumericString()))
+                .setUrgency(enumValueOf(Urgency.class).get())
+                .setTimeMessageReceived(one(pastInstants()).toEpochMilli())
+                ;
+        };
+    }
+
+    private boolean hasLimit(GetMessagesRequest request)
+    {
+        return request.limit > 0;
     }
 
 }
