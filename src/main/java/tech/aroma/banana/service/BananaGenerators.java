@@ -69,29 +69,35 @@ public final class BananaGenerators
             {
                 case 1:
                     ApplicationSentMessage applicationSentMessage = pojos(ApplicationSentMessage.class).get();
+                    applicationSentMessage.unsetMessage();
                     eventType.setApplicationSentMessage(applicationSentMessage);
                     break;
                 case 2:
                     ApplicationTokenRegenerated applicationTokenRegenerated = pojos(ApplicationTokenRegenerated.class).get();
                     applicationTokenRegenerated.setUser(one(users()));
+                    applicationTokenRegenerated.unsetMessage();
                     eventType.setApplicationTokenRegenerated(applicationTokenRegenerated);
                     break;
                 case 3:
                     ApplicationTokenRenewed applicationTokenRenewed = pojos(ApplicationTokenRenewed.class).get();
                     applicationTokenRenewed.setUser(one(users()));
+                    applicationTokenRenewed.unsetMessage();
                     eventType.setApplicationTokenRenewed(applicationTokenRenewed);
                     break;
                 case 4:
                     HealthCheckBackToNormal healthCheckBackToNormal = pojos(HealthCheckBackToNormal.class).get();
+                    healthCheckBackToNormal.unsetMessage();
                     eventType.setHealthCheckBackToNormal(healthCheckBackToNormal);
                     break;
                 case 5:
                     HealthCheckFailed healthCheckFailed = pojos(HealthCheckFailed.class).get();
+                    healthCheckFailed.unsetMessage();
                     eventType.setHealthCheckFailed(healthCheckFailed);
                     break;
                 case 6:
                     OwnerApprovedRequest ownerApprovedRequest = pojos(OwnerApprovedRequest.class).get();
                     ownerApprovedRequest.setOwner(one(users()));
+                    ownerApprovedRequest.unsetMessage();
                     eventType.setOwnerApprovedRequest(ownerApprovedRequest);
                     break;
             }
