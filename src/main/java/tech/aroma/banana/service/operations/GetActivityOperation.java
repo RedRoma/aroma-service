@@ -23,7 +23,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.service.BananaAssertions;
-import tech.aroma.banana.thrift.notifications.Event;
+import tech.aroma.banana.thrift.events.Event;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
