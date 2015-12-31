@@ -16,9 +16,11 @@
 
 package tech.aroma.banana.service;
 
+import java.nio.ByteBuffer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.notifications.Event;
 import tech.aroma.banana.thrift.notifications.EventType;
 import tech.sirwellington.alchemy.generator.AlchemyGenerator;
@@ -45,18 +47,34 @@ public class BananaGeneratorsTest
     @Test
     public void testEventTypes()
     {
-        AlchemyGenerator<EventType> assertion = BananaGenerators.eventTypes();
-        assertThat(assertion, notNullValue());
-        assertThat(assertion.get(), notNullValue());
+        AlchemyGenerator<EventType> generator = BananaGenerators.eventTypes();
+        assertThat(generator, notNullValue());
+        assertThat(generator.get(), notNullValue());
     }
 
     @Test
     public void testEvents()
     {
-        AlchemyGenerator<Event> assertion = BananaGenerators.events();
-        assertThat(assertion, notNullValue());
-        assertThat(assertion.get(), notNullValue());
+        AlchemyGenerator<Event> generator = BananaGenerators.events();
+        assertThat(generator, notNullValue());
+        assertThat(generator.get(), notNullValue());
 
+    }
+
+    @Test
+    public void testUsers()
+    {
+        AlchemyGenerator<User> generator = BananaGenerators.users();
+        assertThat(generator, notNullValue());
+        assertThat(generator.get(), notNullValue());
+    }
+
+    @Test
+    public void testProfileImages()
+    {
+        AlchemyGenerator<ByteBuffer> generator = BananaGenerators.profileImages();
+        assertThat(generator, notNullValue());
+        assertThat(generator.get(), notNullValue());
     }
 
 }
