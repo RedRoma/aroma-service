@@ -18,15 +18,20 @@
 package tech.aroma.banana.service.operations;
 
 
+import java.util.List;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.service.BananaAssertions;
+import tech.aroma.banana.thrift.notifications.Event;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+import static tech.aroma.banana.service.BananaGenerators.events;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
+import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
 
 /**
  *
@@ -41,8 +46,14 @@ final class GetActivityOperation implements ThriftOperation<GetActivityRequest, 
     {
         BananaAssertions.checkNotNull(request);
         
-        GetActivityResponse response = pojos(GetActivityResponse.class).get();
-        return response;
+        int numberOfEvents = one(integers(0, 100));
+        List<Event> events = listOf(events(), numberOfEvents);
+        
+        LOG.debug("Sending {} events", numberOfEvents);
+        
+        return new GetActivityResponse()
+            .setEvents(events);
     }
+    
 
 }
