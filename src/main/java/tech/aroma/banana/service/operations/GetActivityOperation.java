@@ -18,6 +18,7 @@ package tech.aroma.banana.service.operations;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,9 @@ final class GetActivityOperation implements ThriftOperation<GetActivityRequest, 
         BananaAssertions.checkNotNull(request);
         
         int numberOfEvents = one(integers(0, 100));
-        List<Event> events = listOf(events(), numberOfEvents);
+        List<Event> events = listOf(events(), numberOfEvents).stream()
+            .sorted((a, b) -> Long.compare(a.getTimestamp(), b.getTimestamp()))
+            .collect(Collectors.toList());
         
         LOG.debug("Sending {} events", numberOfEvents);
         
