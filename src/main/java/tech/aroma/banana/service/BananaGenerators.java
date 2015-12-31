@@ -48,49 +48,49 @@ public final class BananaGenerators
     public static AlchemyGenerator<EventType> eventTypes()
     {
         return () ->
+        {
+            EventType eventType = new EventType();
+            
+            int number = one(integers(1, 6));
+            
+            switch (number)
             {
-                EventType eventType = new EventType();
-
-                int number = one(integers(1, 6));
-
-                switch (number)
-                {
-                    case 1:
-                        ApplicationSentMessage applicationSentMessage = pojos(ApplicationSentMessage.class).get();
-                        eventType.setApplicationSentMessage(applicationSentMessage);
-                        break;
-                    case 2:
-                        ApplicationTokenRegenerated applicationTokenRegenerated = pojos(ApplicationTokenRegenerated.class).get();
-                        eventType.setApplicationTokenRegenerated(applicationTokenRegenerated);
-                        break;
-                    case 3:
-                        ApplicationTokenRenewed applicationTokenRenewed = pojos(ApplicationTokenRenewed.class).get();
-                        eventType.setApplicationTokenRenewed(applicationTokenRenewed);
-                        break;
-                    case 4:
-                        HealthCheckBackToNormal healthCheckBackToNormal = pojos(HealthCheckBackToNormal.class).get();
-                        eventType.setHealthCheckBackToNormal(healthCheckBackToNormal);
-                        break;
-                    case 5:
-                        HealthCheckFailed healthCheckFailed = pojos(HealthCheckFailed.class).get();
-                        eventType.setHealthCheckFailed(healthCheckFailed);
-                        break;
-                }
-
-                return eventType;
-            };
+                case 1:
+                    ApplicationSentMessage applicationSentMessage = pojos(ApplicationSentMessage.class).get();
+                    eventType.setApplicationSentMessage(applicationSentMessage);
+                    break;
+                case 2:
+                    ApplicationTokenRegenerated applicationTokenRegenerated = pojos(ApplicationTokenRegenerated.class).get();
+                    eventType.setApplicationTokenRegenerated(applicationTokenRegenerated);
+                    break;
+                case 3:
+                    ApplicationTokenRenewed applicationTokenRenewed = pojos(ApplicationTokenRenewed.class).get();
+                    eventType.setApplicationTokenRenewed(applicationTokenRenewed);
+                    break;
+                case 4:
+                    HealthCheckBackToNormal healthCheckBackToNormal = pojos(HealthCheckBackToNormal.class).get();
+                    eventType.setHealthCheckBackToNormal(healthCheckBackToNormal);
+                    break;
+                case 5:
+                    HealthCheckFailed healthCheckFailed = pojos(HealthCheckFailed.class).get();
+                    eventType.setHealthCheckFailed(healthCheckFailed);
+                    break;
+            }
+            
+            return eventType;
+        };
     }
 
     public static AlchemyGenerator<Event> events()
     {
         return () ->
-            {
-                Event event = new Event();
-
-                event.setEventType(one(eventTypes()))
-                    .setTimestamp(pastInstants().get().toEpochMilli());
-
-                return event;
-            };
+        {
+            Event event = new Event();
+            
+            event.setEventType(one(eventTypes()))
+                .setTimestamp(pastInstants().get().toEpochMilli());
+            
+            return event;
+        };
     }
 }
