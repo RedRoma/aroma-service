@@ -139,7 +139,6 @@ public class AuthenticationLayerTest
         ProvisionApplicationResponse result = instance.provisionApplication(request);
         assertThat(result, is(expected));
         verify(delegate).provisionApplication(request);
-        
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
@@ -180,7 +179,6 @@ public class AuthenticationLayerTest
         RegenerateApplicationTokenResponse result = instance.regenerateToken(request);
         assertThat(result, is(expected));
         verify(delegate).regenerateToken(request);
-        
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
@@ -222,10 +220,7 @@ public class AuthenticationLayerTest
         RegisterHealthCheckResponse result = instance.registerHealthCheck(request);
         assertThat(result, is(expected));
         verify(delegate).registerHealthCheck(request);
-        
-        VerifyTokenRequest verifyTokenRequest = new VerifyTokenRequest()
-            .setTokenId(tokenId);
-        verify(authenticationService).verifyToken(verifyTokenRequest);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
@@ -265,7 +260,7 @@ public class AuthenticationLayerTest
         RemoveSavedChannelResponse result = instance.removeSavedChannel(request);
         assertThat(result, is(expected));
         verify(delegate).removeSavedChannel(request);
-        verify(authenticationService).verifyToken(new VerifyTokenRequest(tokenId));
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
@@ -282,7 +277,7 @@ public class AuthenticationLayerTest
     public void testRemoveSavedChannelWithBadToken() throws Exception
     {
         RemoveSavedChannelRequest request = new RemoveSavedChannelRequest().setToken(userToken);
-        when(authenticationService.verifyToken(new VerifyTokenRequest(tokenId)))
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
             .thenThrow(new InvalidTokenException());
         
         assertThrows(() -> instance.removeSavedChannel(request))
