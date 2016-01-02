@@ -73,6 +73,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
@@ -390,9 +391,23 @@ public class AuthenticationLayerTest
     @Test
     public void testSignUp() throws Exception
     {
-        SignUpRequest request = null;
-        SignUpResponse expResult = null;
-//        SignUpResponse result = instance.signUp(request);
+        SignUpRequest request = pojos(SignUpRequest.class).get();
+        SignUpResponse expected = mock(SignUpResponse.class);
+        when(delegate.signUp(request))
+            .thenReturn(expected);
+        
+        SignUpResponse result = instance.signUp(request);
+        assertThat(result, is(expected));
+        verify(delegate).signUp(request);
+        verifyZeroInteractions(authenticationService);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testSignUpWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.signUp(null))
+            .isInstanceOf(InvalidArgumentException.class);
     }
     
     @Test
