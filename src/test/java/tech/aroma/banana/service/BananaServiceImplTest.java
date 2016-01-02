@@ -21,11 +21,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetBuzzRequest;
+import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
@@ -36,6 +39,8 @@ import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.banana.thrift.service.GetUserInfoRequest;
+import tech.aroma.banana.thrift.service.GetUserInfoResponse;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.banana.thrift.service.RegenerateApplicationTokenRequest;
@@ -65,6 +70,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -119,6 +125,9 @@ public class BananaServiceImplTest
     private ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
     
     @Mock
+    private ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
+    
+    @Mock
     private ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
     
     @Mock
@@ -135,6 +144,9 @@ public class BananaServiceImplTest
     
     @Mock
     private ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
+    
+    @Mock
+    private ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
 
     private BananaServiceImpl instance;
@@ -154,31 +166,35 @@ public class BananaServiceImplTest
                                          removeSavedChannelOperation,
                                          snoozeChannelOperation,
                                          getActivityOperation,
+                                         getBuzzOperation,
                                          getMyApplicationsOperation,
                                          getMySavedChannelsOperation,
                                          getApplicationInfoOperation,
                                          getDashboardOperation,
                                          getMessagesOperation,
-                                         getFullMessageOperation);
+                                         getFullMessageOperation,
+                                         getUserInfoOperation);
 
         verifyZeroInteractions(signInOperation,
-                                         signUpOperation,
-                                         provisionApplicationOperation,
-                                         regenerateApplicationTokenOperation,
-                                         subscriveToApplicationOperation,
-                                         registerHealthCheckOperation,
-                                         renewApplicationTokenOperation,
-                                         searchForApplicationsOperation,
-                                         saveChannelOperation,
-                                         removeSavedChannelOperation,
-                                         snoozeChannelOperation,
-                                         getActivityOperation,
-                                         getMyApplicationsOperation,
-                                         getMySavedChannelsOperation,
-                                         getApplicationInfoOperation,
-                                         getDashboardOperation,
-                                         getMessagesOperation,
-                                         getFullMessageOperation);
+                               signUpOperation,
+                               provisionApplicationOperation,
+                               regenerateApplicationTokenOperation,
+                               subscriveToApplicationOperation,
+                               registerHealthCheckOperation,
+                               renewApplicationTokenOperation,
+                               searchForApplicationsOperation,
+                               saveChannelOperation,
+                               removeSavedChannelOperation,
+                               snoozeChannelOperation,
+                               getActivityOperation,
+                               getBuzzOperation,
+                               getMyApplicationsOperation,
+                               getMySavedChannelsOperation,
+                               getApplicationInfoOperation,
+                               getDashboardOperation,
+                               getMessagesOperation,
+                               getFullMessageOperation,
+                               getUserInfoOperation);
 
     }
 
@@ -272,6 +288,24 @@ public class BananaServiceImplTest
     @Test
     public void testRenerateApplicationToken() throws Exception
     {
+        RegenerateApplicationTokenRequest request = pojos(RegenerateApplicationTokenRequest.class).get();
+        RegenerateApplicationTokenResponse expectedResponse = mock(RegenerateApplicationTokenResponse.class);
+        when(regenerateApplicationTokenOperation.process(request))
+            .thenReturn(expectedResponse);
+        
+        RegenerateApplicationTokenResponse result = instance.regenerateToken(request);
+        assertThat(result, is(expectedResponse));
+        verify(regenerateApplicationTokenOperation).process(request);
+        
+        //Edge Cases
+        assertThrows(() -> instance.regenerateToken(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(regenerateApplicationTokenOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.regenerateToken(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -361,6 +395,52 @@ public class BananaServiceImplTest
     @Test
     public void testGetFullMessage() throws Exception
     {
+    }
+
+    @Test
+    public void testGetBuzz() throws Exception
+    {
+        System.out.println("getBuzz");
+        GetBuzzRequest request = pojos(GetBuzzRequest.class).get();
+        GetBuzzResponse expectedResponse = mock(GetBuzzResponse.class);
+        when(getBuzzOperation.process(request))
+            .thenReturn(expectedResponse);
+        
+        GetBuzzResponse result = instance.getBuzz(request);
+        assertThat(result, is(expectedResponse));
+        verify(getBuzzOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.getBuzz(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(getBuzzOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.getBuzz(request))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+    @Test
+    public void testGetUserInfo() throws Exception
+    {
+        GetUserInfoRequest request = pojos(GetUserInfoRequest.class).get();
+        GetUserInfoResponse expectedResponse = mock(GetUserInfoResponse.class);
+        when(getUserInfoOperation.process(request))
+            .thenReturn(expectedResponse);
+        
+        GetUserInfoResponse result = instance.getUserInfo(request);
+        assertThat(result, is(expectedResponse));
+        verify(getUserInfoOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.getUserInfo(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(getUserInfoOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        assertThrows(() -> instance.getUserInfo(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
 }

@@ -30,6 +30,8 @@ import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetBuzzRequest;
+import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
@@ -40,6 +42,8 @@ import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.banana.thrift.service.GetUserInfoRequest;
+import tech.aroma.banana.thrift.service.GetUserInfoResponse;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.banana.thrift.service.RegenerateApplicationTokenRequest;
@@ -519,6 +523,22 @@ public class AuthenticationLayerTest
         SearchForApplicationsRequest request = null;
         SearchForApplicationsResponse expResult = null;
 //        SearchForApplicationsResponse result = instance.searchForApplications(request);
+    }
+
+    @Test
+    public void testGetBuzz() throws Exception
+    {
+        GetBuzzRequest request = null;
+        GetBuzzResponse expResult = null;
+//        GetBuzzResponse result = instance.getBuzz(request);
+    }
+
+    @Test
+    public void testGetUserInfo() throws Exception
+    {
+        GetUserInfoRequest request = null;
+        GetUserInfoResponse expResult = null;
+//        GetUserInfoResponse result = instance.getUserInfo(request);
     }
     
 }

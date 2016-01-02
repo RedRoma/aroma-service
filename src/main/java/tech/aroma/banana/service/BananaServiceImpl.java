@@ -27,14 +27,18 @@ import tech.aroma.banana.thrift.exceptions.ChannelDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.CustomChannelUnreachableException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
+import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
+import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.BananaService;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetBuzzRequest;
+import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
@@ -45,6 +49,8 @@ import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.banana.thrift.service.GetUserInfoRequest;
+import tech.aroma.banana.thrift.service.GetUserInfoResponse;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.banana.thrift.service.RegenerateApplicationTokenRequest;
@@ -101,12 +107,14 @@ final class BananaServiceImpl implements BananaService.Iface
     
     //Query and GET Operations
     private ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
+    private ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
     private ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
     private ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
     private ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
     private ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation;
     private ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
+    private ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
     
     @Inject
@@ -122,12 +130,14 @@ final class BananaServiceImpl implements BananaService.Iface
                              ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
                              ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
                              ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
+                             ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
                              ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation,
                              ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
                              ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
                              ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
                              ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation,
-                             ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation)
+                             ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
+                             ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
     {
         checkThat(signInOperation,
                   signUpOperation,
@@ -144,9 +154,11 @@ final class BananaServiceImpl implements BananaService.Iface
                   getMyApplicationsOperation,
                   getMySavedChannelsOperation,
                   getApplicationInfoOperation,
+                  getBuzzOperation,
                   getDashboardOperation,
                   getMessagesOperation,
-                  getFullMessageOperation)
+                  getFullMessageOperation,
+                  getUserInfoOperation)
             .are(notNull());
 
         this.signInOperation = signInOperation;
@@ -160,13 +172,16 @@ final class BananaServiceImpl implements BananaService.Iface
         this.saveChannelOperation = saveChannelOperation;
         this.removeSavedChannelOperation = removeSavedChannelOperation;
         this.snoozeChannelOperation = snoozeChannelOperation;
+        
         this.getActivityOperation = getActivityOperation;
+        this.getBuzzOperation = getBuzzOperation;
         this.getMyApplicationsOperation = getMyApplicationsOperation;
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
         this.getApplicationInfoOperation = getApplicationInfoOperation;
         this.getDashboardOperation = getDashboardOperation;
         this.getMessagesOperation = getMessagesOperation;
         this.getFullMessageOperation = getFullMessageOperation;
+        this.getUserInfoOperation = getUserInfoOperation;
     }
     
     
@@ -420,12 +435,11 @@ final class BananaServiceImpl implements BananaService.Iface
     }
 
     @Override
-    public SearchForApplicationsResponse searchForApplications(SearchForApplicationsRequest request) throws
-        OperationFailedException,
-        InvalidArgumentException,
-        InvalidCredentialsException,
-        UnauthorizedException,
-        TException
+    public SearchForApplicationsResponse searchForApplications(SearchForApplicationsRequest request) throws OperationFailedException,
+                                                                                                            InvalidArgumentException,
+                                                                                                            InvalidCredentialsException,
+                                                                                                            UnauthorizedException,
+                                                                                                            TException
     {
         checkNotNull(request);
 
@@ -433,6 +447,36 @@ final class BananaServiceImpl implements BananaService.Iface
 
         
         return searchForApplicationsOperation.process(request);
+    }
+
+    @Override
+    public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException, 
+                                                                  InvalidArgumentException,
+                                                                  InvalidTokenException,
+                                                                  ApplicationDoesNotExistException,
+                                                                  UnauthorizedException,
+                                                                  TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to get Buzz: {}", request);
+        
+        return getBuzzOperation.process(request);
+    }
+
+    @Override
+    public GetUserInfoResponse getUserInfo(GetUserInfoRequest request) throws OperationFailedException, 
+                                                                              InvalidArgumentException,
+                                                                              InvalidTokenException,
+                                                                              UnauthorizedException,
+                                                                              UserDoesNotExistException, 
+                                                                              TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to get User Info: {}", request);
+        
+        return getUserInfoOperation.process(request);
     }
 
 }

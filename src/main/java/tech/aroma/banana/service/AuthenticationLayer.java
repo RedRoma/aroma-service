@@ -34,11 +34,14 @@ import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
+import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.BananaService;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetBuzzRequest;
+import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
@@ -49,6 +52,8 @@ import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.banana.thrift.service.GetUserInfoRequest;
+import tech.aroma.banana.thrift.service.GetUserInfoResponse;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.banana.thrift.service.RegenerateApplicationTokenRequest;
@@ -334,6 +339,27 @@ final class AuthenticationLayer implements BananaService.Iface
 
         return delegate.getMySavedChannels(request);
     }
+    
+    @Override
+    public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException, InvalidArgumentException,
+                                                                  InvalidTokenException, ApplicationDoesNotExistException,
+                                                                  UnauthorizedException, TException
+    {
+        checkNotNull(request);
+        
+        return delegate.getBuzz(request);
+    }
+
+    @Override
+    public GetUserInfoResponse getUserInfo(GetUserInfoRequest request) throws OperationFailedException, InvalidArgumentException,
+                                                                              InvalidTokenException, UnauthorizedException,
+                                                                              UserDoesNotExistException, TException
+    {
+        checkNotNull(request);
+        checkToken(request.token);
+        
+        return delegate.getUserInfo(request);
+    }
 
     @Override
     public SearchForApplicationsResponse searchForApplications(SearchForApplicationsRequest request) throws OperationFailedException,
@@ -361,5 +387,6 @@ final class AuthenticationLayer implements BananaService.Iface
             .throwing(InvalidTokenException.class)
             .is(validTokenIn(authenticationService));
     }
+
 
 }

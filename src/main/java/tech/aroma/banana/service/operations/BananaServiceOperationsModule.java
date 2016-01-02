@@ -26,6 +26,8 @@ import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetBuzzRequest;
+import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
@@ -36,6 +38,8 @@ import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.banana.thrift.service.GetUserInfoRequest;
+import tech.aroma.banana.thrift.service.GetUserInfoResponse;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.banana.thrift.service.RegenerateApplicationTokenRequest;
@@ -121,6 +125,10 @@ public final class BananaServiceOperationsModule extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse>>() {})
             .to(GetApplicationInfoOperation.class);
         
+        
+        bind(new TypeLiteral<ThriftOperation<GetBuzzRequest, GetBuzzResponse>>() {})
+            .to(GetBuzzOperation.class);
+        
         bind(new TypeLiteral<ThriftOperation<GetDashboardRequest, GetDashboardResponse>>() {})
             .to(GetDashboardOperation.class);
                 
@@ -135,6 +143,9 @@ public final class BananaServiceOperationsModule extends AbstractModule
         
         bind(new TypeLiteral<ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse>>(){})
             .to(GetMyApplicationsOperation.class);
+        
+        bind(new TypeLiteral<ThriftOperation<GetUserInfoRequest, GetUserInfoResponse>>(){})
+            .to(GetUserInfoOperation.class);
   
     }
     
