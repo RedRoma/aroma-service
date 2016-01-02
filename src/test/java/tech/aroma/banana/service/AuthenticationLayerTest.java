@@ -300,6 +300,29 @@ public class AuthenticationLayerTest
     }
     
     @Test
+    public void testRenewApplicationTokenWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.renewApplicationToken(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.renewApplicationToken(new RenewApplicationTokenRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
+    @Test
+    public void testRenewApplicationTokenWithBadToken() throws Exception
+    {
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
+            .thenThrow(new InvalidTokenException());
+        
+        RenewApplicationTokenRequest request = new RenewApplicationTokenRequest().setToken(userToken);
+        
+        assertThrows(() -> instance.renewApplicationToken(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+    
+    @Test
     public void testSaveChannel() throws Exception
     {
         SaveChannelRequest request = null;
