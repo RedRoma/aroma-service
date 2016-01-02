@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
@@ -445,11 +446,46 @@ public class BananaServiceImplTest
     @Test
     public void testSignUp() throws Exception
     {
+        SignUpRequest request = one(pojos(SignUpRequest.class));
+        SignUpResponse response = mock(SignUpResponse.class);
+        when(signUpOperation.process(request))
+            .thenReturn(response);
+            
+        SignUpResponse result = instance.signUp(request);
+        assertThat(result, is(response));
+        verify(signUpOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.signUp(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(signUpOperation.process(request))
+            .thenThrow(new InvalidCredentialsException());
+        
+        assertThrows(() -> instance.signUp(request))
+            .isInstanceOf(InvalidCredentialsException.class);
     }
 
     @Test
     public void testSnoozeChannel() throws Exception
     {
+        SnoozeChannelRequest request = one(pojos(SnoozeChannelRequest.class));
+        SnoozeChannelResponse response = mock(SnoozeChannelResponse.class);
+        when(snoozeChannelOperation.process(request))
+            .thenReturn(response);
+        
+        SnoozeChannelResponse result = instance.snoozeChannel(request);
+        assertThat(result, is(response));
+        
+        //Edge cases
+        assertThrows(() -> instance.snoozeChannel(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(snoozeChannelOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.snoozeChannel(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
