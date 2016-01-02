@@ -311,6 +311,23 @@ public class BananaServiceImplTest
     @Test
     public void testRegisterHealthCheck() throws Exception
     {
+        RegisterHealthCheckRequest request = pojos(RegisterHealthCheckRequest.class).get();
+        RegisterHealthCheckResponse response = mock(RegisterHealthCheckResponse.class);
+        when(registerHealthCheckOperation.process(request))
+            .thenReturn(response);
+        
+        RegisterHealthCheckResponse result = instance.registerHealthCheck(request);
+        assertThat(result, is(response));
+        verify(registerHealthCheckOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.registerHealthCheck(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(registerHealthCheckOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        assertThrows(() -> instance.registerHealthCheck(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
