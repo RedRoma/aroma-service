@@ -413,9 +413,40 @@ public class AuthenticationLayerTest
     @Test
     public void testSnoozeChannel() throws Exception
     {
-        SnoozeChannelRequest request = null;
-        SnoozeChannelResponse expResult = null;
-//        SnoozeChannelResponse result = instance.snoozeChannel(request);
+        SnoozeChannelRequest request = new SnoozeChannelRequest().setToken(userToken);
+        SnoozeChannelResponse expected = mock(SnoozeChannelResponse.class);
+        when(delegate.snoozeChannel(request))
+            .thenReturn(expected);
+        
+        SnoozeChannelResponse result = instance.snoozeChannel(request);
+        assertThat(result, is(expected));
+        verify(delegate).snoozeChannel(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testSnoozeChannelWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.snoozeChannel(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.snoozeChannel(new SnoozeChannelRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
+    
+    @Test
+    public void testSnoozeChannelWithBadToken() throws Exception
+    {
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
+            .thenThrow(new InvalidTokenException());
+        
+        SnoozeChannelRequest request = new SnoozeChannelRequest().setToken(userToken);
+        assertThrows(() -> instance.snoozeChannel(request))
+            .isInstanceOf(InvalidTokenException.class);
+        
+        verifyZeroInteractions(delegate);
     }
     
     @Test
