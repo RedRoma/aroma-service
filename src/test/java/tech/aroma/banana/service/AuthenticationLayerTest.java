@@ -142,6 +142,7 @@ public class AuthenticationLayerTest
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
+    @DontRepeat
     @Test
     public void testProvisionApplicationWithBadRequest() throws Exception
     {
@@ -182,6 +183,7 @@ public class AuthenticationLayerTest
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
+    @DontRepeat
     @Test
     public void testRegenerateTokenWithBadRequest() throws Exception
     {
@@ -223,6 +225,7 @@ public class AuthenticationLayerTest
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
+    @DontRepeat
     @Test
     public void testRegisterHealthCheckWithBadRequest() throws Exception
     {
@@ -263,6 +266,7 @@ public class AuthenticationLayerTest
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
+    @DontRepeat
     @Test
     public void testRemoveSavedChannelWithBadRequest() throws Exception
     {
@@ -299,6 +303,7 @@ public class AuthenticationLayerTest
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
+    @DontRepeat
     @Test
     public void testRenewApplicationTokenWithBadRequest() throws Exception
     {
@@ -337,6 +342,7 @@ public class AuthenticationLayerTest
         
     }
     
+    @DontRepeat
     @Test
     public void testSaveChannelWithBadRequest() throws Exception
     {
@@ -363,9 +369,22 @@ public class AuthenticationLayerTest
     @Test
     public void testSignIn() throws Exception
     {
-        SignInRequest request = null;
-        SignInResponse expResult = null;
-//        SignInResponse result = instance.signIn(request);
+        SignInRequest request = new SignInRequest();
+        SignInResponse expected = mock(SignInResponse.class);
+        when(delegate.signIn(request))
+            .thenReturn(expected);
+        
+        SignInResponse result = instance.signIn(request);
+        assertThat(result, is(expected));
+        verifyZeroInteractions(authenticationService);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testSignInWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.signIn(null))
+            .isInstanceOf(InvalidArgumentException.class);
     }
     
     @Test
