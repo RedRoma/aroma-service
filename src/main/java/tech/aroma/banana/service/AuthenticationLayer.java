@@ -82,7 +82,7 @@ import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- * This Layer decorates an existing {@link BananaService.Iface} and authenticates calls again an
+ * This Layer decorates an existing {@link BananaService.Iface} and authenticates calls against an
  * {@linkplain AuthenticationService.Iface Authentication Service}.
  *
  * @author SirWellington
