@@ -97,6 +97,8 @@ public class AuthenticationLayerTest
     
     private String tokenId;
     
+    private VerifyTokenRequest expectedVerifyTokenRequest;
+    
     @Before
     public void setUp()
     {
@@ -104,6 +106,7 @@ public class AuthenticationLayerTest
         verifyZeroInteractions(delegate, authenticationService);
         
         tokenId = userToken.tokenId;
+        expectedVerifyTokenRequest = new VerifyTokenRequest(tokenId);
     }
     
     @DontRepeat
@@ -137,8 +140,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).provisionApplication(request);
         
-        VerifyTokenRequest verifyTokenRequest = new VerifyTokenRequest(tokenId);
-        verify(authenticationService).verifyToken(verifyTokenRequest);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
@@ -158,7 +160,7 @@ public class AuthenticationLayerTest
     {
         ProvisionApplicationRequest request = new ProvisionApplicationRequest().setToken(userToken);
         
-        when(authenticationService.verifyToken(new VerifyTokenRequest(tokenId)))
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
             .thenThrow(new InvalidTokenException());
         
         assertThrows(() -> instance.provisionApplication(request))
@@ -179,8 +181,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).regenerateToken(request);
         
-        VerifyTokenRequest verifyTokenRequest = new VerifyTokenRequest(tokenId);
-        verify(authenticationService).verifyToken(verifyTokenRequest);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
@@ -200,7 +201,7 @@ public class AuthenticationLayerTest
     {
         RegenerateApplicationTokenRequest request = new RegenerateApplicationTokenRequest().setToken(userToken);
         
-        when(authenticationService.verifyToken(new VerifyTokenRequest(tokenId)))
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
             .thenThrow(InvalidTokenException.class);
         
         assertThrows(() -> instance.regenerateToken(request))
@@ -294,8 +295,13 @@ public class AuthenticationLayerTest
     {
         RenewApplicationTokenRequest request = new RenewApplicationTokenRequest().setToken(userToken);
         RenewApplicationTokenResponse expected = new RenewApplicationTokenResponse();
+        when(delegate.renewApplicationToken(request))
+            .thenReturn(expected);
         
-//        RenewApplicationTokenResponse result = instance.renewApplicationToken(request);
+        RenewApplicationTokenResponse result = instance.renewApplicationToken(request);
+        assertThat(result, is(expected));
+        verify(delegate).renewApplicationToken(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
