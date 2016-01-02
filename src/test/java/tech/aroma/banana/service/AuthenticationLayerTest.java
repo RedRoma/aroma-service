@@ -325,9 +325,39 @@ public class AuthenticationLayerTest
     @Test
     public void testSaveChannel() throws Exception
     {
-        SaveChannelRequest request = null;
-        SaveChannelResponse expResult = null;
-//        SaveChannelResponse result = instance.saveChannel(request);
+        SaveChannelRequest request = new SaveChannelRequest().setToken(userToken);
+        SaveChannelResponse expected = new SaveChannelResponse();
+        when(delegate.saveChannel(request))
+            .thenReturn(expected);
+        
+        SaveChannelResponse result = instance.saveChannel(request);
+        assertThat(result, is(expected));
+        verify(delegate).saveChannel(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        
+    }
+    
+    @Test
+    public void testSaveChannelWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.saveChannel(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.saveChannel(new SaveChannelRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
+    @Test
+    public void testSaveChannelWithBadToken() throws Exception
+    {
+        SaveChannelRequest request = new SaveChannelRequest().setToken(userToken);
+        
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
+            .thenThrow(new InvalidTokenException());
+        
+        assertThrows(() -> instance.saveChannel(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
     }
     
     @Test
