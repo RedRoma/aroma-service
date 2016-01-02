@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.authentication.service.VerifyTokenRequest;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
@@ -63,6 +64,7 @@ import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
 import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
+import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.is;
@@ -91,11 +93,18 @@ public class AuthenticationLayerTest
     
     private AuthenticationLayer instance;
     
+    @GeneratePojo
+    private UserToken userToken;
+    
+    private String tokenId;
+    
     @Before
     public void setUp()
     {
         instance = new AuthenticationLayer(delegate, authenticationService);
         verifyZeroInteractions(delegate, authenticationService);
+        
+        tokenId = userToken.tokenId;
     }
     
     @DontRepeat
@@ -120,7 +129,7 @@ public class AuthenticationLayerTest
     @Test
     public void testProvisionApplication() throws Exception
     {
-        ProvisionApplicationRequest request = pojos(ProvisionApplicationRequest.class).get();
+        ProvisionApplicationRequest request = new ProvisionApplicationRequest().setToken(userToken);
         ProvisionApplicationResponse expected = mock(ProvisionApplicationResponse.class);
         when(delegate.provisionApplication(request))
             .thenReturn(expected);
@@ -284,8 +293,8 @@ public class AuthenticationLayerTest
     @Test
     public void testRenewApplicationToken() throws Exception
     {
-        RenewApplicationTokenRequest request = null;
-        RenewApplicationTokenResponse expResult = null;
+        RenewApplicationTokenRequest request = new RenewApplicationTokenRequest().setToken(userToken);
+        RenewApplicationTokenResponse expected = new RenewApplicationTokenResponse();
         
 //        RenewApplicationTokenResponse result = instance.renewApplicationToken(request);
     }
