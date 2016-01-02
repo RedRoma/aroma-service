@@ -333,21 +333,91 @@ public class BananaServiceImplTest
     @Test
     public void testRemoveSavedChannel() throws Exception
     {
+        RemoveSavedChannelRequest request = pojos(RemoveSavedChannelRequest.class).get();
+        RemoveSavedChannelResponse response = mock(RemoveSavedChannelResponse.class);
+        when(removeSavedChannelOperation.process(request))
+            .thenReturn(response);
+        
+        RemoveSavedChannelResponse result = instance.removeSavedChannel(request);
+        assertThat(result, is(response));
+        verify(removeSavedChannelOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.removeSavedChannel(null))
+            .isInstanceOf(InvalidArgumentException.class);
+       
+        when(removeSavedChannelOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        assertThrows(() -> instance.removeSavedChannel(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
     public void testRenewApplicationToken() throws Exception
     {
+        RenewApplicationTokenRequest request = one(pojos(RenewApplicationTokenRequest.class));
+        RenewApplicationTokenResponse response = mock(RenewApplicationTokenResponse.class);
+        when(renewApplicationTokenOperation.process(request))
+            .thenReturn(response);
+        
+        RenewApplicationTokenResponse result = instance.renewApplicationToken(request);
+        assertThat(result, is(response));
+        verify(renewApplicationTokenOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.renewApplicationToken(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(renewApplicationTokenOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        assertThrows(() -> instance.renewApplicationToken(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
     public void testSaveChannel() throws Exception
     {
+        SaveChannelRequest request  = one(pojos(SaveChannelRequest.class));
+        SaveChannelResponse response = mock(SaveChannelResponse.class);
+        when(saveChannelOperation.process(request))
+            .thenReturn(response);
+        
+        SaveChannelResponse result = instance.saveChannel(request);
+        assertThat(result, is(response));
+        verify(saveChannelOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.saveChannel(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(saveChannelOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.saveChannel(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
     public void testSearchForApplications() throws Exception
     {
+        SearchForApplicationsRequest request = one(pojos(SearchForApplicationsRequest.class));
+        SearchForApplicationsResponse response = mock(SearchForApplicationsResponse.class);
+        when(searchForApplicationsOperation.process(request))
+            .thenReturn(response);
+        
+        SearchForApplicationsResponse result = instance.searchForApplications(request);
+        assertThat(result, is(response));
+        verify(searchForApplicationsOperation).process(request);
+        
+        //Edge cases
+        assertThrows(() -> instance.searchForApplications(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        when(searchForApplicationsOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.searchForApplications(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
 
