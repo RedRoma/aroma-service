@@ -1,18 +1,18 @@
- /*
-  * Copyright 2016 Aroma Tech.
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *      http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright 2016 Aroma Tech.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package tech.aroma.banana.service;
 
@@ -73,7 +73,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
@@ -138,7 +137,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).provisionApplication(request);
         
-        VerifyTokenRequest verifyTokenRequest = new VerifyTokenRequest(request.token.tokenId);
+        VerifyTokenRequest verifyTokenRequest = new VerifyTokenRequest(tokenId);
         verify(authenticationService).verifyToken(verifyTokenRequest);
     }
     
@@ -157,9 +156,9 @@ public class AuthenticationLayerTest
     @Test
     public void testProvisionApplicationWithBadToken() throws Exception
     {
-        ProvisionApplicationRequest request = pojos(ProvisionApplicationRequest.class).get();
+        ProvisionApplicationRequest request = new ProvisionApplicationRequest().setToken(userToken);
         
-        when(authenticationService.verifyToken(new VerifyTokenRequest(request.token.tokenId)))
+        when(authenticationService.verifyToken(new VerifyTokenRequest(tokenId)))
             .thenThrow(new InvalidTokenException());
         
         assertThrows(() -> instance.provisionApplication(request))
@@ -171,7 +170,7 @@ public class AuthenticationLayerTest
     @Test
     public void testRegenerateToken() throws Exception
     {
-        RegenerateApplicationTokenRequest request = pojos(RegenerateApplicationTokenRequest.class).get();
+        RegenerateApplicationTokenRequest request = new RegenerateApplicationTokenRequest().setToken(userToken);
         RegenerateApplicationTokenResponse expected = mock(RegenerateApplicationTokenResponse.class);
         when(delegate.regenerateToken(request))
             .thenReturn(expected);
@@ -180,7 +179,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).regenerateToken(request);
         
-        VerifyTokenRequest verifyTokenRequest = new VerifyTokenRequest(request.token.tokenId);
+        VerifyTokenRequest verifyTokenRequest = new VerifyTokenRequest(tokenId);
         verify(authenticationService).verifyToken(verifyTokenRequest);
     }
     
@@ -199,9 +198,9 @@ public class AuthenticationLayerTest
     @Test
     public void testRegenerateTokenWithBadToken() throws Exception
     {
-        RegenerateApplicationTokenRequest request = pojos(RegenerateApplicationTokenRequest.class).get();
+        RegenerateApplicationTokenRequest request = new RegenerateApplicationTokenRequest().setToken(userToken);
         
-        when(authenticationService.verifyToken(new VerifyTokenRequest(request.token.tokenId)))
+        when(authenticationService.verifyToken(new VerifyTokenRequest(tokenId)))
             .thenThrow(InvalidTokenException.class);
         
         assertThrows(() -> instance.regenerateToken(request))
@@ -214,7 +213,7 @@ public class AuthenticationLayerTest
     @Test
     public void testRegisterHealthCheck() throws Exception
     {
-        RegisterHealthCheckRequest request = pojos(RegisterHealthCheckRequest.class).get();
+        RegisterHealthCheckRequest request = new RegisterHealthCheckRequest().setToken(userToken);
         RegisterHealthCheckResponse expected = mock(RegisterHealthCheckResponse.class);
         when(delegate.registerHealthCheck(request))
             .thenReturn(expected);
@@ -224,7 +223,7 @@ public class AuthenticationLayerTest
         verify(delegate).registerHealthCheck(request);
         
         VerifyTokenRequest verifyTokenRequest = new VerifyTokenRequest()
-            .setTokenId(request.token.tokenId);
+            .setTokenId(tokenId);
         verify(authenticationService).verifyToken(verifyTokenRequest);
     }
     
@@ -244,8 +243,8 @@ public class AuthenticationLayerTest
     public void testRegisterHealthCheckWithBadToken() throws Exception
     {
         
-        RegisterHealthCheckRequest request = pojos(RegisterHealthCheckRequest.class).get();
-        when(authenticationService.verifyToken(new VerifyTokenRequest(request.token.tokenId)))
+        RegisterHealthCheckRequest request = new RegisterHealthCheckRequest().setToken(userToken);
+        when(authenticationService.verifyToken(new VerifyTokenRequest(tokenId)))
             .thenThrow(InvalidTokenException.class);
         
         assertThrows(() -> instance.registerHealthCheck(request))
@@ -257,7 +256,7 @@ public class AuthenticationLayerTest
     @Test
     public void testRemoveSavedChannel() throws Exception
     {
-        RemoveSavedChannelRequest request = pojos(RemoveSavedChannelRequest.class).get();
+        RemoveSavedChannelRequest request = new RemoveSavedChannelRequest().setToken(userToken);
         RemoveSavedChannelResponse expected = mock(RemoveSavedChannelResponse.class);
         when(delegate.removeSavedChannel(request))
             .thenReturn(expected);
@@ -265,7 +264,7 @@ public class AuthenticationLayerTest
         RemoveSavedChannelResponse result = instance.removeSavedChannel(request);
         assertThat(result, is(expected));
         verify(delegate).removeSavedChannel(request);
-        verify(authenticationService).verifyToken(new VerifyTokenRequest(request.token.tokenId));
+        verify(authenticationService).verifyToken(new VerifyTokenRequest(tokenId));
     }
     
     @Test
@@ -277,19 +276,19 @@ public class AuthenticationLayerTest
         assertThrows(() -> instance.removeSavedChannel(new RemoveSavedChannelRequest()))
             .isInstanceOf(InvalidTokenException.class);
     }
-
+    
     @Test
     public void testRemoveSavedChannelWithBadToken() throws Exception
     {
-        RemoveSavedChannelRequest request = pojos(RemoveSavedChannelRequest.class).get();
-        when(authenticationService.verifyToken(new VerifyTokenRequest(request.token.tokenId)))
+        RemoveSavedChannelRequest request = new RemoveSavedChannelRequest().setToken(userToken);
+        when(authenticationService.verifyToken(new VerifyTokenRequest(tokenId)))
             .thenThrow(new InvalidTokenException());
         
         assertThrows(() -> instance.removeSavedChannel(request))
             .isInstanceOf(InvalidTokenException.class);
         verifyZeroInteractions(delegate);
     }
-
+    
     @Test
     public void testRenewApplicationToken() throws Exception
     {
