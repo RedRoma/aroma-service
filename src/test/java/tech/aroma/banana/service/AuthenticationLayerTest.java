@@ -228,6 +228,13 @@ public class AuthenticationLayerTest
         assertThrows(() -> instance.registerHealthCheck(new RegisterHealthCheckRequest()))
             .isInstanceOf(InvalidTokenException.class);
         
+        verifyZeroInteractions(delegate);
+    }
+    
+    @Test
+    public void testRegisterHealthCheckWithBadToken() throws Exception
+    {
+        
         RegisterHealthCheckRequest request = pojos(RegisterHealthCheckRequest.class).get();
         when(authenticationService.verifyToken(new VerifyTokenRequest(request.token.tokenId)))
             .thenThrow(InvalidTokenException.class);
@@ -241,11 +248,39 @@ public class AuthenticationLayerTest
     @Test
     public void testRemoveSavedChannel() throws Exception
     {
-        RemoveSavedChannelRequest request = null;
-        RemoveSavedChannelResponse expResult = null;
-//        RemoveSavedChannelResponse result = instance.removeSavedChannel(request);
+        RemoveSavedChannelRequest request = pojos(RemoveSavedChannelRequest.class).get();
+        RemoveSavedChannelResponse expected = mock(RemoveSavedChannelResponse.class);
+        when(delegate.removeSavedChannel(request))
+            .thenReturn(expected);
+        
+        RemoveSavedChannelResponse result = instance.removeSavedChannel(request);
+        assertThat(result, is(expected));
+        verify(delegate).removeSavedChannel(request);
+        verify(authenticationService).verifyToken(new VerifyTokenRequest(request.token.tokenId));
     }
     
+    @Test
+    public void testRemoveSavedChannelWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.removeSavedChannel(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.removeSavedChannel(new RemoveSavedChannelRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+
+    @Test
+    public void testRemoveSavedChannelWithBadToken() throws Exception
+    {
+        RemoveSavedChannelRequest request = pojos(RemoveSavedChannelRequest.class).get();
+        when(authenticationService.verifyToken(new VerifyTokenRequest(request.token.tokenId)))
+            .thenThrow(new InvalidTokenException());
+        
+        assertThrows(() -> instance.removeSavedChannel(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+
     @Test
     public void testRenewApplicationToken() throws Exception
     {
