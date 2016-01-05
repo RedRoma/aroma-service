@@ -99,6 +99,9 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
             .setTotalMessagesLast24hrs(messageCounters.get())
             .setTotalMessagesLastHour(messageCounters.get())
             .setUnreadMessageCount(messageCounters.get())
+            .setNumberOfHighUrgencyMessages(messageCounters.get())
+            .setNumberOfMediumUrgencyMessages(messageCounters.get())
+            .setNumberOfLowUrgencyMessages(messageCounters.get())
             .setRecentMessages(listOf(messages, numberOfMessages.get()))
             ;
     };
