@@ -149,9 +149,7 @@ public final class BananaGenerators
     {
         return () ->
         {
-            return new User().setName(names().get())
-                .setEmail(one(emails()))
-                .setUserId(one(alphanumericString()));
+            return users().get().setProfileImage(null);
         };
     }
     
