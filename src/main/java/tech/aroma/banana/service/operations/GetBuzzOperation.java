@@ -42,6 +42,9 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
         checkNotNull(request);
         
         GetBuzzResponse response = pojos(GetBuzzResponse.class).get();
+        
+        LOG.debug("Returning Buzz: {}", response);
+        
         return response;
     }
 
