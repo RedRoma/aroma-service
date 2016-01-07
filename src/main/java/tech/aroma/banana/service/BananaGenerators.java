@@ -19,14 +19,15 @@ package tech.aroma.banana.service;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.lists.Lists;
+import tech.aroma.banana.thrift.Application;
 import tech.aroma.banana.thrift.Image;
 import tech.aroma.banana.thrift.ImageType;
+import tech.aroma.banana.thrift.ProgrammingLanguage;
 import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.events.ApplicationSentMessage;
 import tech.aroma.banana.thrift.events.ApplicationTokenRegenerated;
@@ -39,15 +40,24 @@ import tech.aroma.banana.thrift.events.OwnerApprovedRequest;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.access.NonInstantiable;
 import tech.sirwellington.alchemy.generator.AlchemyGenerator;
-import tech.sirwellington.alchemy.generator.BinaryGenerators;
+import tech.sirwellington.alchemy.generator.EnumGenerators;
 
+import static sir.wellington.alchemy.collections.sets.Sets.toSet;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
+import static tech.sirwellington.alchemy.generator.NumberGenerators.positiveLongs;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+import static tech.sirwellington.alchemy.generator.PeopleGenerators.emails;
+import static tech.sirwellington.alchemy.generator.PeopleGenerators.names;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphanumericString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 import static tech.sirwellington.alchemy.generator.TimeGenerators.pastInstants;
 
 /**
- *
+ * This is a temporary class that will be around as long as we are still generating
+ * false data.
+ * 
  * @author SirWellington
  */
 @NonInstantiable
@@ -105,6 +115,11 @@ public final class BananaGenerators
             return eventType;
         };
     }
+    
+    public static AlchemyGenerator<Long> pastTimes()
+    {
+        return () -> pastInstants().get().toEpochMilli();
+    }
 
     public static AlchemyGenerator<Event> events()
     {
@@ -113,7 +128,7 @@ public final class BananaGenerators
             Event event = new Event();
             
             event.setEventType(one(eventTypes()))
-                .setTimestamp(pastInstants().get().toEpochMilli());
+                .setTimestamp(one(pastTimes()));
             
             return event;
         };
@@ -123,17 +138,14 @@ public final class BananaGenerators
     {
         return () ->
         {
-            Image profileImage = new Image()
-                .setImageType(ImageType.PNG)
-                .setData(profileImages().get());
-            
-            User user = pojos(User.class).get();
-            user.setProfileImage(profileImage);
-            return user;
+            return new User().setName(names().get())
+                .setEmail(one(emails()))
+                .setUserId(one(alphanumericString()))
+                .setProfileImage(one(profileImages()));
         };
     }
     
-    static AlchemyGenerator<ByteBuffer> profileImages()
+    static AlchemyGenerator<Image> profileImages()
     {
         List<String> images = Arrays.asList("Male-1.png",
                                             "Male-2.png",
@@ -151,20 +163,45 @@ public final class BananaGenerators
         
         return () ->
         {
+            Image profileImage = new Image();
+            
             String image = Lists.oneOf(images);
             URL resource = Resources.getResource("images/" + image);
             byte[] binary;
             try
             {
                 binary = Resources.toByteArray(resource);
+                profileImage.setImageType(ImageType.PNG)
+                    .setData(binary);
             }
             catch (IOException ex)
             {
-                LOG.error("Failed to load Resource {}", resource);
-                return BinaryGenerators.byteBuffers(1024).get();
+                LOG.error("Failed to load Resource {}", resource, ex);
             }
-
-            return ByteBuffer.wrap(binary);
+            
+            return profileImage;
+        };
+    }
+    
+    
+    
+    private static final AlchemyGenerator<ProgrammingLanguage> languages = EnumGenerators.enumValueOf(ProgrammingLanguage.class);
+    
+    public static AlchemyGenerator<Application> applications()
+    {
+        return () ->
+        {
+            int numberOfOwners = one(integers(1, 4));
+            
+            return new Application()
+                .setId(one(uuids))
+                .setName(names().get())
+                .setProgrammingLanguage(languages.get())
+                .setSubscribers(toSet(listOf(users())))
+                .setOwners(toSet(listOf(users(), numberOfOwners)))
+                .setTotalMessagesSent(one(positiveLongs()))
+                .setTimeOfProvisioning(one(pastTimes()));
+            
         };
     }
 }

@@ -16,10 +16,11 @@
 
 package tech.aroma.banana.service;
 
-import java.nio.ByteBuffer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import tech.aroma.banana.thrift.Application;
+import tech.aroma.banana.thrift.Image;
 import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.events.Event;
 import tech.aroma.banana.thrift.events.EventType;
@@ -27,6 +28,7 @@ import tech.sirwellington.alchemy.generator.AlchemyGenerator;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static java.time.Instant.now;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -34,7 +36,7 @@ import static org.junit.Assert.*;
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(100)
 @RunWith(AlchemyTestRunner.class)
 public class BananaGeneratorsTest
 {
@@ -57,7 +59,10 @@ public class BananaGeneratorsTest
     {
         AlchemyGenerator<Event> generator = BananaGenerators.events();
         assertThat(generator, notNullValue());
-        assertThat(generator.get(), notNullValue());
+        
+        Event event = generator.get();
+        assertThat(event, notNullValue());
+        assertThat(event.timestamp, greaterThan(0L));
 
     }
 
@@ -66,15 +71,47 @@ public class BananaGeneratorsTest
     {
         AlchemyGenerator<User> generator = BananaGenerators.users();
         assertThat(generator, notNullValue());
-        assertThat(generator.get(), notNullValue());
+        
+        User user = generator.get();
+        assertThat(user, notNullValue());
+        assertThat(user.name, not(isEmptyString()));
+        assertThat(user.email, not(isEmptyString()));
+        assertThat(user.userId, not(isEmptyString()));
+        assertThat(user.profileImage, notNullValue());
     }
 
     @Test
     public void testProfileImages()
     {
-        AlchemyGenerator<ByteBuffer> generator = BananaGenerators.profileImages();
+        AlchemyGenerator<Image> generator = BananaGenerators.profileImages();
         assertThat(generator, notNullValue());
-        assertThat(generator.get(), notNullValue());
+        
+        Image image = generator.get();
+        assertThat(image, notNullValue());
+        assertThat(image.isSetData(), is(true));
+    }
+
+    @Test
+    public void testPastTimes()
+    {
+        AlchemyGenerator<Long> generator = BananaGenerators.pastTimes();
+        assertThat(generator, notNullValue());
+        
+        Long time = generator.get();
+        Long now = now().toEpochMilli();
+        assertThat(time, lessThan(now));
+    }
+
+    @Test
+    public void testApplications()
+    {
+        AlchemyGenerator<Application> generator = BananaGenerators.applications();
+        assertThat(generator, notNullValue());
+ 
+        Application application = generator.get();
+        assertThat(application, notNullValue());
+        assertThat(application.id, not(isEmptyOrNullString()));
+        assertThat(application.name, not(isEmptyOrNullString()));
     }
 
 }
