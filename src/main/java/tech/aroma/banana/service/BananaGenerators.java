@@ -192,12 +192,13 @@ public final class BananaGenerators
         return () ->
         {
             int numberOfOwners = one(integers(1, 4));
+            int numberOfFollowers = one(integers(0, 100));
             
             return new Application()
                 .setId(one(uuids))
                 .setName(names().get())
                 .setProgrammingLanguage(languages.get())
-                .setSubscribers(toSet(listOf(users())))
+                .setSubscribers(toSet(listOf(users(), numberOfFollowers)))
                 .setOwners(toSet(listOf(users(), numberOfOwners)))
                 .setTotalMessagesSent(one(positiveLongs()))
                 .setTimeOfProvisioning(one(pastTimes()));
