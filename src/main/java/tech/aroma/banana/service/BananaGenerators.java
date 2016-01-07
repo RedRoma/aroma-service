@@ -145,6 +145,16 @@ public final class BananaGenerators
         };
     }
     
+    public static AlchemyGenerator<User> usersWithoutProfileImages()
+    {
+        return () ->
+        {
+            return new User().setName(names().get())
+                .setEmail(one(emails()))
+                .setUserId(one(alphanumericString()));
+        };
+    }
+    
     static AlchemyGenerator<Image> profileImages()
     {
         List<String> images = Arrays.asList("Male-1.png",

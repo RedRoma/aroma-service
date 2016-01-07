@@ -79,6 +79,20 @@ public class BananaGeneratorsTest
         assertThat(user.userId, not(isEmptyString()));
         assertThat(user.profileImage, notNullValue());
     }
+    
+    @Test
+    public void testUsersWithoutProfileImages()
+    {
+        AlchemyGenerator<User> generator = BananaGenerators.usersWithoutProfileImages();
+        assertThat(generator, notNullValue());
+        
+        User user = generator.get();
+        assertThat(user, notNullValue());
+        assertThat(user.name, not(isEmptyString()));
+        assertThat(user.email, not(isEmptyString()));
+        assertThat(user.userId, not(isEmptyString()));
+        assertThat(user.profileImage, is(nullValue()));
+    }
 
     @Test
     public void testProfileImages()
@@ -113,5 +127,6 @@ public class BananaGeneratorsTest
         assertThat(application.id, not(isEmptyOrNullString()));
         assertThat(application.name, not(isEmptyOrNullString()));
     }
+
 
 }
