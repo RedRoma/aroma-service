@@ -21,11 +21,16 @@ package tech.aroma.banana.service.operations;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.service.BananaGenerators;
+import tech.aroma.banana.thrift.events.HealthCheckFailed;
 import tech.aroma.banana.thrift.service.GetBuzzRequest;
 import tech.aroma.banana.thrift.service.GetBuzzResponse;
+import tech.sirwellington.alchemy.generator.AlchemyGenerator;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
@@ -41,11 +46,31 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
     {
         checkNotNull(request);
         
-        GetBuzzResponse response = pojos(GetBuzzResponse.class).get();
+        GetBuzzResponse response = one(buzz());
         
         LOG.debug("Returning Buzz: {}", response);
         
         return response;
     }
 
+    
+    private AlchemyGenerator<GetBuzzResponse> buzz()
+    {
+        return () ->
+        {
+          
+            GetBuzzResponse response = new GetBuzzResponse();
+            
+            AlchemyGenerator<HealthCheckFailed> healthChecks = pojos(HealthCheckFailed.class);
+            
+            response.setNewUsers(listOf(BananaGenerators.users()))
+                .setNewApplications(listOf(BananaGenerators.applications()))
+                .setFailedHealthChecks(listOf(healthChecks));
+            
+            return response;
+            
+        };
+    
+    }
+    
 }
