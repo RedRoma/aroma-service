@@ -31,6 +31,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
+import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
@@ -62,9 +63,11 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
             GetBuzzResponse response = new GetBuzzResponse();
             
             AlchemyGenerator<HealthCheckFailed> healthChecks = pojos(HealthCheckFailed.class);
+            int numberOfUsers = one(integers(5, 20));
+            int numberOfApplications = one(integers(1, 20));
             
-            response.setNewUsers(listOf(BananaGenerators.users()))
-                .setNewApplications(listOf(BananaGenerators.applications()))
+            response.setNewUsers(listOf(BananaGenerators.users(), numberOfUsers))
+                .setNewApplications(listOf(BananaGenerators.applications(), numberOfApplications))
                 .setFailedHealthChecks(listOf(healthChecks));
             
             return response;
