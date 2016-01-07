@@ -208,8 +208,8 @@ public final class BananaGenerators
                 .setId(one(uuids))
                 .setName(names().get())
                 .setProgrammingLanguage(languages.get())
-                .setSubscribers(toSet(listOf(users(), numberOfFollowers)))
-                .setOwners(toSet(listOf(users(), numberOfOwners)))
+                .setSubscribers(toSet(listOf(usersWithoutProfileImages(), numberOfFollowers)))
+                .setOwners(toSet(listOf(usersWithoutProfileImages(), numberOfOwners)))
                 .setTotalMessagesSent(one(positiveLongs()))
                 .setTimeOfProvisioning(one(pastTimes()));
             
