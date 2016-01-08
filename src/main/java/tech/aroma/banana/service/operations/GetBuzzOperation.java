@@ -63,7 +63,7 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
             GetBuzzResponse response = new GetBuzzResponse();
             
             AlchemyGenerator<HealthCheckFailed> healthChecks = pojos(HealthCheckFailed.class);
-            int numberOfUsers = one(integers(1, 6));
+            int numberOfUsers = one(integers(5, 22));
             int numberOfApplications = one(integers(1, 20));
             
             response.setNewUsers(listOf(BananaGenerators.users(), numberOfUsers))
