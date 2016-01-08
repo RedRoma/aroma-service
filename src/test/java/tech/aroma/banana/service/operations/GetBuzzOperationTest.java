@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class GetBuzzOperationTest 
 {

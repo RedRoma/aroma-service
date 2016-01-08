@@ -66,8 +66,8 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
             int numberOfUsers = one(integers(5, 22));
             int numberOfApplications = one(integers(1, 20));
             
-            response.setNewUsers(listOf(BananaGenerators.users(), numberOfUsers))
-                .setNewApplications(listOf(BananaGenerators.applications(), numberOfApplications))
+            response.setFreshUsers(listOf(BananaGenerators.users(), numberOfUsers))
+                .setFreshApplications(listOf(BananaGenerators.applications(), numberOfApplications))
                 .setFailedHealthChecks(listOf(healthChecks));
             
             return response;
