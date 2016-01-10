@@ -493,9 +493,40 @@ public class AuthenticationLayerTest
     @Test
     public void testGetActivity() throws Exception
     {
-        GetActivityRequest request = null;
-        GetActivityResponse expResult = null;
-//        GetActivityResponse result = instance.getActivity(request);
+        GetActivityRequest request = new GetActivityRequest().setToken(userToken);
+        GetActivityResponse expected = new GetActivityResponse();
+        
+        when(delegate.getActivity(request))
+            .thenReturn(expected);
+        
+        GetActivityResponse result = instance.getActivity(request);
+        assertThat(result, is(expected));
+        verify(delegate).getActivity(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testGetActivityWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.getActivity(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.getActivity(new GetActivityRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
+    @Test
+    public void testGetActivityWithBadToken() throws Exception
+    {
+        GetActivityRequest request = new GetActivityRequest().setToken(userToken);
+        
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
+            .thenThrow(new InvalidTokenException());
+        
+        assertThrows(() -> instance.getActivity(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
     }
     
     @Test
