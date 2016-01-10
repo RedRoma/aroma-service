@@ -467,6 +467,29 @@ public class AuthenticationLayerTest
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
+    @DontRepeat
+    @Test
+    public void testSubscribeToApplicationWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.subscribeToApplication(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.subscribeToApplication(new SubscribeToApplicationRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
+    @Test
+    public void testSubscribeToApplicationWithBadToken() throws Exception
+    {
+        SubscribeToApplicationRequest request = new SubscribeToApplicationRequest().setToken(userToken);
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
+            .thenThrow(InvalidTokenException.class);
+            
+        assertThrows(() -> instance.subscribeToApplication(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+    
     @Test
     public void testGetActivity() throws Exception
     {
