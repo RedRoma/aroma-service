@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.authentication.service.VerifyTokenRequest;
@@ -532,9 +533,19 @@ public class AuthenticationLayerTest
     @Test
     public void testGetApplicationInfo() throws Exception
     {
-        GetApplicationInfoRequest request = null;
-        GetApplicationInfoResponse expResult = null;
-//        GetApplicationInfoResponse result = instance.getApplicationInfo(request);
+        AuthenticationToken authenticationToken = new AuthenticationToken();
+        authenticationToken.setUserToken(userToken);
+        
+        GetApplicationInfoRequest request = new GetApplicationInfoRequest().setToken(authenticationToken);
+        GetApplicationInfoResponse expected = new GetApplicationInfoResponse();
+        
+        when(delegate.getApplicationInfo(request))
+            .thenReturn(expected);
+        
+        GetApplicationInfoResponse result = instance.getApplicationInfo(request);
+        assertThat(result, is(expected));
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(delegate).getApplicationInfo(request);
     }
     
     @Test
