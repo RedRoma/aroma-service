@@ -22,6 +22,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.service.BananaGenerators;
+import tech.aroma.banana.thrift.events.GeneralEvent;
 import tech.aroma.banana.thrift.events.HealthCheckFailed;
 import tech.aroma.banana.thrift.service.GetBuzzRequest;
 import tech.aroma.banana.thrift.service.GetBuzzResponse;
@@ -63,12 +64,17 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
             GetBuzzResponse response = new GetBuzzResponse();
             
             AlchemyGenerator<HealthCheckFailed> healthChecks = pojos(HealthCheckFailed.class);
+            AlchemyGenerator<GeneralEvent> generalEvents = pojos(GeneralEvent.class);
+            
             int numberOfUsers = one(integers(5, 22));
             int numberOfApplications = one(integers(1, 20));
+            int numberOfFailedHealthChecks = one(integers(0, 6));
+            int numberOfGeneralHappenings = one(integers(5, 25));
             
             response.setFreshUsers(listOf(BananaGenerators.users(), numberOfUsers))
                 .setFreshApplications(listOf(BananaGenerators.applications(), numberOfApplications))
-                .setFailedHealthChecks(listOf(healthChecks));
+                .setFailedHealthChecks(listOf(healthChecks, numberOfFailedHealthChecks))
+                .setHappenings(listOf(generalEvents, numberOfGeneralHappenings));
             
             return response;
             
