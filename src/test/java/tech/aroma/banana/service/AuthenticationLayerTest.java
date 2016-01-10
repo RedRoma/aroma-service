@@ -456,9 +456,15 @@ public class AuthenticationLayerTest
     @Test
     public void testSubscribeToApplication() throws Exception
     {
-        SubscribeToApplicationRequest request = null;
-        SubscribeToApplicationResponse expResult = null;
-//        SubscribeToApplicationResponse result = instance.subscribeToApplication(request);
+        SubscribeToApplicationRequest request = new SubscribeToApplicationRequest().setToken(userToken);
+        SubscribeToApplicationResponse expected = new SubscribeToApplicationResponse();
+        when(delegate.subscribeToApplication(request))
+            .thenReturn(expected);
+        
+        SubscribeToApplicationResponse result = instance.subscribeToApplication(request);
+        assertThat(result, is(expected));
+        verify(delegate).subscribeToApplication(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
