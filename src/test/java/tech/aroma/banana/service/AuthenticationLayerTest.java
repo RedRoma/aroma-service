@@ -682,17 +682,29 @@ public class AuthenticationLayerTest
     @Test
     public void testGetBuzz() throws Exception
     {
-        GetBuzzRequest request = null;
-        GetBuzzResponse expResult = null;
-//        GetBuzzResponse result = instance.getBuzz(request);
+        GetBuzzRequest request = new GetBuzzRequest().setToken(userToken);
+        GetBuzzResponse expected = new GetBuzzResponse();
+        when(delegate.getBuzz(request))
+            .thenReturn(expected);
+        
+        GetBuzzResponse result = instance.getBuzz(request);
+        assertThat(result, is(expected));
+        verify(delegate).getBuzz(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
 
     @Test
     public void testGetUserInfo() throws Exception
     {
-        GetUserInfoRequest request = null;
-        GetUserInfoResponse expResult = null;
-//        GetUserInfoResponse result = instance.getUserInfo(request);
+        GetUserInfoRequest request = new GetUserInfoRequest().setToken(userToken);
+        GetUserInfoResponse expected = new GetUserInfoResponse();
+        when(delegate.getUserInfo(request))
+            .thenReturn(expected);
+        
+        GetUserInfoResponse result = instance.getUserInfo(request);
+        assertThat(result, is(expected));
+        verify(delegate).getUserInfo(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
 }
