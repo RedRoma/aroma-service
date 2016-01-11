@@ -611,6 +611,19 @@ public class AuthenticationLayerTest
     }
     
     @Test
+    public void testGetMessagesWithBadToken() throws Exception
+    {
+        GetMessagesRequest request = new GetMessagesRequest()
+            .setToken(userToken);
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
+            .thenThrow(new InvalidTokenException());
+        
+        assertThrows(() -> instance.getMessages(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+    
+    @Test
     public void testGetFullMessage() throws Exception
     {
         GetFullMessageRequest request = null;
