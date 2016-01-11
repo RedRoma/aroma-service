@@ -712,6 +712,28 @@ public class AuthenticationLayerTest
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
+    @DontRepeat
+    @Test
+    public void testGetMySavedChannelsWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.getMySavedChannels(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.getMySavedChannels(new GetMySavedChannelsRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
+    @Test
+    public void testGetMySavedChannelsWithBadToken() throws Exception
+    {
+        GetMySavedChannelsRequest request  = new GetMySavedChannelsRequest().setToken(userToken);
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
+            .thenThrow(new InvalidTokenException());
+        
+        assertThrows(() -> instance.getMySavedChannels(request))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
     @Test
     public void testSearchForApplications() throws Exception
     {
