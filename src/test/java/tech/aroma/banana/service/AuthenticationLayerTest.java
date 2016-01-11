@@ -654,9 +654,15 @@ public class AuthenticationLayerTest
     @Test
     public void testGetMySavedChannels() throws Exception
     {
-        GetMySavedChannelsRequest request = null;
-        GetMySavedChannelsResponse expResult = null;
-//        GetMySavedChannelsResponse result = instance.getMySavedChannels(request);
+        GetMySavedChannelsRequest request = new GetMySavedChannelsRequest().setToken(userToken);
+        GetMySavedChannelsResponse expected = new GetMySavedChannelsResponse();
+        when(delegate.getMySavedChannels(request))
+            .thenReturn(expected);
+        
+        GetMySavedChannelsResponse result = instance.getMySavedChannels(request);
+        assertThat(result, is(expected));
+        verify(delegate).getMySavedChannels(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
