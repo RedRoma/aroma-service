@@ -640,9 +640,15 @@ public class AuthenticationLayerTest
     @Test
     public void testGetMyApplications() throws Exception
     {
-        GetMyApplicationsRequest request = null;
-        GetMyApplicationsResponse expResult = null;
-//        GetMyApplicationsResponse result = instance.getMyApplications(request);
+        GetMyApplicationsRequest request = new GetMyApplicationsRequest().setToken(userToken);
+        GetMyApplicationsResponse expected = new GetMyApplicationsResponse();
+        when(delegate.getMyApplications(request))
+            .thenReturn(expected);
+        
+        GetMyApplicationsResponse result = instance.getMyApplications(request);
+        assertThat(result, is(expected));
+        verify(delegate).getMyApplications(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
