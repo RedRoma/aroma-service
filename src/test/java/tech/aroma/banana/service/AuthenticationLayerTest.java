@@ -626,9 +626,15 @@ public class AuthenticationLayerTest
     @Test
     public void testGetFullMessage() throws Exception
     {
-        GetFullMessageRequest request = null;
-        GetFullMessageResponse expResult = null;
-//        GetFullMessageResponse result = instance.getFullMessage(request);
+        GetFullMessageRequest request = new GetFullMessageRequest().setToken(userToken);
+        GetFullMessageResponse expected = new GetFullMessageResponse();
+        when(delegate.getFullMessage(request))
+            .thenReturn(expected);
+        
+        GetFullMessageResponse result = instance.getFullMessage(request);
+        assertThat(result, is(expected));
+        verify(delegate).getFullMessage(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
