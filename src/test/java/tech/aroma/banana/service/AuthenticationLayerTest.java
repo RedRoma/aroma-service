@@ -690,7 +690,6 @@ public class AuthenticationLayerTest
         GetBuzzResponse result = instance.getBuzz(request);
         assertThat(result, is(expected));
         verify(delegate).getBuzz(request);
-        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
 
     @Test
