@@ -85,7 +85,7 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  *
  * @author SirWellington
  */
-@Repeat(100)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class AuthenticationLayerTest
 {
