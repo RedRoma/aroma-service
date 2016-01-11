@@ -599,6 +599,17 @@ public class AuthenticationLayerTest
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
+    @DontRepeat
+    @Test
+    public void testGetMessagesWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.getMessages(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.getMessages(new GetMessagesRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
     @Test
     public void testGetFullMessage() throws Exception
     {
