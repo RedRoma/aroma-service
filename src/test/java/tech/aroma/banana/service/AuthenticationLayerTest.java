@@ -574,6 +574,18 @@ public class AuthenticationLayerTest
     }
     
     @Test
+    public void testGetDashboardWithBadToken() throws Exception
+    {
+        GetDashboardRequest request = new GetDashboardRequest().setToken(userToken);
+        when(authenticationService.verifyToken(expectedVerifyTokenRequest))
+            .thenThrow(new InvalidTokenException());
+        
+        assertThrows(() -> instance.getDashboard(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+    
+    @Test
     public void testGetMessages() throws Exception
     {
         GetMessagesRequest request = null;
