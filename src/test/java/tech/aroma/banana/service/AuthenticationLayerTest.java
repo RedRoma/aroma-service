@@ -668,9 +668,15 @@ public class AuthenticationLayerTest
     @Test
     public void testSearchForApplications() throws Exception
     {
-        SearchForApplicationsRequest request = null;
-        SearchForApplicationsResponse expResult = null;
-//        SearchForApplicationsResponse result = instance.searchForApplications(request);
+        SearchForApplicationsRequest request = new SearchForApplicationsRequest().setToken(userToken);
+        SearchForApplicationsResponse expected = new SearchForApplicationsResponse();
+        when(delegate.searchForApplications(request))
+            .thenReturn(expected);
+        
+        SearchForApplicationsResponse result = instance.searchForApplications(request);
+        assertThat(result, is(expected));
+        verify(delegate).searchForApplications(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
 
     @Test
