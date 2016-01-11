@@ -551,9 +551,26 @@ public class AuthenticationLayerTest
     @Test
     public void testGetDashboard() throws Exception
     {
-        GetDashboardRequest request = null;
-        GetDashboardResponse expResult = null;
-//        GetDashboardResponse result = instance.getDashboard(request);
+        GetDashboardRequest request = new GetDashboardRequest().setToken(userToken);
+        GetDashboardResponse expected = new GetDashboardResponse();
+        when(delegate.getDashboard(request))
+            .thenReturn(expected);
+        
+        GetDashboardResponse result = instance.getDashboard(request);
+        assertThat(result, is(expected));
+        verify(delegate).getDashboard(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testGetDashboardWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.getDashboard(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.getDashboard(new GetDashboardRequest()))
+            .isInstanceOf(InvalidTokenException.class);
     }
     
     @Test
