@@ -588,9 +588,15 @@ public class AuthenticationLayerTest
     @Test
     public void testGetMessages() throws Exception
     {
-        GetMessagesRequest request = null;
-        GetMessagesResponse expResult = null;
-//        GetMessagesResponse result = instance.getMessages(request);
+        GetMessagesRequest request = new GetMessagesRequest().setToken(userToken);
+        GetMessagesResponse expected = new GetMessagesResponse();
+        when(delegate.getMessages(request))
+            .thenReturn(expected);
+        
+        GetMessagesResponse result = instance.getMessages(request);
+        assertThat(result, is(expected));
+        verify(delegate).getMessages(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
     }
     
     @Test
