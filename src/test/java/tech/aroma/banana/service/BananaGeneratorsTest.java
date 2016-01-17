@@ -124,7 +124,7 @@ public class BananaGeneratorsTest
  
         Application application = generator.get();
         assertThat(application, notNullValue());
-        assertThat(application.id, not(isEmptyOrNullString()));
+        assertThat(application.applicationId, not(isEmptyOrNullString()));
         assertThat(application.name, not(isEmptyOrNullString()));
     }
 

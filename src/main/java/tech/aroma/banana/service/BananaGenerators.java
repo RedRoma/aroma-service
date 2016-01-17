@@ -203,7 +203,7 @@ public final class BananaGenerators
             int numberOfFollowers = one(integers(0, 100));
             
             return new Application()
-                .setId(one(uuids))
+                .setApplicationId(one(uuids))
                 .setName(names().get())
                 .setProgrammingLanguage(languages.get())
                 .setSubscribers(toSet(listOf(usersWithoutProfileImages(), numberOfFollowers)))
