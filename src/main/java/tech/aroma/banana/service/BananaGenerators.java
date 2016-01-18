@@ -193,21 +193,21 @@ public final class BananaGenerators
     
     
     
-    private static final AlchemyGenerator<ProgrammingLanguage> languages = EnumGenerators.enumValueOf(ProgrammingLanguage.class);
+    private static final AlchemyGenerator<ProgrammingLanguage> LANGUAGES = EnumGenerators.enumValueOf(ProgrammingLanguage.class);
     
     public static AlchemyGenerator<Application> applications()
     {
         return () ->
         {
             int numberOfOwners = one(integers(1, 4));
-            int numberOfFollowers = one(integers(0, 100));
+            int numberOfFollowers = one(integers(0, 1000));
             
             return new Application()
                 .setApplicationId(one(uuids))
                 .setName(names().get())
-                .setProgrammingLanguage(languages.get())
-                .setSubscribers(toSet(listOf(usersWithoutProfileImages(), numberOfFollowers)))
-                .setOwners(toSet(listOf(usersWithoutProfileImages(), numberOfOwners)))
+                .setProgrammingLanguage(LANGUAGES.get())
+                .setFollowers(toSet(listOf(uuids, numberOfFollowers)))
+                .setOwners(toSet(listOf(uuids, numberOfOwners)))
                 .setTotalMessagesSent(one(positiveLongs()))
                 .setTimeOfProvisioning(one(pastTimes()));
             
