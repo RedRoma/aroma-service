@@ -41,6 +41,12 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     {
         checkNotNull(request);
         
+        //Check validity of data
+        //Create User object
+        //Store in Repository
+        //Create and Acquire token from authentication service
+        
+        
         SignUpResponse response = pojos(SignUpResponse.class).get();
         return response;
     }

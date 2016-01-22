@@ -26,6 +26,7 @@ import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.authentication.service.VerifyTokenRequest;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
+import tech.aroma.banana.thrift.functions.TokenFunctions;
 import tech.aroma.banana.thrift.service.BananaService;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
@@ -73,7 +74,7 @@ import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -101,6 +102,8 @@ public class AuthenticationLayerTest
     @GeneratePojo
     private UserToken userToken;
     
+    private AuthenticationToken expectedAuthToken;
+    
     private String tokenId;
     
     private VerifyTokenRequest expectedVerifyTokenRequest;
@@ -112,6 +115,8 @@ public class AuthenticationLayerTest
         verifyZeroInteractions(delegate, authenticationService);
         
         tokenId = userToken.tokenId;
+        
+        expectedAuthToken = TokenFunctions.userTokenToAuthTokenFunction().apply(userToken);
         expectedVerifyTokenRequest = new VerifyTokenRequest(tokenId);
     }
     
@@ -533,10 +538,7 @@ public class AuthenticationLayerTest
     @Test
     public void testGetApplicationInfo() throws Exception
     {
-        AuthenticationToken authenticationToken = new AuthenticationToken();
-        authenticationToken.setUserToken(userToken);
-        
-        GetApplicationInfoRequest request = new GetApplicationInfoRequest().setToken(authenticationToken);
+        GetApplicationInfoRequest request = new GetApplicationInfoRequest().setToken(expectedAuthToken);
         GetApplicationInfoResponse expected = new GetApplicationInfoResponse();
         
         when(delegate.getApplicationInfo(request))
