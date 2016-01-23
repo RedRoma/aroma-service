@@ -34,16 +34,16 @@ import static org.junit.Assert.*;
  * @author SirWellington
  */
 @RunWith(AlchemyTestRunner.class)
-public class BananaServiceModuleTest 
+public class ModuleBananaServiceTest 
 {
     
     private BananaServiceOperationsModule operationsModule;
-    private BananaServiceModule instance;
+    private ModuleBananaService instance;
     
     @Before
     public void setUp()
     {
-        instance = new BananaServiceModule();
+        instance = new ModuleBananaService();
     }
 
 //    @Ignore //Ignore for now

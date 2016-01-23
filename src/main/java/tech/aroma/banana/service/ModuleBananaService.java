@@ -31,10 +31,10 @@ import tech.sirwellington.alchemy.http.AlchemyHttp;
  *
  * @author SirWellington
  */
-public class BananaServiceModule extends AbstractModule
+public class ModuleBananaService extends AbstractModule
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(BananaServiceModule.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ModuleBananaService.class);
     
     @Override
     protected void configure()
