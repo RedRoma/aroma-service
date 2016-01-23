@@ -93,28 +93,28 @@ final class BananaServiceImpl implements BananaService.Iface
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
 
     //Action and Save Operations
-    private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
-    private ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
-    private ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
-    private ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
-    private ThriftOperation<SubscribeToApplicationRequest, SubscribeToApplicationResponse> subscriveToApplicationOperation;
-    private ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
-    private ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
-    private ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
-    private ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
-    private ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
-    private ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
+    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
+    private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
+    private final ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
+    private final ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
+    private final ThriftOperation<SubscribeToApplicationRequest, SubscribeToApplicationResponse> subscriveToApplicationOperation;
+    private final ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
+    private final ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
+    private final ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
+    private final ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
+    private final ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
+    private final ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
     
     //Query and GET Operations
-    private ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
-    private ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
-    private ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
-    private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
-    private ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
-    private ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
-    private ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation;
-    private ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
-    private ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
+    private final ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
+    private final ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
+    private final ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
+    private final ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
+    private final ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
+    private final ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
+    private final ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation;
+    private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
+    private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
     
     @Inject
