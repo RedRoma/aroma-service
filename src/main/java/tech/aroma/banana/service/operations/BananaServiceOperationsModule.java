@@ -19,9 +19,14 @@ package tech.aroma.banana.service.operations;
 
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.authentication.AuthenticationToken;
+import tech.aroma.banana.thrift.authentication.UserToken;
+import tech.aroma.banana.thrift.functions.TokenFunctions;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -149,4 +154,9 @@ public final class BananaServiceOperationsModule extends AbstractModule
   
     }
     
+    @Provides
+    Function<AuthenticationToken, UserToken> provideTokenMapper()
+    {
+        return TokenFunctions.authTokenToUserTokenFunction();
+    }
 }
