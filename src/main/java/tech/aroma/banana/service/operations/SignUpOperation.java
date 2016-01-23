@@ -18,6 +18,7 @@ package tech.aroma.banana.service.operations;
 
 import java.util.UUID;
 import java.util.function.Function;
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,26 +50,26 @@ import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.v
  */
 final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResponse>
 {
-    
+
     private final static Logger LOG = LoggerFactory.getLogger(SignUpOperation.class);
-    
+
     private final UserRepository userRepo;
     private final AuthenticationService.Iface authenticationService;
     private final Function<AuthenticationToken, UserToken> tokenMapper;
 
-    SignUpOperation(UserRepository userRepo, 
+    @Inject
+    SignUpOperation(UserRepository userRepo,
                     AuthenticationService.Iface authenticationService,
-                           Function<AuthenticationToken, UserToken> tokenMapper)
+                    Function<AuthenticationToken, UserToken> tokenMapper)
     {
         checkThat(userRepo, authenticationService, tokenMapper)
             .are(notNull());
-        
+
         this.userRepo = userRepo;
         this.authenticationService = authenticationService;
         this.tokenMapper = tokenMapper;
     }
-    
-    
+
     @Override
     public SignUpResponse process(SignUpRequest request) throws TException
     {
@@ -78,7 +79,7 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
 
         //Create User object
         String userId = UUID.randomUUID().toString();
-        
+
         User user = new User()
             .setBirthdate(request.birthDate)
             .setEmail(request.email)
@@ -97,14 +98,14 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         //Create and Acquire token from authentication service
         CreateTokenRequest authRequest = makeAuthenticationRequestToCreateToken(user);
         AuthenticationToken token = tryToGetTokenFromAuthenticationService(authRequest);
-        
+
         UserToken userToken = convertToUserToken(token);
-        
+
         return new SignUpResponse()
             .setUserId(userId)
             .setUserToken(userToken);
     }
-    
+
     private AlchemyAssertion<SignUpRequest> good()
     {
         return request ->
@@ -112,15 +113,15 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
                 checkThat(request)
                     .usingMessage("request is null")
                     .is(notNull());
-                
+
                 checkThat(request.firstName, request.lastName)
                     .usingMessage("first and last name are required")
                     .are(nonEmptyString());
-                
+
                 checkThat(request.mainRole)
                     .usingMessage("Your main role is required")
                     .is(notNull());
-                
+
                 if (request.isSetOrganizationId())
                 {
                     checkThat(request.organizationId)
@@ -131,7 +132,7 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
                 //TODO: Add check on the email
             };
     }
-    
+
     private CreateTokenRequest makeAuthenticationRequestToCreateToken(User user)
     {
         return new CreateTokenRequest()
@@ -139,7 +140,7 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
             .setOwnerId(user.userId)
             .setOwnerName(user.name);
     }
-    
+
     private AuthenticationToken tryToGetTokenFromAuthenticationService(CreateTokenRequest authRequest) throws
         OperationFailedException
     {
@@ -152,18 +153,18 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         {
             throw new OperationFailedException("Could not get token from the Authentication Service: " + ex.getMessage());
         }
-        
+
         checkThat(response.token)
             .throwing(OperationFailedException.class)
             .usingMessage("Auth Service returned invalid token")
             .is(completeToken());
-        
+
         return response.token;
     }
-    
+
     private UserToken convertToUserToken(AuthenticationToken token)
     {
         return tokenMapper.apply(token);
     }
-    
+
 }
