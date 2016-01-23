@@ -75,9 +75,9 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
  *
  * @author SirWellington
  */
-public final class BananaServiceOperationsModule extends AbstractModule
+public final class ModuleBananaServiceOperations extends AbstractModule
 {
-    private final static Logger LOG = LoggerFactory.getLogger(BananaServiceOperationsModule.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ModuleBananaServiceOperations.class);
     
     @Override
     protected void configure()

@@ -43,7 +43,7 @@ public class BananaServiceOperationsModuleTest
 {
 
     private ModuleMemoryDataRepositories dataModule;
-    private BananaServiceOperationsModule instance;
+    private ModuleBananaServiceOperations instance;
     
     
     private Module mockModule = new AbstractModule()
@@ -65,7 +65,7 @@ public class BananaServiceOperationsModuleTest
     public void setUp()
     {
         dataModule = new ModuleMemoryDataRepositories();
-        instance = new BananaServiceOperationsModule();
+        instance = new ModuleBananaServiceOperations();
     }
 
     @Test

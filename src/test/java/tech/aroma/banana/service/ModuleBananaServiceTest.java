@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.data.memory.ModuleMemoryDataRepositories;
-import tech.aroma.banana.service.operations.BananaServiceOperationsModule;
+import tech.aroma.banana.service.operations.ModuleBananaServiceOperations;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 
@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 public class ModuleBananaServiceTest 
 {
     
-    private BananaServiceOperationsModule operationsModule;
+    private ModuleBananaServiceOperations operationsModule;
     private ModuleMemoryDataRepositories dataModule;
     private ModuleBananaService instance;
     
@@ -52,7 +52,7 @@ public class ModuleBananaServiceTest
     @Test
     public void testConfigure()
     {
-        BananaServiceOperationsModule operations = new BananaServiceOperationsModule();
+        ModuleBananaServiceOperations operations = new ModuleBananaServiceOperations();
         Guice.createInjector(operations, dataModule, instance);
     }
 
