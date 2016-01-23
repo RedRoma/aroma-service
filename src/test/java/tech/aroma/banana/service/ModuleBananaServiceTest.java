@@ -20,6 +20,7 @@ import com.google.inject.Guice;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import tech.aroma.banana.data.memory.ModuleMemoryDataRepositories;
 import tech.aroma.banana.service.operations.BananaServiceOperationsModule;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -38,20 +39,21 @@ public class ModuleBananaServiceTest
 {
     
     private BananaServiceOperationsModule operationsModule;
+    private ModuleMemoryDataRepositories dataModule;
     private ModuleBananaService instance;
     
     @Before
     public void setUp()
     {
+        dataModule = new ModuleMemoryDataRepositories();
         instance = new ModuleBananaService();
     }
 
-//    @Ignore //Ignore for now
     @Test
     public void testConfigure()
     {
         BananaServiceOperationsModule operations = new BananaServiceOperationsModule();
-        Guice.createInjector(operations, instance);
+        Guice.createInjector(operations, dataModule, instance);
     }
 
     @Test
