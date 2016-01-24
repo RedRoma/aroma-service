@@ -31,11 +31,14 @@ import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.authentication.service.CreateTokenRequest;
 import tech.aroma.banana.thrift.authentication.service.CreateTokenResponse;
+import tech.aroma.banana.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
+import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.SignUpRequest;
 import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
+import tech.sirwellington.alchemy.arguments.FailedAssertionException;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.data.assertions.AuthenticationAssertions.completeToken;
@@ -76,6 +79,11 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
+        
+        checkThat(request.email)
+            .throwing(AccountAlreadyExistsException.class)
+            .usingMessage("Email is already in use")
+            .is(notAlreadyInUse());
 
         //Create User object
         String userId = UUID.randomUUID().toString();
@@ -165,6 +173,28 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     private UserToken convertToUserToken(AuthenticationToken token)
     {
         return tokenMapper.apply(token);
+    }
+
+    private AlchemyAssertion<String> notAlreadyInUse()
+    {
+        return email ->
+        {
+            checkThat(email).is(nonEmptyString());
+            
+            try
+            {
+                User user = userRepo.getUserByEmail(email);
+                throw new FailedAssertionException();
+            }
+            catch(UserDoesNotExistException ex)
+            {
+                //Good
+            }
+            catch(TException ex)
+            {
+                throw new FailedAssertionException("could not check for existence of email: " + email);
+            }
+        };
     }
 
 }

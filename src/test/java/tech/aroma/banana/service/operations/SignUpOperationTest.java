@@ -31,7 +31,9 @@ import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.authentication.service.CreateTokenRequest;
 import tech.aroma.banana.thrift.authentication.service.CreateTokenResponse;
+import tech.aroma.banana.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.SignUpRequest;
 import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -44,6 +46,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
@@ -97,13 +100,7 @@ public class SignUpOperationTest
         verifyZeroInteractions(userRepo, authenticationService, tokenMapper);
         
         authResponse = new CreateTokenResponse(authToken);
-        when(authenticationService.createToken(any(CreateTokenRequest.class)))
-            .thenReturn(authResponse);
-        
-        when(tokenMapper.apply(authToken)).thenReturn(userToken);
-        
-        request.organizationId = orgId;
-        authToken.organizationId = orgId;
+        setupMock();
     }
 
     @Test
@@ -113,6 +110,17 @@ public class SignUpOperationTest
         assertThat(response, notNullValue());
         assertThat(response.userToken, is(userToken));
     }
+    
+    @Test
+    public void testProcessWhenEmailExists() throws Exception
+    {
+        reset(userRepo);
+        when(userRepo.getUserByEmail(request.email))
+            .thenReturn(new User().setEmail(request.email));
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(AccountAlreadyExistsException.class);
+    }
 
     @DontRepeat
     @Test
@@ -120,5 +128,19 @@ public class SignUpOperationTest
     {
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    private void setupMock() throws TException
+    {
+        when(authenticationService.createToken(any(CreateTokenRequest.class)))
+            .thenReturn(authResponse);
+        
+        when(tokenMapper.apply(authToken)).thenReturn(userToken);
+        
+        request.organizationId = orgId;
+        authToken.organizationId = orgId;
+        
+        when(userRepo.getUserByEmail(request.email))
+            .thenThrow(new UserDoesNotExistException());
     }
 }
