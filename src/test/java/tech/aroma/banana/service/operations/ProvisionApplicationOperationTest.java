@@ -168,10 +168,15 @@ public class ProvisionApplicationOperationTest
             .isInstanceOf(UserDoesNotExistException.class);
     }
 
+    @DontRepeat
     @Test
     public void testProcessEdgeCases()
     {
         assertThrows(() -> instance.process(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        ProvisionApplicationRequest emptyRequest = new ProvisionApplicationRequest();
+        assertThrows(() -> instance.process(emptyRequest))
             .isInstanceOf(InvalidArgumentException.class);
     }
 
