@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.data.memory.ModuleMemoryDataRepositories;
+import tech.aroma.banana.thrift.authentication.ApplicationToken;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
@@ -46,7 +47,7 @@ public class ModuleBananaServiceOperationsTest
 {
     private ModuleMemoryDataRepositories dataModule;
     private ModuleBananaServiceOperations instance;
-    private Module mockModule = new AbstractModule()
+    private final Module mockModule = new AbstractModule()
     {
         @Override
         protected void configure()
@@ -86,6 +87,13 @@ public class ModuleBananaServiceOperationsTest
     public void testProvideUserToAuthTokenMapper()
     {
         Function<UserToken, AuthenticationToken> result = instance.provideUserToAuthTokenMapper();
+        assertThat(result, notNullValue());
+    }
+
+    @Test
+    public void testProvideAuthToAppTokenMapper()
+    {
+        Function<AuthenticationToken, ApplicationToken> result = instance.provideAuthToAppTokenMapper();
         assertThat(result, notNullValue());
     }
 
