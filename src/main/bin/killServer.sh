@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-PORT=7001
+PORT=7000
 
 findAtPort() { lsof -i :$1; }
 
