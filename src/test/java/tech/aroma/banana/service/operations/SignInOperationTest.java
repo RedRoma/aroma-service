@@ -16,19 +16,39 @@
 
 package tech.aroma.banana.service.operations;
 
+import java.util.function.Function;
+import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import tech.aroma.banana.data.UserRepository;
+import tech.aroma.banana.thrift.User;
+import tech.aroma.banana.thrift.authentication.AuthenticationToken;
+import tech.aroma.banana.thrift.authentication.TokenType;
+import tech.aroma.banana.thrift.authentication.UserToken;
+import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
+import tech.aroma.banana.thrift.authentication.service.CreateTokenRequest;
+import tech.aroma.banana.thrift.authentication.service.CreateTokenResponse;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.aroma.banana.thrift.service.SignInResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
+import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
+import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
  *
@@ -39,22 +59,88 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
 public class SignInOperationTest
 {
 
+    @Mock
+    private AuthenticationService.Iface authenticationService;
+    
+    @Mock
+    private Function<AuthenticationToken, UserToken> tokenMapper;
+    
+    @Mock
+    private UserRepository userRepo;
+    
+    @GeneratePojo
+    private User user;
+    
+    @GenerateString(UUID)
+    private String userId;
+    
+    @GeneratePojo
+    private AuthenticationToken authToken;
+    
+    @GeneratePojo
+    private UserToken userToken;
+    
+    @GenerateString(UUID)
+    private String tokenId;
+    
+    @GenerateString(UUID)
+    private String orgId;
+    
+    @Captor
+    private ArgumentCaptor<CreateTokenRequest> captor;
+    
     @GeneratePojo
     private SignInRequest request;
     
     private SignInOperation instance;
     
     @Before
-    public void setUp()
+    public void setUp() throws TException
     {
-        instance = new SignInOperation();
+        instance = new SignInOperation(authenticationService, tokenMapper, userRepo);
+        setupData();
+        setupMocks();
+    }
+    
+    @DontRepeat
+    @Test
+    public void testConstructor()
+    {
+        assertThrows(() -> new SignInOperation(null, tokenMapper, userRepo))
+            .isInstanceOf(IllegalArgumentException.class);
+        
+        assertThrows(() -> new SignInOperation(authenticationService, null, userRepo))
+            .isInstanceOf(IllegalArgumentException.class);
+        
+        assertThrows(() -> new SignInOperation(authenticationService, tokenMapper, null))
+            .isInstanceOf(IllegalArgumentException.class);
     }
     
     @Test
     public void testProcess() throws Exception
     {
         SignInResponse response = instance.process(request);
+        
         assertThat(response, notNullValue());
+        assertThat(response.userToken, is(userToken));
+        
+        verify(authenticationService).createToken(captor.capture());
+        
+        CreateTokenRequest authRequest = captor.getValue();
+        assertThat(authRequest, notNullValue());
+        assertThat(authRequest.ownerId, is(userId));
+        assertThat(authRequest.desiredTokenType, is(TokenType.USER));
+        assertThat(authRequest.ownerName, is(user.name));
+    }
+    
+    @Test
+    public void testProcessWhenUserDoesNotExist() throws Exception
+    {
+        when(userRepo.getUserByEmail(request.emailAddress))
+            .thenThrow(new UserDoesNotExistException());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(UserDoesNotExistException.class);
     }
     
     @Test
@@ -62,6 +148,31 @@ public class SignInOperationTest
     {
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    private void setupData()
+    {
+        authToken.tokenId = tokenId;
+        authToken.ownerId = userId;
+        authToken.organizationId = orgId;
+        
+        userToken.tokenId = tokenId;
+        userToken.userId = userId;
+        userToken.organization = orgId;
+        
+        user.userId = userId;
+    }
+
+    private void setupMocks() throws TException
+    {
+        when(tokenMapper.apply(authToken))
+            .thenReturn(userToken);
+        
+        when(userRepo.getUserByEmail(request.emailAddress))
+            .thenReturn(user);
+        
+        when(authenticationService.createToken(Mockito.any(CreateTokenRequest.class)))
+            .thenReturn(new CreateTokenResponse(authToken));
     }
     
 }
