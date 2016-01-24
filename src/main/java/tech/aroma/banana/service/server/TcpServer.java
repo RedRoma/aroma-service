@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import tech.aroma.banana.service.ModuleBananaService;
 import tech.aroma.banana.service.operations.ModuleBananaServiceOperations;
 import tech.aroma.banana.thrift.service.BananaService;
+import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -42,7 +43,7 @@ public final class TcpServer
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(TcpServer.class);
-    private static final int PORT = 7001;
+    private static final int PORT = BananaServiceConstants.SERVICE_PORT;
 
     public static void main(String[] args) throws TTransportException, SocketException
     {
