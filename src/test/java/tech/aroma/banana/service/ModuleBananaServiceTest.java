@@ -61,10 +61,10 @@ public class ModuleBananaServiceTest
     public void testConfigure() throws TException
     {
         Injector injector = Guice.createInjector(operationsModule,
-                                                       dataModule,
-                                                       instance,
-                                                       restOfDependencies);
-        
+                                                 dataModule,
+                                                 instance,
+                                                 restOfDependencies);
+
         assertThat(injector, notNullValue());
         
         BananaService.Iface service = injector.getInstance(BananaService.Iface.class);

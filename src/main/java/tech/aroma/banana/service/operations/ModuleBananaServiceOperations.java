@@ -24,6 +24,7 @@ import com.google.inject.TypeLiteral;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.thrift.authentication.ApplicationToken;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.functions.TokenFunctions;
@@ -164,5 +165,11 @@ public final class ModuleBananaServiceOperations extends AbstractModule
     Function<UserToken, AuthenticationToken> provideUserToAuthTokenMapper()
     {
         return TokenFunctions.userTokenToAuthTokenFunction();
+    }
+    
+    @Provides
+    Function<AuthenticationToken, ApplicationToken> provideAuthToAppTokenMapper()
+    {
+        return TokenFunctions.authTokenToAppTokenFunction();
     }
 }
