@@ -110,20 +110,7 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         //Create Token for Application
         //Return token
     }
-    
-    private AlchemyAssertion<ProvisionApplicationRequest> good()
-    {
-        return request ->
-        {
-            checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
-            checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-        };
-    }
+
     
     private AuthenticationToken getUserTokenFrom(UserToken token) throws InvalidTokenException, OperationFailedException
     {
@@ -210,5 +197,19 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
             .is(completeToken());
         
         return response.token;
+    }
+        
+    private AlchemyAssertion<ProvisionApplicationRequest> good()
+    {
+        return request ->
+        {
+            checkThat(request)
+                .usingMessage("request is null")
+                .is(notNull());
+            
+            checkThat(request.token)
+                .usingMessage("request missing token")
+                .is(notNull());
+        };
     }
 }
