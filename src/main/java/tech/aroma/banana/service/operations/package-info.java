@@ -19,6 +19,6 @@
  * defined in the Banana Service Specification. The Bindings can be obtained via the exposed
  * {@linkplain ModuleBananaServiceOperations Guice Module}.
  *
- * @see BananaServiceOperationsModule
+ * @see ModuleBananaServiceOperations
  */
 package tech.aroma.banana.service.operations;
