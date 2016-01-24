@@ -67,9 +67,10 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
     private final UserRepository userRepo;
     private final AuthenticationService.Iface authenticationService;
     private final Function<AuthenticationToken, ApplicationToken> appTokenMapper;
-    
+
     @Inject
-    ProvisionApplicationOperation(ApplicationRepository appRepo, UserRepository userRepo,
+    ProvisionApplicationOperation(ApplicationRepository appRepo,
+                                  UserRepository userRepo,
                                   AuthenticationService.Iface authenticationService,
                                   Function<AuthenticationToken, ApplicationToken> appTokenMapper)
     {
