@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import tech.sirwellington.alchemy.annotations.testing.IntegrationTest;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -32,6 +33,7 @@ import static org.junit.Assert.*;
  *
  * @author SirWellington
  */
+@IntegrationTest
 @RunWith(AlchemyTestRunner.class)
 public class TcpServerTest
 {
