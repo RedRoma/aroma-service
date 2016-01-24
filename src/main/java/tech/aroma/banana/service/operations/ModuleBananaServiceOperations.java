@@ -155,8 +155,14 @@ public final class ModuleBananaServiceOperations extends AbstractModule
     }
     
     @Provides
-    Function<AuthenticationToken, UserToken> provideTokenMapper()
+    Function<AuthenticationToken, UserToken> provideAuthToUserTokenMapper()
     {
         return TokenFunctions.authTokenToUserTokenFunction();
+    }
+    
+    @Provides
+    Function<UserToken, AuthenticationToken> provideUserToAuthTokenMapper()
+    {
+        return TokenFunctions.userTokenToAuthTokenFunction();
     }
 }
