@@ -38,6 +38,7 @@ import tech.aroma.banana.thrift.authentication.service.CreateTokenResponse;
 import tech.aroma.banana.thrift.authentication.service.GetTokenInfoRequest;
 import tech.aroma.banana.thrift.authentication.service.GetTokenInfoResponse;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
@@ -50,6 +51,7 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -166,6 +168,17 @@ public class ProvisionApplicationOperationTest
         
         assertThrows(() -> instance.process(request))
             .isInstanceOf(UserDoesNotExistException.class);
+    }
+    
+    @Test
+    public void testWhenAppRepoFails() throws Exception
+    {
+        doThrow(new OperationFailedException())
+            .when(appRepo)
+            .saveApplication(Mockito.any());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @DontRepeat
