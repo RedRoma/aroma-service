@@ -16,17 +16,24 @@
 
 package tech.aroma.banana.service;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.data.memory.ModuleMemoryDataRepositories;
 import tech.aroma.banana.service.operations.ModuleBananaServiceOperations;
+import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
+import tech.aroma.banana.thrift.service.BananaService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * This Test Class can be considered an Integration level test, because it tests the validity of
@@ -45,15 +52,24 @@ public class ModuleBananaServiceTest
     @Before
     public void setUp()
     {
+        operationsModule = new ModuleBananaServiceOperations();
         dataModule = new ModuleMemoryDataRepositories();
         instance = new ModuleBananaService();
     }
 
     @Test
-    public void testConfigure()
+    public void testConfigure() throws TException
     {
-        ModuleBananaServiceOperations operations = new ModuleBananaServiceOperations();
-        Guice.createInjector(operations, dataModule, instance);
+        Injector injector = Guice.createInjector(operationsModule,
+                                                       dataModule,
+                                                       instance,
+                                                       restOfDependencies);
+        
+        assertThat(injector, notNullValue());
+        
+        BananaService.Iface service = injector.getInstance(BananaService.Iface.class);
+        assertThat(service, notNullValue());
+        service.getApiVersion();
     }
 
     @Test
@@ -62,5 +78,16 @@ public class ModuleBananaServiceTest
         AlchemyHttp result = instance.provideAlchemyHttpClient();
         assertThat(result, notNullValue());
     }
+    
+    private final Module restOfDependencies = new AbstractModule()
+    {
+        @Override
+        protected void configure()
+        {
+            bind(AuthenticationService.Iface.class)
+                .toInstance(mock(AuthenticationService.Iface.class));
+        }
+        
+    };
 
 }
