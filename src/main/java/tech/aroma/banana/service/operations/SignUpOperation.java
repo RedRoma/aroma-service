@@ -117,28 +117,28 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     private AlchemyAssertion<SignUpRequest> good()
     {
         return request ->
+        {
+            checkThat(request)
+                .usingMessage("request is null")
+                .is(notNull());
+            
+            checkThat(request.firstName, request.lastName)
+                .usingMessage("first and last name are required")
+                .are(nonEmptyString());
+            
+            checkThat(request.mainRole)
+                .usingMessage("Your main role is required")
+                .is(notNull());
+            
+            if (request.isSetOrganizationId())
             {
-                checkThat(request)
-                    .usingMessage("request is null")
-                    .is(notNull());
-
-                checkThat(request.firstName, request.lastName)
-                    .usingMessage("first and last name are required")
-                    .are(nonEmptyString());
-
-                checkThat(request.mainRole)
-                    .usingMessage("Your main role is required")
-                    .is(notNull());
-
-                if (request.isSetOrganizationId())
-                {
-                    checkThat(request.organizationId)
-                        .usingMessage("organization ID must be a valid UUID type")
-                        .is(validUUID());
-                }
-
-                //TODO: Add check on the email
-            };
+                checkThat(request.organizationId)
+                    .usingMessage("organization ID must be a valid UUID type")
+                    .is(validUUID());
+            }
+            
+            //TODO: Add check on the email
+        };
     }
 
     private CreateTokenRequest makeAuthenticationRequestToCreateToken(User user)
