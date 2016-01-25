@@ -55,10 +55,11 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
     private final AuthenticationService.Iface authenticationService;
     private final Function<AuthenticationToken, UserToken> tokenMapper;
     private final UserRepository userRepo;
-    
+
     @Inject
     SignInOperation(AuthenticationService.Iface authenticationService,
-                    Function<AuthenticationToken, UserToken> tokenMapper, UserRepository userRepo)
+                    Function<AuthenticationToken, UserToken> tokenMapper,
+                    UserRepository userRepo)
     {
         checkThat(authenticationService, tokenMapper, userRepo)
             .are(notNull());
@@ -78,7 +79,7 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
         //Check credentials
         //If good create token
         //Return token
-        LOG.info("Received request to sign in: {}", request);
+        LOG.debug("Received request to sign in: {}", request);
         
         User user = userRepo.getUserByEmail(request.emailAddress);
         
@@ -110,7 +111,7 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
         catch (Exception ex)
         {
             LOG.error("Authentication Service request failed: {}", request, ex);
-            throw new OperationFailedException("Could not create token: " + ex.getMessage());
+            throw new OperationFailedException("Could not create token. Authentication Service: " + ex.getMessage());
         }
         
         checkThat(response)
