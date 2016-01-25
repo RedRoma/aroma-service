@@ -95,6 +95,8 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         AuthenticationToken authTokenForUser = getUserTokenFrom(request.token);
         User user = userRepo.getUser(authTokenForUser.ownerId);
         
+        LOG.debug("Owner ID {} Maps to user {}", authTokenForUser.ownerId, user);
+        
         Application app = createAppFrom(request, user);
         appRepo.saveApplication(app);
         
