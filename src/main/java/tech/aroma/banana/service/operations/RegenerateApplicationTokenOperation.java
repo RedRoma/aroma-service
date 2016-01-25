@@ -19,12 +19,15 @@ package tech.aroma.banana.service.operations;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.data.ApplicationRepository;
+import tech.aroma.banana.data.TokenRepository;
+import tech.aroma.banana.data.UserRepository;
+import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.banana.thrift.service.RegenerateApplicationTokenResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
@@ -35,11 +38,22 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(RegenerateApplicationTokenOperation.class);
+    private UserRepository userRepo;
+    private AuthenticationService.Iface authenticationService;
+    private ApplicationRepository appRepo;
+    private TokenRepository tokenRepo;
 
     @Override
     public RegenerateApplicationTokenResponse process(RegenerateApplicationTokenRequest request) throws TException
     {
         checkNotNull(request);
+        
+        //Get User ID
+        //Get App Info
+        //Assert user has authorization to do this
+        //Delete existing tokens for App
+        //Create new token
+        //Return token
 
         return pojos(RegenerateApplicationTokenResponse.class).get();
     }
