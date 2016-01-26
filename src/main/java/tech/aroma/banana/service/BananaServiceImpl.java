@@ -236,13 +236,12 @@ final class BananaServiceImpl implements BananaService.Iface
     }
 
     @Override
-    public RegenerateApplicationTokenResponse regenerateToken(RegenerateApplicationTokenRequest request) throws
-        OperationFailedException,
-        InvalidArgumentException,
-        InvalidCredentialsException,
-        ApplicationDoesNotExistException,
-        UnauthorizedException,
-        TException
+    public RegenerateApplicationTokenResponse regenerateToken(RegenerateApplicationTokenRequest request) throws OperationFailedException,
+                                                                                                                InvalidArgumentException,
+                                                                                                                InvalidCredentialsException,
+                                                                                                                ApplicationDoesNotExistException,
+                                                                                                                UnauthorizedException,
+                                                                                                                TException
     {
         checkNotNull(request);
 
@@ -354,14 +353,13 @@ final class BananaServiceImpl implements BananaService.Iface
     }
 
     @Override
-    public SubscribeToApplicationResponse subscribeToApplication(SubscribeToApplicationRequest request) throws
-        OperationFailedException,
-        InvalidArgumentException,
-        InvalidCredentialsException,
-        ApplicationDoesNotExistException,
-        ApplicationAlreadyRegisteredException,
-        CustomChannelUnreachableException,
-        TException
+    public SubscribeToApplicationResponse subscribeToApplication(SubscribeToApplicationRequest request) throws OperationFailedException,
+                                                                                                               InvalidArgumentException,
+                                                                                                               InvalidCredentialsException,
+                                                                                                               ApplicationDoesNotExistException,
+                                                                                                               ApplicationAlreadyRegisteredException,
+                                                                                                               CustomChannelUnreachableException,
+                                                                                                               TException
     {
         checkNotNull(request);
 
@@ -401,7 +399,8 @@ final class BananaServiceImpl implements BananaService.Iface
     @Override
     public GetDashboardResponse getDashboard(GetDashboardRequest request) throws OperationFailedException,
                                                                                  InvalidArgumentException,
-                                                                                 InvalidCredentialsException, TException
+                                                                                 InvalidCredentialsException, 
+                                                                                 TException
     {
         checkNotNull(request);
 
@@ -411,8 +410,10 @@ final class BananaServiceImpl implements BananaService.Iface
     }
 
     @Override
-    public GetMessagesResponse getMessages(GetMessagesRequest request) throws OperationFailedException, InvalidArgumentException,
-                                                                              InvalidCredentialsException, TException
+    public GetMessagesResponse getMessages(GetMessagesRequest request) throws OperationFailedException,
+                                                                              InvalidArgumentException,
+                                                                              InvalidCredentialsException,
+                                                                              TException
     {
         checkNotNull(request);
 
@@ -424,7 +425,8 @@ final class BananaServiceImpl implements BananaService.Iface
     @Override
     public GetFullMessageResponse getFullMessage(GetFullMessageRequest request) throws OperationFailedException,
                                                                                        InvalidArgumentException,
-                                                                                       InvalidCredentialsException, TException
+                                                                                       InvalidCredentialsException, 
+                                                                                       TException
     {
         checkNotNull(request);
 
