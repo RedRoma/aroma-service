@@ -19,13 +19,16 @@ package tech.aroma.banana.service.operations;
 
 
 import java.util.List;
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.lists.Lists;
+import tech.aroma.banana.data.ApplicationRepository;
 import tech.aroma.banana.data.MessageRepository;
-import tech.aroma.banana.data.UserRepository;
+import tech.aroma.banana.thrift.Application;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
 import tech.aroma.banana.thrift.service.DeleteMessageRequest;
 import tech.aroma.banana.thrift.service.DeleteMessageResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
@@ -35,6 +38,8 @@ import static tech.aroma.banana.data.assertions.RequestAssertions.validAppId;
 import static tech.aroma.banana.data.assertions.RequestAssertions.validMessageId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 
 /**
  *
@@ -44,8 +49,18 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
 {
     private final static Logger LOG = LoggerFactory.getLogger(DeleteMessageOperation.class);
 
-    private MessageRepository messageRepo;
-    private UserRepository userRepo;
+    private final ApplicationRepository appRepo;
+    private final MessageRepository messageRepo;
+
+    @Inject
+    DeleteMessageOperation(ApplicationRepository appRepo, MessageRepository messageRepo)
+    {
+        checkThat(appRepo, messageRepo)
+            .are(notNull());
+        
+        this.appRepo = appRepo;
+        this.messageRepo = messageRepo;
+    }
     
     @Override
     public DeleteMessageResponse process(DeleteMessageRequest request) throws TException
@@ -54,10 +69,15 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
             
-        checkThatUserIsAuthorized(request);
-        
         List<String> messagesToDelete = Lists.create();
         String appId = request.applicationId;
+        String userId = request.token.userId;
+        Application app = appRepo.getById(appId);
+
+        checkThat(userId)
+            .usingMessage("Not Authorized to delete messages for App")
+            .throwing(UnauthorizedException.class)
+            .is(elementInCollection(app.owners));
         
         if(request.isSetMessageId())
         {
@@ -92,6 +112,10 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
                 .usingMessage("request missing token")
                 .is(notNull());
             
+            checkThat(request.token.userId)
+                .usingMessage("request missing userId in Token")
+                .is(nonEmptyString());
+            
             checkThat(request.applicationId)
                 .is(validAppId());
             
@@ -110,11 +134,6 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
                 }
             }
         };
-    }
-
-    private void checkThatUserIsAuthorized(DeleteMessageRequest request)
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
