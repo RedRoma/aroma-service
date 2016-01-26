@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
- 
 package tech.aroma.banana.service.operations;
 
-
+import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sir.wellington.alchemy.collections.lists.Lists;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.banana.data.ApplicationRepository;
 import tech.aroma.banana.data.MessageRepository;
@@ -47,6 +47,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.n
  */
 final class DeleteMessageOperation implements ThriftOperation<DeleteMessageRequest, DeleteMessageResponse>
 {
+
     private final static Logger LOG = LoggerFactory.getLogger(DeleteMessageOperation.class);
 
     private final ApplicationRepository appRepo;
@@ -57,18 +58,18 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
     {
         checkThat(appRepo, messageRepo)
             .are(notNull());
-        
+
         this.appRepo = appRepo;
         this.messageRepo = messageRepo;
     }
-    
+
     @Override
     public DeleteMessageResponse process(DeleteMessageRequest request) throws TException
     {
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
-            
+
         Set<String> messagesToDelete = Sets.create();
         String appId = request.applicationId;
         String userId = request.token.userId;
@@ -78,72 +79,100 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
             .usingMessage("Not Authorized to delete messages for App")
             .throwing(UnauthorizedException.class)
             .is(elementInCollection(app.owners));
-        
-        if(request.isSetMessageId())
+
+        int count = 0;
+        if (request.deleteAll)
+        {
+            count = deleteAllMessages(appId);
+        }
+        else
+        {
+            count = deleteWithOptions(request);
+        }
+
+        return new DeleteMessageResponse().setMessagesDeleted(count);
+
+    }
+
+    private AlchemyAssertion<DeleteMessageRequest> good()
+    {
+        return request ->
+            {
+                checkThat(request)
+                    .usingMessage("request is null")
+                    .is(notNull());
+
+                checkThat(request.token)
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
+                checkThat(request.token.userId)
+                    .usingMessage("request missing userId in Token")
+                    .is(nonEmptyString());
+
+                checkThat(request.applicationId)
+                    .is(validAppId());
+
+                if (request.isSetMessageId())
+                {
+                    checkThat(request.messageId)
+                        .is(validMessageId());
+                }
+
+                if (request.isSetMessageIds())
+                {
+                    for (String messageId : request.messageIds)
+                    {
+                        checkThat(messageId)
+                            .is(validMessageId());
+                    }
+                }
+            };
+    }
+
+    private int deleteWithOptions(DeleteMessageRequest request)
+    {
+        String appId = request.applicationId;
+
+        List<String> messagesToDelete = Lists.create();
+
+        if (request.isSetMessageId())
         {
             messagesToDelete.add(request.messageId);
         }
-        
-        if(request.isSetMessageIds())
+
+        if (request.isSetMessageIds())
         {
             messagesToDelete.addAll(request.messageIds);
         }
-        
+
         messagesToDelete.parallelStream()
             .forEach(msg -> this.deleteMessage(appId, msg));
         LOG.debug("Deleted {} messages for App [{]]", messagesToDelete.size(), appId);
-        
-        return new DeleteMessageResponse()
-            .setMessagesDeleted(messagesToDelete.size());
+
+        return messagesToDelete.size();
     }
-    
+
+    private int deleteAllMessages(String appId) throws TException
+    {
+        Long count = messageRepo.getCountByApplication(appId);
+        messageRepo.deleteAllMessages(appId);
+
+        LOG.debug("Deleted all {} messages for App {}", appId);
+        return count.intValue();
+    }
+
     private void deleteMessage(String appId, String messageId)
     {
         try
         {
             messageRepo.deleteMessage(appId, messageId);
         }
-        catch(TException ex)
+        catch (TException ex)
         {
             //Ignoring this is not good long-term behavior
             LOG.error("Could not delete message with ID [{}] for App [{}]", messageId, appId, ex);
         }
-    }
-
-    private AlchemyAssertion<DeleteMessageRequest> good()
-    {
-        return request ->
-        {
-            checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
-            checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
-            checkThat(request.token.userId)
-                .usingMessage("request missing userId in Token")
-                .is(nonEmptyString());
-            
-            checkThat(request.applicationId)
-                .is(validAppId());
-            
-            if(request.isSetMessageId())
-            {
-                checkThat(request.messageId)
-                    .is(validMessageId());
-            }
-            
-            if(request.isSetMessageIds())
-            {
-                for (String messageId : request.messageIds)
-                {
-                    checkThat(messageId)
-                        .is(validMessageId());
-                }
-            }
-        };
     }
 
 }
