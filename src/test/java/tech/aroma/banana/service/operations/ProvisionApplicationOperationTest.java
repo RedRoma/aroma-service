@@ -145,6 +145,7 @@ public class ProvisionApplicationOperationTest
         assertThat(savedApp.owners.containsAll(request.owners), is(true));
         assertThat(savedApp.organizationId, is(request.organizationId));
         assertThat(savedApp.applicationDescription, is(request.applicationDescription));
+        assertThat(savedApp.timeOfTokenExpiration, is(appToken.timeOfExpiration));
         
         assertThat(response, notNullValue());
         assertThat(response.applicationToken, is(appToken));

@@ -98,10 +98,13 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         LOG.debug("Owner ID {} Maps to user {}", authTokenForUser.ownerId, user);
         
         Application app = createAppFrom(request, user);
-        appRepo.saveApplication(app);
         
         AuthenticationToken authTokenForApp = createAppTokenFor(app);
         ApplicationToken appToken = appTokenMapper.apply(authTokenForApp);
+        
+        //Save time of token expiration
+        app.setTimeOfTokenExpiration(appToken.timeOfExpiration);
+        appRepo.saveApplication(app);
         
         return new ProvisionApplicationResponse()
             .setApplicationInfo(app)
