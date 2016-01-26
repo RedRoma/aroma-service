@@ -374,9 +374,12 @@ final class AuthenticationLayer implements BananaService.Iface
     }
     
     @Override
-    public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException, InvalidArgumentException,
-                                                                  InvalidTokenException, ApplicationDoesNotExistException,
-                                                                  UnauthorizedException, TException
+    public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException, 
+                                                                  InvalidArgumentException,
+                                                                  InvalidTokenException,
+                                                                  ApplicationDoesNotExistException,
+                                                                  UnauthorizedException, 
+                                                                  TException
     {
         checkNotNull(request);
         
@@ -389,9 +392,12 @@ final class AuthenticationLayer implements BananaService.Iface
     }
 
     @Override
-    public GetUserInfoResponse getUserInfo(GetUserInfoRequest request) throws OperationFailedException, InvalidArgumentException,
-                                                                              InvalidTokenException, UnauthorizedException,
-                                                                              UserDoesNotExistException, TException
+    public GetUserInfoResponse getUserInfo(GetUserInfoRequest request) throws OperationFailedException, 
+                                                                              InvalidArgumentException,
+                                                                              InvalidTokenException,
+                                                                              UnauthorizedException,
+                                                                              UserDoesNotExistException, 
+                                                                              TException
     {
         checkNotNull(request);
         checkToken(request.token);
