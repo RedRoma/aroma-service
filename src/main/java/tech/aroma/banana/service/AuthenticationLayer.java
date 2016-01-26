@@ -32,10 +32,15 @@ import tech.aroma.banana.thrift.exceptions.CustomChannelUnreachableException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
+import tech.aroma.banana.thrift.exceptions.MessageDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
 import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.BananaService;
+import tech.aroma.banana.thrift.service.DeleteMessageRequest;
+import tech.aroma.banana.thrift.service.DeleteMessageResponse;
+import tech.aroma.banana.thrift.service.DismissMessageRequest;
+import tech.aroma.banana.thrift.service.DismissMessageResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -117,6 +122,34 @@ final class AuthenticationLayer implements BananaService.Iface
     public double getApiVersion() throws TException
     {
         return delegate.getApiVersion();
+    }
+    
+       @Override
+    public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) throws OperationFailedException,
+                                                                                    InvalidArgumentException,
+                                                                                    InvalidTokenException,
+                                                                                    MessageDoesNotExistException,
+                                                                                    UnauthorizedException,
+                                                                                    TException
+    {
+        checkNotNull(request);
+        checkToken(request.token);
+        
+        return delegate.deleteMessage(request);
+    }
+
+    @Override
+    public DismissMessageResponse dismissMessage(DismissMessageRequest request) throws OperationFailedException,
+                                                                                       InvalidArgumentException,
+                                                                                       InvalidTokenException,
+                                                                                       MessageDoesNotExistException,
+                                                                                       UnauthorizedException,
+                                                                                       TException
+    {
+        checkNotNull(request);
+        checkToken(request.token);
+        
+        return delegate.dismissMessage(request);
     }
 
     @Override
@@ -346,6 +379,11 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                   UnauthorizedException, TException
     {
         checkNotNull(request);
+        
+        if(request.isSetToken())
+        {
+            checkToken(request.token);
+        }
         
         return delegate.getBuzz(request);
     }
