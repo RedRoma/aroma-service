@@ -16,13 +16,11 @@
 
 package tech.aroma.banana.service.operations;
 
-import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sir.wellington.alchemy.collections.lists.Lists;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.banana.data.ApplicationRepository;
 import tech.aroma.banana.data.MessageRepository;
@@ -70,7 +68,6 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
 
-        Set<String> messagesToDelete = Sets.create();
         String appId = request.applicationId;
         String userId = request.token.userId;
         Application app = appRepo.getById(appId);
@@ -134,7 +131,7 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
     {
         String appId = request.applicationId;
 
-        List<String> messagesToDelete = Lists.create();
+        Set<String> messagesToDelete = Sets.create();
 
         if (request.isSetMessageId())
         {

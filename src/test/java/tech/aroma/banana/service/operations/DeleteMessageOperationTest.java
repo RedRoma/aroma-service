@@ -16,7 +16,7 @@
 
 package tech.aroma.banana.service.operations;
 
-import java.util.Collection;
+import java.util.Set;
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +36,7 @@ import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static java.util.stream.Collectors.toSet;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -83,7 +84,7 @@ public class DeleteMessageOperationTest
     @GenerateString(HEXADECIMAL)
     private String tokenId;
     
-    private Collection<String> messageIds;
+    private Set<String> messageIds;
 
     @Before
     public void setUp() throws TException
@@ -148,6 +149,20 @@ public class DeleteMessageOperationTest
         assertThrows(() -> instance.process(request))
             .isInstanceOf(UnauthorizedException.class);
     }
+    
+    @Test
+    public void testProcessWhenDeleteAll() throws Exception
+    {
+        request.setDeleteAll(true);
+        
+        when(messageRepo.getCountByApplication(appId))
+            .thenReturn((long) messageIds.size());
+        
+        DeleteMessageResponse response = instance.process(request);
+        assertThat(response.messagesDeleted, is(messageIds.size()));
+        
+        verify(messageRepo).deleteAllMessages(appId);
+    }
 
     private void setupData()
     {
@@ -155,7 +170,7 @@ public class DeleteMessageOperationTest
         request.token.userId = userId;
         request.applicationId = appId;
         request.messageId = msgId;
-        
+        request.setDeleteAll(false);
         
         app.applicationId = appId;
         app.owners.add(userId);
