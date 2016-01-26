@@ -123,7 +123,8 @@ public class AuthenticationLayerTest
         tokenId = userToken.tokenId;
 
         expectedAuthToken = TokenFunctions.userTokenToAuthTokenFunction().apply(userToken);
-        expectedVerifyTokenRequest = new VerifyTokenRequest(tokenId);
+        expectedVerifyTokenRequest = new VerifyTokenRequest(tokenId)
+            .setOwnerId(userToken.userId);
     }
 
     @DontRepeat
