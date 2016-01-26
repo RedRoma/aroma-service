@@ -28,11 +28,16 @@ import tech.aroma.banana.thrift.exceptions.CustomChannelUnreachableException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
+import tech.aroma.banana.thrift.exceptions.MessageDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
 import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.BananaService;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
+import tech.aroma.banana.thrift.service.DeleteMessageRequest;
+import tech.aroma.banana.thrift.service.DeleteMessageResponse;
+import tech.aroma.banana.thrift.service.DismissMessageRequest;
+import tech.aroma.banana.thrift.service.DismissMessageResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -193,6 +198,27 @@ final class BananaServiceImpl implements BananaService.Iface
     {
         return BananaServiceConstants.API_VERSION;
     }
+   
+    @Override
+    public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) throws OperationFailedException,
+                                                                                    InvalidArgumentException,
+                                                                                    InvalidTokenException,
+                                                                                    MessageDoesNotExistException,
+                                                                                    UnauthorizedException, TException
+    {
+        throw new OperationFailedException("Not supported yet.");
+    }
+
+    @Override
+    public DismissMessageResponse dismissMessage(DismissMessageRequest request) throws OperationFailedException,
+                                                                                       InvalidArgumentException,
+                                                                                       InvalidTokenException,
+                                                                                       MessageDoesNotExistException,
+                                                                                       UnauthorizedException, TException
+    {
+        throw new OperationFailedException("Not supported yet."); 
+    }
+
 
     @Override
     public ProvisionApplicationResponse provisionApplication(ProvisionApplicationRequest request) throws OperationFailedException,
