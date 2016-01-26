@@ -18,12 +18,12 @@
 package tech.aroma.banana.service.operations;
 
 
-import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sir.wellington.alchemy.collections.lists.Lists;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.banana.data.ApplicationRepository;
 import tech.aroma.banana.data.MessageRepository;
 import tech.aroma.banana.thrift.Application;
@@ -69,7 +69,7 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
             
-        List<String> messagesToDelete = Lists.create();
+        Set<String> messagesToDelete = Sets.create();
         String appId = request.applicationId;
         String userId = request.token.userId;
         Application app = appRepo.getById(appId);
@@ -89,15 +89,25 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
             messagesToDelete.addAll(request.messageIds);
         }
         
-        for(String messageId : messagesToDelete)
-        {
-            messageRepo.deleteMessage(appId, messageId);
-        }
-        
+        messagesToDelete.parallelStream()
+            .forEach(msg -> this.deleteMessage(appId, msg));
         LOG.debug("Deleted {} messages for App [{]]", messagesToDelete.size(), appId);
         
         return new DeleteMessageResponse()
             .setMessagesDeleted(messagesToDelete.size());
+    }
+    
+    private void deleteMessage(String appId, String messageId)
+    {
+        try
+        {
+            messageRepo.deleteMessage(appId, messageId);
+        }
+        catch(TException ex)
+        {
+            //Ignoring this is not good long-term behavior
+            LOG.error("Could not delete message with ID [{}] for App [{}]", messageId, appId, ex);
+        }
     }
 
     private AlchemyAssertion<DeleteMessageRequest> good()
