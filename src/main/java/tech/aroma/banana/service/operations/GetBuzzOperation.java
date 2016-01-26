@@ -21,6 +21,9 @@ package tech.aroma.banana.service.operations;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.data.ApplicationRepository;
+import tech.aroma.banana.data.OrganizationRepository;
+import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.service.BananaGenerators;
 import tech.aroma.banana.thrift.events.GeneralEvent;
 import tech.aroma.banana.thrift.events.HealthCheckFailed;
@@ -42,11 +45,21 @@ import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetBuzzOperation.class);
+    
+    private ApplicationRepository appRepo;
+    private OrganizationRepository orgRepo;
+    private UserRepository userRepo;
 
     @Override
     public GetBuzzResponse process(GetBuzzRequest request) throws TException
     {
         checkNotNull(request);
+        //Get recently created apps
+        //Get the requester's orgs
+        //Get recent users in those orgs
+        //Get recent apps in those orgs
+        //Return all that
+        
         
         GetBuzzResponse response = one(buzz());
         
