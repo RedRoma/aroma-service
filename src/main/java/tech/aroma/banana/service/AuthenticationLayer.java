@@ -22,8 +22,11 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
+import tech.aroma.banana.thrift.authentication.TokenType;
 import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
+import tech.aroma.banana.thrift.authentication.service.GetTokenInfoRequest;
+import tech.aroma.banana.thrift.authentication.service.GetTokenInfoResponse;
 import tech.aroma.banana.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.banana.thrift.exceptions.ApplicationAlreadyRegisteredException;
 import tech.aroma.banana.thrift.exceptions.ApplicationDoesNotExistException;
@@ -133,7 +136,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                     TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
         
         return delegate.deleteMessage(request);
     }
@@ -147,7 +150,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                        TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
         
         return delegate.dismissMessage(request);
     }
@@ -161,7 +164,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                          TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.provisionApplication(request);
     }
@@ -175,7 +178,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                                 TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.regenerateToken(request);
     }
@@ -189,7 +192,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                       TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.registerHealthCheck(request);
     }
@@ -203,7 +206,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                    TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.removeSavedChannel(request);
     }
@@ -217,7 +220,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                             TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.renewApplicationToken(request);
     }
@@ -230,7 +233,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                               TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.saveChannel(request);
     }
@@ -267,7 +270,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                     TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.snoozeChannel(request);
     }
@@ -282,7 +285,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                                TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.subscribeToApplication(request);
     }
@@ -294,7 +297,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                               TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.getActivity(request);
     }
@@ -320,7 +323,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                  TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.getDashboard(request);
     }
@@ -332,7 +335,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                               TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.getMessages(request);
     }
@@ -344,7 +347,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                        TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.getFullMessage(request);
     }
@@ -356,7 +359,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                 TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.getMyApplications(request);
     }
@@ -368,7 +371,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                    TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.getMySavedChannels(request);
     }
@@ -385,7 +388,7 @@ final class AuthenticationLayer implements BananaService.Iface
         
         if(request.isSetToken())
         {
-            checkToken(request.token);
+            checkAndEnrichToken(request.token);
         }
         
         return delegate.getBuzz(request);
@@ -400,7 +403,7 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                               TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
         
         return delegate.getUserInfo(request);
     }
@@ -413,16 +416,44 @@ final class AuthenticationLayer implements BananaService.Iface
                                                                                                             TException
     {
         checkNotNull(request);
-        checkToken(request.token);
+        checkAndEnrichToken(request.token);
 
         return delegate.searchForApplications(request);
     }
 
-    private void checkToken(UserToken token) throws InvalidTokenException
+    private void checkAndEnrichToken(UserToken token) throws InvalidTokenException, TException
     {
         checkThat(token)
             .throwing(InvalidTokenException.class)
             .is(validUserTokenIn(authenticationService));
+        
+        String tokenId = token.tokenId;
+        
+        GetTokenInfoRequest request = new GetTokenInfoRequest()
+            .setTokenId(tokenId)
+            .setTokenType(TokenType.USER);
+        
+        GetTokenInfoResponse tokenInfo;
+        try
+        {
+            tokenInfo = authenticationService.getTokenInfo(request);
+        }
+        catch (TException ex)
+        {
+            LOG.error("Failed to get additional token info from Authentication Service", ex);
+            throw new OperationFailedException("Could not ascertain token info: " + ex.getMessage());
+        }
+        
+        checkThat(tokenInfo)
+            .throwing(OperationFailedException.class)
+            .usingMessage("failed to enrich user token. Auth Service returned null response")
+            .is(notNull());
+
+        AuthenticationToken authToken = tokenInfo.token;
+        
+        token.setUserId(authToken.ownerId);
+        token.setTimeOfExpiration(authToken.timeOfExpiration);
+        token.setOrganization(authToken.organizationId);
     }
 
     private void checkToken(AuthenticationToken token) throws InvalidTokenException

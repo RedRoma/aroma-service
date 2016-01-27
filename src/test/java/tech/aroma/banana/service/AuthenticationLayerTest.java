@@ -22,8 +22,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
+import tech.aroma.banana.thrift.authentication.TokenType;
 import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
+import tech.aroma.banana.thrift.authentication.service.GetTokenInfoRequest;
+import tech.aroma.banana.thrift.authentication.service.GetTokenInfoResponse;
 import tech.aroma.banana.thrift.authentication.service.VerifyTokenRequest;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
@@ -114,17 +117,17 @@ public class AuthenticationLayerTest
 
     private VerifyTokenRequest expectedVerifyTokenRequest;
 
+    private GetTokenInfoRequest expectedGetTokenInfoRequest;
+
     @Before
-    public void setUp()
+    public void setUp() throws Exception
     {
         instance = new AuthenticationLayer(delegate, authenticationService);
         verifyZeroInteractions(delegate, authenticationService);
 
-        tokenId = userToken.tokenId;
+        setupData();
 
-        expectedAuthToken = TokenFunctions.userTokenToAuthTokenFunction().apply(userToken);
-        expectedVerifyTokenRequest = new VerifyTokenRequest(tokenId)
-            .setOwnerId(userToken.userId);
+        setupMocks();
     }
 
     @DontRepeat
@@ -158,6 +161,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).provisionApplication(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @DontRepeat
@@ -198,6 +202,8 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).regenerateToken(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+
     }
 
     @DontRepeat
@@ -238,6 +244,8 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).registerHealthCheck(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+
     }
 
     @DontRepeat
@@ -278,6 +286,8 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).removeSavedChannel(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+
     }
 
     @DontRepeat
@@ -315,6 +325,8 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).renewApplicationToken(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+
     }
 
     @DontRepeat
@@ -352,6 +364,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).saveChannel(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
 
     }
 
@@ -411,6 +424,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).signUp(request);
         verifyZeroInteractions(authenticationService);
+
     }
 
     @DontRepeat
@@ -433,6 +447,8 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).snoozeChannel(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+
     }
 
     @DontRepeat
@@ -470,6 +486,8 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).subscribeToApplication(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+
     }
 
     @DontRepeat
@@ -508,6 +526,8 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).getActivity(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+
     }
 
     @DontRepeat
@@ -586,6 +606,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).getDashboard(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @DontRepeat
@@ -624,6 +645,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).getMessages(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @DontRepeat
@@ -662,6 +684,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).getFullMessage(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @DontRepeat
@@ -700,6 +723,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).getMyApplications(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @DontRepeat
@@ -737,6 +761,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).getMySavedChannels(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @DontRepeat
@@ -773,6 +798,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).searchForApplications(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @Test
@@ -799,7 +825,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).getBuzz(request);
     }
-    
+
     @DontRepeat
     @Test
     public void testGetBuzzWithNoToken() throws Exception
@@ -807,7 +833,7 @@ public class AuthenticationLayerTest
         GetBuzzRequest request = new GetBuzzRequest();
         GetBuzzResponse expected = new GetBuzzResponse();
         when(delegate.getBuzz(request)).thenReturn(expected);
-        
+
         GetBuzzResponse response = instance.getBuzz(request);
         assertThat(response, is(sameInstance(expected)));
     }
@@ -843,6 +869,7 @@ public class AuthenticationLayerTest
         assertThat(result, is(expected));
         verify(delegate).getUserInfo(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @Test
@@ -852,21 +879,24 @@ public class AuthenticationLayerTest
         DeleteMessageResponse expected = new DeleteMessageResponse();
         when(delegate.deleteMessage(request))
             .thenReturn(expected);
-        
+
         DeleteMessageResponse response = instance.deleteMessage(request);
         assertThat(response, is(sameInstance(expected)));
+
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @Test
     public void testDeleteMessageWithBadToken() throws Exception
     {
         setupWithBadToken();
-        
+
         DeleteMessageRequest request = new DeleteMessageRequest().setToken(userToken);
-        
+
         assertThrows(() -> instance.deleteMessage(request))
             .isInstanceOf(InvalidTokenException.class);
-        
+
         verifyZeroInteractions(delegate);
     }
 
@@ -875,7 +905,7 @@ public class AuthenticationLayerTest
     {
         assertThrows(() -> instance.deleteMessage(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         DeleteMessageRequest emptyRequest = new DeleteMessageRequest();
         assertThrows(() -> instance.deleteMessage(emptyRequest))
             .isInstanceOf(InvalidTokenException.class);
@@ -887,16 +917,19 @@ public class AuthenticationLayerTest
         DismissMessageRequest request = new DismissMessageRequest().setToken(userToken);
         DismissMessageResponse expected = new DismissMessageResponse();
         when(delegate.dismissMessage(request)).thenReturn(expected);
-        
+
         DismissMessageResponse response = instance.dismissMessage(request);
         assertThat(response, is(sameInstance(expected)));
+
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @Test
     public void testDismissMessageWithBadToken() throws Exception
     {
         setupWithBadToken();
-        
+
         DismissMessageRequest request = new DismissMessageRequest().setToken(userToken);
 
         assertThrows(() -> instance.dismissMessage(request))
@@ -908,7 +941,7 @@ public class AuthenticationLayerTest
     {
         assertThrows(() -> instance.dismissMessage(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         DismissMessageRequest emptyRequest = new DismissMessageRequest();
         assertThrows(() -> instance.dismissMessage(emptyRequest))
             .isInstanceOf(InvalidTokenException.class);
@@ -918,6 +951,25 @@ public class AuthenticationLayerTest
     {
         when(authenticationService.verifyToken(expectedVerifyTokenRequest))
             .thenThrow(new InvalidTokenException());
+    }
+
+    private void setupMocks() throws Exception
+    {
+        when(authenticationService.getTokenInfo(expectedGetTokenInfoRequest))
+            .thenReturn(new GetTokenInfoResponse(expectedAuthToken));
+    }
+
+    private void setupData()
+    {
+        tokenId = userToken.tokenId;
+
+        expectedAuthToken = TokenFunctions.userTokenToAuthTokenFunction().apply(userToken);
+        expectedVerifyTokenRequest = new VerifyTokenRequest(tokenId)
+            .setOwnerId(userToken.userId);
+
+        expectedGetTokenInfoRequest = new GetTokenInfoRequest()
+            .setTokenType(TokenType.USER)
+            .setTokenId(tokenId);
     }
 
 }
