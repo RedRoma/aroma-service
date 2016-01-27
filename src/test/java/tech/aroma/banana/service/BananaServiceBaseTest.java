@@ -553,7 +553,7 @@ public class BananaServiceBaseTest
     
     @DontRepeat
     @Test
-    public void testGetActivityWhenThrows() throws Exception
+    public void testGetActivityWhenFails() throws Exception
     {
         GetActivityRequest request = one(pojos(GetActivityRequest.class));
         
@@ -567,6 +567,24 @@ public class BananaServiceBaseTest
     @Test
     public void testGetMessages() throws Exception
     {
+        GetMessagesRequest request = one(pojos(GetMessagesRequest.class));
+        GetMessagesResponse expected = one(pojos(GetMessagesResponse.class));
+        when(getMessagesOperation.process(request)).thenReturn(expected);
+        
+        GetMessagesResponse response = instance.getMessages(request);
+        assertThat(response, is(sameInstance(response)));
+    }
+
+    @DontRepeat
+    @Test
+    public void testGetMessagesWhenFails() throws Exception
+    {
+        GetMessagesRequest request = one(pojos(GetMessagesRequest.class));
+        when(getMessagesOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.getMessages(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
