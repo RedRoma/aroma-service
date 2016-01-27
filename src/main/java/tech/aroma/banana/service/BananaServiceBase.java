@@ -84,6 +84,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
  * This is the Top Level of the Banana Service. All of the Operations arrive here and routed to their respective
@@ -92,10 +93,10 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
  * @author SirWellington
  */
 @Internal
-final class BananaServiceImpl implements BananaService.Iface
+final class BananaServiceBase implements BananaService.Iface
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(BananaServiceImpl.class);
+    private final static Logger LOG = LoggerFactory.getLogger(BananaServiceBase.class);
 
     //Action and Save Operations
     private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
@@ -122,7 +123,7 @@ final class BananaServiceImpl implements BananaService.Iface
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
     @Inject
-    BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signInOperation,
+    BananaServiceBase(ThriftOperation<SignInRequest, SignInResponse> signInOperation,
                       ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
                       ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
                       ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,

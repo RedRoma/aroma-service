@@ -87,7 +87,7 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class BananaServiceImplTest
+public class BananaServiceBaseTest
 {
     //Action and Save Operations
     
@@ -153,12 +153,12 @@ public class BananaServiceImplTest
     private ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
 
-    private BananaServiceImpl instance;
+    private BananaServiceBase instance;
 
     @Before
     public void setUp()
     {
-        instance = new BananaServiceImpl(signInOperation,
+        instance = new BananaServiceBase(signInOperation,
                                          signUpOperation,
                                          provisionApplicationOperation,
                                          regenerateApplicationTokenOperation,

@@ -39,7 +39,7 @@ public class ModuleBananaService extends AbstractModule
     @Override
     protected void configure()
     {
-        bind(BananaService.Iface.class).to(BananaServiceImpl.class);
+        bind(BananaService.Iface.class).to(BananaServiceBase.class);
         
         bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool(15));
     }
