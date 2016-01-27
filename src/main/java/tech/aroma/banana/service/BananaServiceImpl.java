@@ -38,6 +38,8 @@ import tech.aroma.banana.thrift.service.DeleteMessageRequest;
 import tech.aroma.banana.thrift.service.DeleteMessageResponse;
 import tech.aroma.banana.thrift.service.DismissMessageRequest;
 import tech.aroma.banana.thrift.service.DismissMessageResponse;
+import tech.aroma.banana.thrift.service.FollowApplicationRequest;
+import tech.aroma.banana.thrift.service.FollowApplicationResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -76,8 +78,6 @@ import tech.aroma.banana.thrift.service.SignUpRequest;
 import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
 import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -102,7 +102,7 @@ final class BananaServiceImpl implements BananaService.Iface
     private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
     private final ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
     private final ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
-    private final ThriftOperation<SubscribeToApplicationRequest, SubscribeToApplicationResponse> subscriveToApplicationOperation;
+    private final ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
     private final ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
     private final ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
     private final ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
@@ -121,34 +121,33 @@ final class BananaServiceImpl implements BananaService.Iface
     private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
-    
     @Inject
     BananaServiceImpl(ThriftOperation<SignInRequest, SignInResponse> signInOperation,
-                             ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
-                             ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
-                             ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,
-                             ThriftOperation<SubscribeToApplicationRequest, SubscribeToApplicationResponse> subscriveToApplicationOperation,
-                             ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
-                             ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation,
-                             ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation,
-                             ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
-                             ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
-                             ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
-                             ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
-                             ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
-                             ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation,
-                             ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
-                             ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
-                             ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
-                             ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation,
-                             ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
-                             ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
+                      ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
+                      ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
+                      ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,
+                      ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation,
+                      ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
+                      ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation,
+                      ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation,
+                      ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
+                      ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
+                      ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
+                      ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
+                      ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
+                      ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation,
+                      ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
+                      ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
+                      ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
+                      ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation,
+                      ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
+                      ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
     {
         checkThat(signInOperation,
                   signUpOperation,
                   provisionApplicationOperation,
                   regenerateApplicationTokenOperation,
-                  subscriveToApplicationOperation,
+                  followApplicationOperation,
                   registerHealthCheckOperation,
                   renewApplicationTokenOperation,
                   searchForApplicationsOperation,
@@ -170,7 +169,7 @@ final class BananaServiceImpl implements BananaService.Iface
         this.signUpOperation = signUpOperation;
         this.provisionApplicationOperation = provisionApplicationOperation;
         this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
-        this.subscriveToApplicationOperation = subscriveToApplicationOperation;
+        this.followApplicationOperation = followApplicationOperation;
         this.registerHealthCheckOperation = registerHealthCheckOperation;
         this.renewApplicationTokenOperation = renewApplicationTokenOperation;
         this.searchForApplicationsOperation = searchForApplicationsOperation;
@@ -219,6 +218,18 @@ final class BananaServiceImpl implements BananaService.Iface
         throw new OperationFailedException("Not supported yet."); 
     }
 
+    
+    @Override
+    public FollowApplicationResponse followApplication(FollowApplicationRequest request) throws OperationFailedException,
+                                                                                                InvalidArgumentException,
+                                                                                                InvalidTokenException,
+                                                                                                ApplicationDoesNotExistException,
+                                                                                                ApplicationAlreadyRegisteredException,
+                                                                                                CustomChannelUnreachableException,
+                                                                                                TException
+    {
+        throw new OperationFailedException("Not supported yet."); 
+    }
 
     @Override
     public ProvisionApplicationResponse provisionApplication(ProvisionApplicationRequest request) throws OperationFailedException,
@@ -350,22 +361,6 @@ final class BananaServiceImpl implements BananaService.Iface
         LOG.info("Received request to snooze a channel: {}", request);
 
         return snoozeChannelOperation.process(request);
-    }
-
-    @Override
-    public SubscribeToApplicationResponse subscribeToApplication(SubscribeToApplicationRequest request) throws OperationFailedException,
-                                                                                                               InvalidArgumentException,
-                                                                                                               InvalidCredentialsException,
-                                                                                                               ApplicationDoesNotExistException,
-                                                                                                               ApplicationAlreadyRegisteredException,
-                                                                                                               CustomChannelUnreachableException,
-                                                                                                               TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Received request to subscribe to an Application: {}", request);
-
-        return subscriveToApplicationOperation.process(request);
     }
 
     @Override

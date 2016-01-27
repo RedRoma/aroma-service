@@ -24,6 +24,8 @@ import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
+import tech.aroma.banana.thrift.service.FollowApplicationRequest;
+import tech.aroma.banana.thrift.service.FollowApplicationResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -62,14 +64,14 @@ import tech.aroma.banana.thrift.service.SignUpRequest;
 import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
 import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
+import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -87,7 +89,11 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
 @RunWith(AlchemyTestRunner.class)
 public class BananaServiceImplTest
 {
-        //Action and Save Operations
+    //Action and Save Operations
+    
+    @Mock
+    private ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
+    
     @Mock
     private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
     
@@ -99,10 +105,7 @@ public class BananaServiceImplTest
     
     @Mock
     private ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
-    
-    @Mock
-    private ThriftOperation<SubscribeToApplicationRequest, SubscribeToApplicationResponse> subscriveToApplicationOperation;
-    
+
     @Mock
     private ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
     
@@ -159,7 +162,7 @@ public class BananaServiceImplTest
                                          signUpOperation,
                                          provisionApplicationOperation,
                                          regenerateApplicationTokenOperation,
-                                         subscriveToApplicationOperation,
+                                         followApplicationOperation,
                                          registerHealthCheckOperation,
                                          renewApplicationTokenOperation,
                                          searchForApplicationsOperation,
@@ -180,7 +183,7 @@ public class BananaServiceImplTest
                                signUpOperation,
                                provisionApplicationOperation,
                                regenerateApplicationTokenOperation,
-                               subscriveToApplicationOperation,
+                               followApplicationOperation,
                                registerHealthCheckOperation,
                                renewApplicationTokenOperation,
                                searchForApplicationsOperation,
@@ -489,15 +492,32 @@ public class BananaServiceImplTest
     }
 
     @Test
-    public void testSubscribeToApplication() throws Exception
+    public void testFollowApplication() throws Exception
     {
+        FollowApplicationRequest request = one(pojos(FollowApplicationRequest.class));
+        FollowApplicationResponse expected = one(pojos(FollowApplicationResponse.class));
+        
     }
 
     @Test
     public void testRegenerateToken() throws Exception
     {
+        RegenerateApplicationTokenRequest request = one(pojos(RegenerateApplicationTokenRequest.class));
+        RegenerateApplicationTokenResponse expected = one(pojos(RegenerateApplicationTokenResponse.class));
+        when(regenerateApplicationTokenOperation.process(request)).thenReturn(expected);
+        
+        RegenerateApplicationTokenResponse response = instance.regenerateToken(request);
+        assertThat(response, is(sameInstance(expected)));
     }
-
+    
+    @DontRepeat
+    @Test
+    public void testRegenerateTokenWithBadArgs()
+    {
+        assertThrows(() -> instance.regenerateToken(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+    
     @Test
     public void testGetApiVersion() throws Exception
     {

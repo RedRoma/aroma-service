@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Aroma Tech.
+ * Copyright 2016 Aroma Tech.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,29 @@
  * limitations under the License.
  */
 
+ 
 package tech.aroma.banana.service.operations;
+
 
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
+import tech.aroma.banana.thrift.service.FollowApplicationRequest;
+import tech.aroma.banana.thrift.service.FollowApplicationResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
-
-import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
  *
  * @author SirWellington
  */
-final class SubscribeToApplicationOperation implements ThriftOperation<SubscribeToApplicationRequest, SubscribeToApplicationResponse>
+final class FollowApplicationOperation implements ThriftOperation<FollowApplicationRequest, FollowApplicationResponse>
 {
-
-    private final static Logger LOG = LoggerFactory.getLogger(SubscribeToApplicationOperation.class);
+    private final static Logger LOG = LoggerFactory.getLogger(FollowApplicationOperation.class);
 
     @Override
-    public SubscribeToApplicationResponse process(SubscribeToApplicationRequest request) throws TException
-
+    public FollowApplicationResponse process(FollowApplicationRequest request) throws TException
     {
-        checkNotNull(request);
-
-        return pojos(SubscribeToApplicationResponse.class).get();
+        return new FollowApplicationResponse();
     }
 
 }

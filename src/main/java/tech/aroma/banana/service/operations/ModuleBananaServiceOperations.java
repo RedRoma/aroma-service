@@ -32,6 +32,8 @@ import tech.aroma.banana.thrift.service.DeleteMessageRequest;
 import tech.aroma.banana.thrift.service.DeleteMessageResponse;
 import tech.aroma.banana.thrift.service.DismissMessageRequest;
 import tech.aroma.banana.thrift.service.DismissMessageResponse;
+import tech.aroma.banana.thrift.service.FollowApplicationRequest;
+import tech.aroma.banana.thrift.service.FollowApplicationResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -70,8 +72,6 @@ import tech.aroma.banana.thrift.service.SignUpRequest;
 import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
 import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
@@ -97,6 +97,9 @@ public final class ModuleBananaServiceOperations extends AbstractModule
         
         bind(new TypeLiteral<ThriftOperation<DismissMessageRequest, DismissMessageResponse>>(){})
             .to(DismissMessageOperation.class);
+        
+        bind(new TypeLiteral<ThriftOperation<FollowApplicationRequest, FollowApplicationResponse>>(){})
+            .to(FollowApplicationOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse>>(){})
             .to(ProvisionApplicationOperation.class);
@@ -127,9 +130,6 @@ public final class ModuleBananaServiceOperations extends AbstractModule
         
         bind(new TypeLiteral<ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse>>(){})
             .to(SnoozeChannelOperation.class);
-        
-        bind(new TypeLiteral<ThriftOperation<SubscribeToApplicationRequest, SubscribeToApplicationResponse>>(){})
-            .to(SubscribeToApplicationOperation.class);
         
         
         //QUERY OPERATIONS
