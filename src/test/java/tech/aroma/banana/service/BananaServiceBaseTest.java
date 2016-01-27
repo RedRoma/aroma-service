@@ -558,23 +558,27 @@ public class BananaServiceBaseTest
     @Test
     public void testGetBuzz() throws Exception
     {
-        System.out.println("getBuzz");
         GetBuzzRequest request = pojos(GetBuzzRequest.class).get();
         GetBuzzResponse expectedResponse = mock(GetBuzzResponse.class);
-        when(getBuzzOperation.process(request))
-            .thenReturn(expectedResponse);
+        when(getBuzzOperation.process(request)).thenReturn(expectedResponse);
         
         GetBuzzResponse result = instance.getBuzz(request);
         assertThat(result, is(expectedResponse));
         verify(getBuzzOperation).process(request);
-        
-        //Edge cases
+    }
+    
+    @DontRepeat
+    @Test
+    public void testGetBuzzWhenThrows() throws Exception
+    {
+        GetBuzzRequest request = pojos(GetBuzzRequest.class).get();
+
         assertThrows(() -> instance.getBuzz(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(getBuzzOperation.process(request))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.getBuzz(request))
             .isInstanceOf(OperationFailedException.class);
     }
@@ -583,6 +587,7 @@ public class BananaServiceBaseTest
     public void testGetUserInfo() throws Exception
     {
         GetUserInfoRequest request = pojos(GetUserInfoRequest.class).get();
+        
         GetUserInfoResponse expectedResponse = mock(GetUserInfoResponse.class);
         when(getUserInfoOperation.process(request))
             .thenReturn(expectedResponse);
@@ -590,11 +595,18 @@ public class BananaServiceBaseTest
         GetUserInfoResponse result = instance.getUserInfo(request);
         assertThat(result, is(expectedResponse));
         verify(getUserInfoOperation).process(request);
-        
-        //Edge cases
+
+    }
+
+    @DontRepeat
+    @Test
+    public void testGetUserInfoWhenThrows() throws Exception
+    {
+        GetUserInfoRequest request = pojos(GetUserInfoRequest.class).get();
+
         assertThrows(() -> instance.getUserInfo(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(getUserInfoOperation.process(request))
             .thenThrow(new OperationFailedException());
         assertThrows(() -> instance.getUserInfo(request))
