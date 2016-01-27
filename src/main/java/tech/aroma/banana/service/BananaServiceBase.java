@@ -79,9 +79,11 @@ import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
 import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
+import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern.Role.COMPONENT;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
@@ -91,6 +93,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
  *
  * @author SirWellington
  */
+@DecoratorPattern(role = COMPONENT)
 @Internal
 final class BananaServiceBase implements BananaService.Iface
 {
@@ -98,6 +101,8 @@ final class BananaServiceBase implements BananaService.Iface
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceBase.class);
 
     //Action and Save Operations
+    private final ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation;
+    private final ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation;
     private final ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
     private final ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
     private final ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
@@ -122,7 +127,9 @@ final class BananaServiceBase implements BananaService.Iface
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
     @Inject
-    BananaServiceBase(ThriftOperation<SignInRequest, SignInResponse> signInOperation,
+    BananaServiceBase(ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation,
+                      ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation,
+                      ThriftOperation<SignInRequest, SignInResponse> signInOperation,
                       ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
                       ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
                       ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,
@@ -143,7 +150,9 @@ final class BananaServiceBase implements BananaService.Iface
                       ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
                       ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
     {
-        checkThat(followApplicationOperation,
+        checkThat(deleteMessageOperation,
+                  dismissMessageOperation,
+                  followApplicationOperation,
                   getActivityOperation,
                   getApplicationInfoOperation,
                   getBuzzOperation,
@@ -165,6 +174,8 @@ final class BananaServiceBase implements BananaService.Iface
                   signInOperation)
             .are(notNull());
 
+        this.deleteMessageOperation = deleteMessageOperation;
+        this.dismissMessageOperation = dismissMessageOperation;
         this.followApplicationOperation = followApplicationOperation;
         this.provisionApplicationOperation = provisionApplicationOperation;
         this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
@@ -205,7 +216,11 @@ final class BananaServiceBase implements BananaService.Iface
                                                                                     MessageDoesNotExistException,
                                                                                     UnauthorizedException, TException
     {
-        throw new OperationFailedException("Not supported yet.");
+        checkNotNull(request);
+        
+        LOG.info("Received request to delete message {}", request);
+        
+        return deleteMessageOperation.process(request);
     }
 
     @Override
@@ -215,7 +230,11 @@ final class BananaServiceBase implements BananaService.Iface
                                                                                        MessageDoesNotExistException,
                                                                                        UnauthorizedException, TException
     {
-        throw new OperationFailedException("Not supported yet."); 
+        checkNotNull(request);
+        
+        LOG.info("Received request to dismiss message {}", request);
+        
+        return dismissMessageOperation.process(request);
     }
 
     
@@ -228,7 +247,11 @@ final class BananaServiceBase implements BananaService.Iface
                                                                                                 CustomChannelUnreachableException,
                                                                                                 TException
     {
-        throw new OperationFailedException("Not supported yet."); 
+        checkNotNull(request);
+        
+        LOG.info("Received request to follow Application {}", request);
+        
+        return followApplicationOperation.process(request);
     }
 
     @Override

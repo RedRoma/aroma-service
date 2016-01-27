@@ -20,10 +20,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
+import tech.aroma.banana.thrift.service.DeleteMessageRequest;
+import tech.aroma.banana.thrift.service.DeleteMessageResponse;
+import tech.aroma.banana.thrift.service.DismissMessageRequest;
+import tech.aroma.banana.thrift.service.DismissMessageResponse;
 import tech.aroma.banana.thrift.service.FollowApplicationRequest;
 import tech.aroma.banana.thrift.service.FollowApplicationResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
@@ -85,12 +90,18 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  *
  * @author SirWellington
  */
-@Repeat(50)
+@Repeat(10)
 @RunWith(AlchemyTestRunner.class)
 public class BananaServiceBaseTest
 {
     //Action and Save Operations
     
+    @Mock
+    private ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation;
+
+    @Mock
+    private ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation;
+
     @Mock
     private ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
     
@@ -158,7 +169,9 @@ public class BananaServiceBaseTest
     @Before
     public void setUp()
     {
-        instance = new BananaServiceBase(signInOperation,
+        instance = new BananaServiceBase(deleteMessageOperation,
+                                         dismissMessageOperation,
+                                         signInOperation,
                                          signUpOperation,
                                          provisionApplicationOperation,
                                          regenerateApplicationTokenOperation,
@@ -179,7 +192,9 @@ public class BananaServiceBaseTest
                                          getFullMessageOperation,
                                          getUserInfoOperation);
 
-        verifyZeroInteractions(signInOperation,
+        verifyZeroInteractions(deleteMessageOperation,
+                               dismissMessageOperation,
+                               signInOperation,
                                signUpOperation,
                                provisionApplicationOperation,
                                regenerateApplicationTokenOperation,
@@ -583,6 +598,50 @@ public class BananaServiceBaseTest
         when(getUserInfoOperation.process(request))
             .thenThrow(new OperationFailedException());
         assertThrows(() -> instance.getUserInfo(request))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+    @Test
+    public void testDeleteMessage() throws Exception
+    {
+        DeleteMessageRequest request = one(pojos(DeleteMessageRequest.class));
+        DeleteMessageResponse expected = one(pojos(DeleteMessageResponse.class));
+        when(deleteMessageOperation.process(request)).thenReturn(expected);
+        
+        DeleteMessageResponse response = instance.deleteMessage(request);
+        assertThat(response, is(sameInstance(expected)));
+    }
+    
+    @DontRepeat
+    @Test
+    public void testDeleteMessageWhenThrows() throws Exception
+    {
+        when(deleteMessageOperation.process(Mockito.any()))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.deleteMessage(new DeleteMessageRequest()))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+    @Test
+    public void testDismissMessage() throws Exception
+    {
+        DismissMessageRequest request = one(pojos(DismissMessageRequest.class));
+        DismissMessageResponse expected = one(pojos(DismissMessageResponse.class));
+        when(dismissMessageOperation.process(request)).thenReturn(expected);
+        
+        DismissMessageResponse response = instance.dismissMessage(request);
+        assertThat(response, is(sameInstance(response)));
+    }
+    
+    @DontRepeat
+    @Test
+    public void testDismissMessageWhenThrows() throws Exception
+    {
+        when(dismissMessageOperation.process(Mockito.any()))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.dismissMessage(new DismissMessageRequest()))
             .isInstanceOf(OperationFailedException.class);
     }
 
