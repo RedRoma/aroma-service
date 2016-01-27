@@ -28,6 +28,10 @@ import tech.aroma.banana.thrift.authentication.ApplicationToken;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.functions.TokenFunctions;
+import tech.aroma.banana.thrift.service.DeleteMessageRequest;
+import tech.aroma.banana.thrift.service.DeleteMessageResponse;
+import tech.aroma.banana.thrift.service.DismissMessageRequest;
+import tech.aroma.banana.thrift.service.DismissMessageResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -87,6 +91,12 @@ public final class ModuleBananaServiceOperations extends AbstractModule
         
         //ACTIONS AND SAVE OPERATIONS
         //=========================================
+        
+        bind(new TypeLiteral<ThriftOperation<DeleteMessageRequest, DeleteMessageResponse>>(){})
+            .to(DeleteMessageOperation.class);
+        
+        bind(new TypeLiteral<ThriftOperation<DismissMessageRequest, DismissMessageResponse>>(){})
+            .to(DismissMessageOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse>>(){})
             .to(ProvisionApplicationOperation.class);
