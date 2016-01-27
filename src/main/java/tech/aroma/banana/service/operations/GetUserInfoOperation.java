@@ -18,15 +18,21 @@
 package tech.aroma.banana.service.operations;
 
 
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.data.UserRepository;
+import tech.aroma.banana.thrift.User;
+import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetUserInfoRequest;
 import tech.aroma.banana.thrift.service.GetUserInfoResponse;
+import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validUserId;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
  *
@@ -35,14 +41,44 @@ import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 final class GetUserInfoOperation implements ThriftOperation<GetUserInfoRequest, GetUserInfoResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetUserInfoOperation.class);
+    
+    private final UserRepository userRepo;
+
+    @Inject
+    GetUserInfoOperation(UserRepository userRepo)
+    {
+        checkThat(userRepo).is(notNull());
+        
+        this.userRepo = userRepo;
+    }
 
     @Override
     public GetUserInfoResponse process(GetUserInfoRequest request) throws TException
     {
-        checkNotNull(request);
+        checkThat(request)
+            .throwing(InvalidArgumentException.class)
+            .is(good());
         
-        GetUserInfoResponse response = pojos(GetUserInfoResponse.class).get();
-        return response;
+        String userId = request.userId;
+        
+        User user = userRepo.getUser(userId);
+        
+        return new GetUserInfoResponse().setUserInfo(user);
+    }
+
+    private AlchemyAssertion<GetUserInfoRequest> good()
+    {
+        return request ->
+        {
+            checkThat(request)
+                .is(notNull());
+            
+            checkThat(request.token)
+                .is(notNull());
+            
+            checkThat(request.userId)
+                .is(validUserId());
+        };
     }
 
 }
