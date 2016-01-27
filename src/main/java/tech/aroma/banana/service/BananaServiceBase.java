@@ -84,7 +84,6 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
  * This is the Top Level of the Banana Service. All of the Operations arrive here and routed to their respective
@@ -99,27 +98,27 @@ final class BananaServiceBase implements BananaService.Iface
     private final static Logger LOG = LoggerFactory.getLogger(BananaServiceBase.class);
 
     //Action and Save Operations
-    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
-    private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
+    private final ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
     private final ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
     private final ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
-    private final ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
     private final ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
-    private final ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
-    private final ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
-    private final ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
     private final ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
+    private final ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
+    private final ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
+    private final ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
+    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
+    private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
     private final ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
     
     //Query and GET Operations
     private final ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
+    private final ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
     private final ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
+    private final ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
+    private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
+    private final ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation;
     private final ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
     private final ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
-    private final ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
-    private final ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
-    private final ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation;
-    private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
     @Inject
@@ -144,48 +143,48 @@ final class BananaServiceBase implements BananaService.Iface
                       ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
                       ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
     {
-        checkThat(signInOperation,
-                  signUpOperation,
-                  provisionApplicationOperation,
-                  regenerateApplicationTokenOperation,
-                  followApplicationOperation,
-                  registerHealthCheckOperation,
-                  renewApplicationTokenOperation,
-                  searchForApplicationsOperation,
-                  saveChannelOperation,
-                  removeSavedChannelOperation,
-                  snoozeChannelOperation,
+        checkThat(followApplicationOperation,
                   getActivityOperation,
-                  getMyApplicationsOperation,
-                  getMySavedChannelsOperation,
                   getApplicationInfoOperation,
                   getBuzzOperation,
                   getDashboardOperation,
-                  getMessagesOperation,
                   getFullMessageOperation,
-                  getUserInfoOperation)
+                  getMessagesOperation,
+                  getMyApplicationsOperation,
+                  getMySavedChannelsOperation,
+                  getUserInfoOperation,
+                  provisionApplicationOperation,
+                  regenerateApplicationTokenOperation,
+                  registerHealthCheckOperation,
+                  removeSavedChannelOperation,
+                  renewApplicationTokenOperation,
+                  saveChannelOperation,
+                  searchForApplicationsOperation,
+                  signUpOperation,
+                  snoozeChannelOperation,
+                  signInOperation)
             .are(notNull());
 
-        this.signInOperation = signInOperation;
-        this.signUpOperation = signUpOperation;
+        this.followApplicationOperation = followApplicationOperation;
         this.provisionApplicationOperation = provisionApplicationOperation;
         this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
-        this.followApplicationOperation = followApplicationOperation;
         this.registerHealthCheckOperation = registerHealthCheckOperation;
-        this.renewApplicationTokenOperation = renewApplicationTokenOperation;
-        this.searchForApplicationsOperation = searchForApplicationsOperation;
-        this.saveChannelOperation = saveChannelOperation;
         this.removeSavedChannelOperation = removeSavedChannelOperation;
+        this.renewApplicationTokenOperation = renewApplicationTokenOperation;
+        this.saveChannelOperation = saveChannelOperation;
+        this.searchForApplicationsOperation = searchForApplicationsOperation;
+        this.signInOperation = signInOperation;
+        this.signUpOperation = signUpOperation;
         this.snoozeChannelOperation = snoozeChannelOperation;
         
         this.getActivityOperation = getActivityOperation;
+        this.getApplicationInfoOperation = getApplicationInfoOperation;
         this.getBuzzOperation = getBuzzOperation;
+        this.getDashboardOperation = getDashboardOperation;
+        this.getFullMessageOperation = getFullMessageOperation;
+        this.getMessagesOperation = getMessagesOperation;
         this.getMyApplicationsOperation = getMyApplicationsOperation;
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
-        this.getApplicationInfoOperation = getApplicationInfoOperation;
-        this.getDashboardOperation = getDashboardOperation;
-        this.getMessagesOperation = getMessagesOperation;
-        this.getFullMessageOperation = getFullMessageOperation;
         this.getUserInfoOperation = getUserInfoOperation;
     }
     
