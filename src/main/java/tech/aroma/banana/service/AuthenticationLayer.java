@@ -90,7 +90,7 @@ import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
 import static tech.aroma.banana.thrift.assertions.BananaAssertions.validTokenIn;
 import static tech.aroma.banana.thrift.assertions.BananaAssertions.validUserTokenIn;
-import static tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern.Role.CONCRETE_DECORATOR;
+import static tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern.Role.DECORATOR;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
@@ -101,7 +101,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
  * @author SirWellington
  */
 @Internal
-@DecoratorPattern(role = CONCRETE_DECORATOR)
+@DecoratorPattern(role = DECORATOR)
 final class AuthenticationLayer implements BananaService.Iface
 {
 
