@@ -57,7 +57,7 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(RegenerateApplicationTokenOperation.class);
-    
+
     private final AuthenticationService.Iface authenticationService;
     private final ApplicationRepository appRepo;
     private final Function<AuthenticationToken, ApplicationToken> tokenMapper;
@@ -69,13 +69,11 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
     {
         checkThat(authenticationService, appRepo, tokenMapper)
             .are(notNull());
-        
+
         this.authenticationService = authenticationService;
         this.appRepo = appRepo;
         this.tokenMapper = tokenMapper;
     }
-    
-    
 
     @Override
     public RegenerateApplicationTokenResponse process(RegenerateApplicationTokenRequest request) throws TException
@@ -83,25 +81,24 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
-        
+
         String userId = request.token.userId;
         String appId = request.applicationId;
         Application app = appRepo.getById(appId);
-                
+
         checkThat(userId)
             .throwing(UnauthorizedException.class)
             .is(elementInCollection(app.owners));
-        
-        
+
         deleteTokensFor(appId);
-        
-        ApplicationToken appToken =  createNewTokenFor(app);
-        
+
+        ApplicationToken appToken = createNewTokenFor(app);
+
         LOG.debug("App Token successfully regenerated");
-        
+
         return new RegenerateApplicationTokenResponse()
             .setApplicationToken(appToken);
-        
+
         //Get User ID
         //Get App Info
         //Assert user has authorization to do this
@@ -111,7 +108,7 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
         //Create new token
         //Return token
     }
-
+    
     private AlchemyAssertion<RegenerateApplicationTokenRequest> good()
     {
         return request ->
@@ -131,12 +128,12 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
                 .is(nonEmptyString());
         };
     }
-    
+
     private void deleteTokensFor(String appId) throws OperationFailedException
     {
         InvalidateTokenRequest request = new InvalidateTokenRequest()
             .setBelongingTo(appId);
-        
+
         try
         {
             authenticationService.invalidateToken(request);
@@ -152,32 +149,32 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
     private ApplicationToken createNewTokenFor(Application app) throws InvalidArgumentException, OperationFailedException
     {
         CreateTokenRequest request = createRequestToCreateTokenFor(app);
-        
+
         CreateTokenResponse response;
         try
         {
             response = authenticationService.createToken(request);
         }
-        catch(TException ex)
+        catch (TException ex)
         {
             LOG.error("Failed to create token for App {}", app, ex);
             throw new OperationFailedException("Could not created a new Token for App: " + ex.getMessage());
         }
-        
+
         AuthenticationToken authToken = response.token;
-        
+
         checkThat(authToken)
             .throwing(OperationFailedException.class)
             .usingMessage("Authentication Service returned incomplete Token")
             .is(completeToken());
-            
+
         return tokenMapper.apply(authToken);
     }
 
     private CreateTokenRequest createRequestToCreateTokenFor(Application app) throws InvalidArgumentException
     {
         LengthOfTime timeToLive = determineNewAppTokenLifetimeFor(app);
-        
+
         return new CreateTokenRequest()
             .setOwnerId(app.applicationId)
             .setLifetime(timeToLive)
@@ -187,12 +184,12 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
 
     private LengthOfTime determineNewAppTokenLifetimeFor(Application app) throws InvalidArgumentException
     {
-         Instant expiration = Instant.ofEpochMilli(app.timeOfTokenExpiration);
+        Instant expiration = Instant.ofEpochMilli(app.timeOfTokenExpiration);
         checkThat(expiration)
             .throwing(InvalidArgumentException.class)
             .usingMessage("App's Token already expired on: " + expiration)
             .is(inTheFuture());
-        
+
         Instant now = Instant.now();
         long secondsUntil = now.until(expiration, ChronoUnit.SECONDS);
         return new LengthOfTime(TimeUnit.SECONDS, secondsUntil);
