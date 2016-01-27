@@ -18,18 +18,21 @@
 package tech.aroma.banana.service.operations;
 
 
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.data.ApplicationRepository;
+import tech.aroma.banana.thrift.Application;
+import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaAssertions.withMessage;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validAppId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
  *
@@ -38,16 +41,46 @@ import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 final class GetApplicationInfoOperation implements ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetApplicationInfoOperation.class);
+    
+    private final ApplicationRepository appRepo;
+
+    @Inject
+    GetApplicationInfoOperation(ApplicationRepository appRepo)
+    {
+        checkThat(appRepo).is(notNull());
+        
+        this.appRepo = appRepo;
+    }
 
     @Override
     public GetApplicationInfoResponse process(GetApplicationInfoRequest request) throws TException
     {
-        checkThat(request).throwing(withMessage("missing request")).is(notNull());
+        checkThat(request)
+            .throwing(InvalidArgumentException.class)
+            .is(good());
         
-        GetApplicationInfoResponse response;
-        response = one(pojos(GetApplicationInfoResponse.class));
+        String appId = request.applicationId;
         
-        return response;
+        Application app = appRepo.getById(appId);
+        
+        return new GetApplicationInfoResponse().setApplicationInfo(app);
+    }
+
+    private AlchemyAssertion<GetApplicationInfoRequest> good()
+    {
+        return request ->
+        {
+            checkThat(request)
+                .usingMessage("request is null")
+                .is(notNull());
+            
+            checkThat(request.applicationId)
+                .is(validAppId());
+            
+            checkThat(request.token)
+                .usingMessage("request missing token")
+                .is(notNull());
+        };
     }
 
 }
