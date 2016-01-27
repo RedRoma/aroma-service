@@ -44,6 +44,8 @@ import tech.aroma.banana.thrift.service.DeleteMessageRequest;
 import tech.aroma.banana.thrift.service.DeleteMessageResponse;
 import tech.aroma.banana.thrift.service.DismissMessageRequest;
 import tech.aroma.banana.thrift.service.DismissMessageResponse;
+import tech.aroma.banana.thrift.service.FollowApplicationRequest;
+import tech.aroma.banana.thrift.service.FollowApplicationResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -82,8 +84,6 @@ import tech.aroma.banana.thrift.service.SignUpRequest;
 import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
 import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 
@@ -153,6 +153,21 @@ final class AuthenticationLayer implements BananaService.Iface
         checkAndEnrichToken(request.token);
         
         return delegate.dismissMessage(request);
+    }
+    
+    @Override
+    public FollowApplicationResponse followApplication(FollowApplicationRequest request) throws OperationFailedException,
+                                                                                                InvalidArgumentException,
+                                                                                                InvalidTokenException,
+                                                                                                ApplicationDoesNotExistException,
+                                                                                                ApplicationAlreadyRegisteredException,
+                                                                                                CustomChannelUnreachableException,
+                                                                                                TException
+    {
+        checkNotNull(request);
+        checkAndEnrichToken(request.token);
+        
+        return delegate.followApplication(request);
     }
 
     @Override
@@ -273,21 +288,6 @@ final class AuthenticationLayer implements BananaService.Iface
         checkAndEnrichToken(request.token);
 
         return delegate.snoozeChannel(request);
-    }
-
-    @Override
-    public SubscribeToApplicationResponse subscribeToApplication(SubscribeToApplicationRequest request) throws OperationFailedException,
-                                                                                                               InvalidArgumentException,
-                                                                                                               InvalidCredentialsException,
-                                                                                                               ApplicationDoesNotExistException,
-                                                                                                               ApplicationAlreadyRegisteredException,
-                                                                                                               CustomChannelUnreachableException,
-                                                                                                               TException
-    {
-        checkNotNull(request);
-        checkAndEnrichToken(request.token);
-
-        return delegate.subscribeToApplication(request);
     }
 
     @Override
@@ -426,6 +426,11 @@ final class AuthenticationLayer implements BananaService.Iface
         checkThat(token)
             .throwing(InvalidTokenException.class)
             .is(validUserTokenIn(authenticationService));
+        
+        if(token.isSetUserId())
+        {
+            return;
+        }
         
         String tokenId = token.tokenId;
         

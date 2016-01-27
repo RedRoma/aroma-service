@@ -36,6 +36,8 @@ import tech.aroma.banana.thrift.service.DeleteMessageRequest;
 import tech.aroma.banana.thrift.service.DeleteMessageResponse;
 import tech.aroma.banana.thrift.service.DismissMessageRequest;
 import tech.aroma.banana.thrift.service.DismissMessageResponse;
+import tech.aroma.banana.thrift.service.FollowApplicationRequest;
+import tech.aroma.banana.thrift.service.FollowApplicationResponse;
 import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
@@ -74,8 +76,6 @@ import tech.aroma.banana.thrift.service.SignUpRequest;
 import tech.aroma.banana.thrift.service.SignUpResponse;
 import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
 import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationRequest;
-import tech.aroma.banana.thrift.service.SubscribeToApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -475,42 +475,42 @@ public class AuthenticationLayerTest
     }
 
     @Test
-    public void testSubscribeToApplication() throws Exception
+    public void testFollowApplication() throws Exception
     {
-        SubscribeToApplicationRequest request = new SubscribeToApplicationRequest().setToken(userToken);
-        SubscribeToApplicationResponse expected = new SubscribeToApplicationResponse();
-        when(delegate.subscribeToApplication(request))
-            .thenReturn(expected);
+        FollowApplicationRequest request = new FollowApplicationRequest().setToken(userToken);
+        FollowApplicationResponse expected = new FollowApplicationResponse();
 
-        SubscribeToApplicationResponse result = instance.subscribeToApplication(request);
-        assertThat(result, is(expected));
-        verify(delegate).subscribeToApplication(request);
+        when(delegate.followApplication(request)).thenReturn(expected);
+
+        FollowApplicationResponse result = instance.followApplication(request);
+        assertThat(result, is(sameInstance(expected)));
+        
+        verify(delegate).followApplication(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
         verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+    }
 
+    @Test
+    public void testFollowApplicationWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+
+        FollowApplicationRequest request = new FollowApplicationRequest().setToken(userToken);
+        assertThrows(() -> instance.followApplication(request))
+            .isInstanceOf(InvalidTokenException.class);
+
+        verifyZeroInteractions(delegate);
     }
 
     @DontRepeat
     @Test
-    public void testSubscribeToApplicationWithBadRequest() throws Exception
+    public void testFollowApplicationWithBadRequest() throws Exception
     {
-        assertThrows(() -> instance.subscribeToApplication(null))
+        assertThrows(() -> instance.followApplication(null))
             .isInstanceOf(InvalidArgumentException.class);
 
-        assertThrows(() -> instance.subscribeToApplication(new SubscribeToApplicationRequest()))
+        assertThrows(() -> instance.followApplication(new FollowApplicationRequest()))
             .isInstanceOf(InvalidTokenException.class);
-    }
-
-    @Test
-    public void testSubscribeToApplicationWithBadToken() throws Exception
-    {
-        setupWithBadToken();
-
-        SubscribeToApplicationRequest request = new SubscribeToApplicationRequest().setToken(userToken);
-
-        assertThrows(() -> instance.subscribeToApplication(request))
-            .isInstanceOf(InvalidTokenException.class);
-        verifyZeroInteractions(delegate);
     }
 
     @Test
@@ -962,6 +962,7 @@ public class AuthenticationLayerTest
     private void setupData()
     {
         tokenId = userToken.tokenId;
+        userToken.unsetUserId();
 
         expectedAuthToken = TokenFunctions.userTokenToAuthTokenFunction().apply(userToken);
         expectedVerifyTokenRequest = new VerifyTokenRequest(tokenId)
