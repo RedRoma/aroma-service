@@ -590,6 +590,23 @@ public class BananaServiceBaseTest
     @Test
     public void testGetFullMessage() throws Exception
     {
+        GetFullMessageRequest request = one(pojos(GetFullMessageRequest.class));
+        GetFullMessageResponse expected = one(pojos(GetFullMessageResponse.class));
+        when(getFullMessageOperation.process(request)).thenReturn(expected);
+        
+        GetFullMessageResponse response = instance.getFullMessage(request);
+        assertThat(response, is(sameInstance(expected)));
+    }
+
+    @Test
+    public void testGetFullMessageWhenFails() throws Exception
+    {
+        GetFullMessageRequest request = one(pojos(GetFullMessageRequest.class));
+        when(getFullMessageOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.getFullMessage(request))
+            .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
