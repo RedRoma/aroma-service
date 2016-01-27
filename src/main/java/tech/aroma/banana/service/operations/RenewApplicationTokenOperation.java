@@ -39,6 +39,11 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
     public RenewApplicationTokenResponse process(RenewApplicationTokenRequest request) throws TException
     {
         checkNotNull(request);
+        //Check user is authorized for this action
+        //Check that we have been paid
+        //Delete the old token
+        //Create a new one
+        //Issue and return the new token
 
         return pojos(RenewApplicationTokenResponse.class).get();
     }
