@@ -348,6 +348,7 @@ final class BananaServiceBase implements BananaService.Iface
     public SignInResponse signIn(SignInRequest request) throws OperationFailedException,
                                                                InvalidArgumentException,
                                                                InvalidCredentialsException,
+                                                               UserDoesNotExistException,
                                                                TException
     {
         checkNotNull(request);
