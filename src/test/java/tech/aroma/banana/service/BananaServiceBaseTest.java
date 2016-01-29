@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
+import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.aroma.banana.thrift.service.DeleteMessageRequest;
 import tech.aroma.banana.thrift.service.DeleteMessageResponse;
@@ -90,7 +91,7 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class BananaServiceBaseTest
 {
@@ -455,8 +456,24 @@ public class BananaServiceBaseTest
         SignInResponse response = instance.signIn(request);
         assertThat(response, is(expectedResponse));
         verify(signInOperation).process(request);
-
-        //Edge cases
+    }
+    
+    @DontRepeat
+    @Test
+    public void testSignInWhenFails() throws Exception
+    {
+        SignInRequest request = new SignInRequest();
+        when(signInOperation.process(request))
+            .thenThrow(new UserDoesNotExistException());
+        
+        assertThrows(() -> instance.signIn(request))
+            .isInstanceOf(UserDoesNotExistException.class);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testSignInWithBadRequest() throws Exception
+    {
         assertThrows(() -> instance.signIn(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
