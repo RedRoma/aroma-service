@@ -29,6 +29,7 @@ import tech.aroma.banana.thrift.LengthOfTime;
 import tech.aroma.banana.thrift.TimeUnit;
 import tech.aroma.banana.thrift.authentication.ApplicationToken;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
+import tech.aroma.banana.thrift.authentication.TokenType;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.authentication.service.CreateTokenRequest;
 import tech.aroma.banana.thrift.authentication.service.CreateTokenResponse;
@@ -158,7 +159,7 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
         catch (TException ex)
         {
             LOG.error("Failed to create token for App {}", app, ex);
-            throw new OperationFailedException("Could not created a new Token for App: " + ex.getMessage());
+            throw new OperationFailedException("Could not create a new Token for App: " + ex.getMessage());
         }
 
         AuthenticationToken authToken = response.token;
@@ -177,6 +178,7 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
 
         return new CreateTokenRequest()
             .setOwnerId(app.applicationId)
+            .setDesiredTokenType(TokenType.APPLICATION)
             .setLifetime(timeToLive)
             .setOrganizationId(app.organizationId)
             .setOwnerName(app.name);
