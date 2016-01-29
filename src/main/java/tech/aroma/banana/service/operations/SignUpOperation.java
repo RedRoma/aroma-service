@@ -85,7 +85,7 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
             .usingMessage("Email is already in use")
             .is(notAlreadyInUse());
 
-        //Create User object
+        //User IDs are always UUIDs
         String userId = UUID.randomUUID().toString();
 
         User user = new User()
