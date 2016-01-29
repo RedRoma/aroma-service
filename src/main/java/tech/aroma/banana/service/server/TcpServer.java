@@ -21,6 +21,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import java.net.SocketException;
+import javax.inject.Singleton;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
@@ -82,27 +83,28 @@ public final class TcpServer
     
     private static class RestOfDependencies extends AbstractModule
     {
-        
+
         @Override
         protected void configure()
         {
-            
+
         }
-        
+
+        @Singleton
         @Provides
-            AuthenticationService.Iface provideAuthenticationService()
+        AuthenticationService.Iface provideAuthenticationService()
+        {
+            try
             {
-                try
-                {
-                    return Clients.newAuthenticationServiceClient();
-                }
-                catch (Exception ex)
-                {
-                    LOG.error("Failed to create Authentication Service", ex);
-                    throw new RuntimeException(ex);
-                }
+                return Clients.newPerRequestAuthenticationServiceClient();
             }
-            
+            catch (Exception ex)
+            {
+                LOG.error("Failed to create Authentication Service", ex);
+                throw new RuntimeException(ex);
+            }
+        }
+   
     }
     
 }
