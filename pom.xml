@@ -128,6 +128,15 @@
 
 
         <!--=======================-->
+        <!--JASYPT (Encryption)-->
+        <!--=======================-->
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+        </dependency>
+
+
+        <!--=======================-->
         <!--LOGGING-->
         <!--=======================-->
         <dependency>
@@ -140,7 +149,7 @@
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>
-    
+        
     </dependencies>
 
     <build>
