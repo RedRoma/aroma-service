@@ -17,6 +17,7 @@
 
 package tech.aroma.banana.service.operations.encryption;
 
+import com.google.inject.ImplementedBy;
 import org.apache.thrift.TException;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.arguments.NonEmpty;
@@ -28,6 +29,7 @@ import tech.sirwellington.alchemy.annotations.arguments.NonEmpty;
  * @author SirWellington
  */
 @Internal
+@ImplementedBy(PasswordEncryptorImpl.class)
 public interface PasswordEncryptor 
 {
     /**
