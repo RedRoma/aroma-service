@@ -97,6 +97,7 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
         return request ->
         {
             checkThat(request)
+                .usingMessage("request is null")
                 .is(notNull());
             
             checkThat(request.limit)
