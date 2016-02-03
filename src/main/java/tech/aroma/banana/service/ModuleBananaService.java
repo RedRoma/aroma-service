@@ -17,6 +17,7 @@
 package tech.aroma.banana.service;
 
 import com.google.inject.AbstractModule;
+import decorice.DecoratorModule;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Singleton;
@@ -35,15 +36,15 @@ public class ModuleBananaService extends AbstractModule
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(ModuleBananaService.class);
-    
+
     @Override
     protected void configure()
     {
-        bind(BananaService.Iface.class).to(BananaServiceBase.class);
-        
         bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool(15));
+
+        install(new ServiceModule());
     }
-    
+
     @Singleton
     AlchemyHttp provideAlchemyHttpClient()
     {
@@ -55,5 +56,15 @@ public class ModuleBananaService extends AbstractModule
             .enableAsyncCallbacks()
             .build();
     }
-    
+
+    private static class ServiceModule extends DecoratorModule
+    {
+
+        {
+            bind(BananaService.Iface.class)
+                .to(BananaServiceBase.class)
+                .decoratedBy(AuthenticationLayer.class);
+        }
+    }
+
 }
