@@ -20,10 +20,13 @@ import java.util.UUID;
 import java.util.function.Function;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
+import tech.aroma.banana.data.CredentialRepository;
 import tech.aroma.banana.data.UserRepository;
+import tech.aroma.banana.service.operations.encryption.OverTheWireDecryptor;
 import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.TokenType;
@@ -56,10 +59,16 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
 
     private final static Logger LOG = LoggerFactory.getLogger(SignUpOperation.class);
 
-    private final UserRepository userRepo;
     private final AuthenticationService.Iface authenticationService;
+
+    private CredentialRepository credentialsRepo;
+    private final UserRepository userRepo;
+    
     private final Function<AuthenticationToken, UserToken> tokenMapper;
 
+    private OverTheWireDecryptor decryptor;
+    private PasswordEncryptor passwordEncryptor;
+    
     @Inject
     SignUpOperation(UserRepository userRepo,
                     AuthenticationService.Iface authenticationService,
@@ -79,12 +88,15 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
-        
+
         checkThat(request.email)
             .throwing(AccountAlreadyExistsException.class)
             .usingMessage("Email is already in use")
             .is(notAlreadyInUse());
 
+        //Try to decrypt the over-the-wire password
+        //Run it through the password hashing algorithm
+        //Store the credentials
         //User IDs are always UUIDs
         String userId = UUID.randomUUID().toString();
 
@@ -117,28 +129,28 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     private AlchemyAssertion<SignUpRequest> good()
     {
         return request ->
-        {
-            checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
-            checkThat(request.firstName, request.lastName)
-                .usingMessage("first and last name are required")
-                .are(nonEmptyString());
-            
-            checkThat(request.mainRole)
-                .usingMessage("Your main role is required")
-                .is(notNull());
-            
-            if (request.isSetOrganizationId())
             {
-                checkThat(request.organizationId)
-                    .usingMessage("organization ID must be a valid UUID type")
-                    .is(validUUID());
-            }
-            
-            //TODO: Add check on the email
-        };
+                checkThat(request)
+                    .usingMessage("request is null")
+                    .is(notNull());
+
+                checkThat(request.firstName, request.lastName)
+                    .usingMessage("first and last name are required")
+                    .are(nonEmptyString());
+
+                checkThat(request.mainRole)
+                    .usingMessage("Your main role is required")
+                    .is(notNull());
+
+                if (request.isSetOrganizationId())
+                {
+                    checkThat(request.organizationId)
+                        .usingMessage("organization ID must be a valid UUID type")
+                        .is(validUUID());
+                }
+
+                //TODO: Add check on the email
+            };
     }
 
     private CreateTokenRequest makeAuthenticationRequestToCreateToken(User user)
@@ -178,23 +190,23 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     private AlchemyAssertion<String> notAlreadyInUse()
     {
         return email ->
-        {
-            checkThat(email).is(nonEmptyString());
-            
-            try
             {
-                User user = userRepo.getUserByEmail(email);
-                throw new FailedAssertionException();
-            }
-            catch(UserDoesNotExistException ex)
-            {
-                //Good
-            }
-            catch(TException ex)
-            {
-                throw new FailedAssertionException("could not check for existence of email: " + email);
-            }
-        };
+                checkThat(email).is(nonEmptyString());
+
+                try
+                {
+                    User user = userRepo.getUserByEmail(email);
+                    throw new FailedAssertionException();
+                }
+                catch (UserDoesNotExistException ex)
+                {
+                    //Good
+                }
+                catch (TException ex)
+                {
+                    throw new FailedAssertionException("could not check for existence of email: " + email);
+                }
+            };
     }
 
 }
