@@ -19,9 +19,13 @@ package tech.aroma.banana.service.operations.encryption;
 
 import com.google.inject.ImplementedBy;
 import org.apache.thrift.TException;
+import org.jasypt.encryption.pbe.PBEStringEncryptor;
+import tech.sirwellington.alchemy.annotations.arguments.Required;
 import tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern;
 
 import static tech.sirwellington.alchemy.annotations.designs.patterns.StrategyPattern.Role.INTERFACE;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 
 /**
@@ -46,5 +50,12 @@ public interface OverTheWireDecryptor
      * @throws org.apache.thrift.TException If the String could not be decrypted.
      */
     public String decrypt(String encrypredString) throws TException;
+    
+    public static OverTheWireDecryptor newInstance(@Required PBEStringEncryptor stringEncryptor)
+    {
+        checkThat(stringEncryptor).is(notNull());
+        
+        return new OverTheWireDecryptorImpl(stringEncryptor);
+    }
     
 }
