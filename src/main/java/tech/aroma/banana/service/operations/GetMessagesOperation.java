@@ -87,7 +87,7 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
             .limit(1000)
             .collect(toList());
 
-        LOG.debug("Found {} messages for user [{}] and App [{}]", messages, userId, app);
+        LOG.debug("Found {} messages for user [{}] and App [{}]", messages.size(), userId, app);
 
         return new GetMessagesResponse(messages);
     }
