@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 public class ModuleDevEncryptionMaterialsTest 
 {
     
-    private ModuleDevEncryptionMaterials instance;
+    private ModuleEncryptionMaterialsDev instance;
     
     @Before
     public void setUp() throws Exception
@@ -55,7 +55,7 @@ public class ModuleDevEncryptionMaterialsTest
 
     private void setupMocks() throws Exception
     {
-        instance = new ModuleDevEncryptionMaterials();
+        instance = new ModuleEncryptionMaterialsDev();
     }
 
     @Test

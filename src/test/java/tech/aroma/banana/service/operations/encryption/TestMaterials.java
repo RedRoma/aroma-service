@@ -33,7 +33,7 @@ class TestMaterials
 {
     private final static Logger LOG = LoggerFactory.getLogger(TestMaterials.class);
     
-    private static final Injector GUICE = Guice.createInjector(new ModuleDevEncryptionMaterials());
+    private static final Injector GUICE = Guice.createInjector(new ModuleEncryptionMaterialsDev());
     
     
     static StringDigester newDigester()

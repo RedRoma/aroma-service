@@ -36,10 +36,10 @@ import tech.aroma.banana.thrift.authentication.AuthenticationConstants;
  *
  * @author SirWellington
  */
-public class ModuleDevEncryptionMaterials extends AbstractModule
+public class ModuleEncryptionMaterialsDev extends AbstractModule
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(ModuleDevEncryptionMaterials.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ModuleEncryptionMaterialsDev.class);
     private final static String FIXED_SALT = "fu3opkvp2l1`2890)W480129LWH*@#&$@(*hvd;lkf;l2i9ivod snfkjlq3hfu090fu309jrlkdafm l;Afj;KDL:-39UFDN";
 
     @Override
