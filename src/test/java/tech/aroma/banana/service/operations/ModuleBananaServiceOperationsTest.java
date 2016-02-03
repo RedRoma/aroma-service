@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.data.memory.ModuleMemoryDataRepositories;
+import tech.aroma.banana.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.banana.thrift.authentication.ApplicationToken;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.UserToken;
@@ -45,8 +46,10 @@ import static org.mockito.Mockito.mock;
 @RunWith(AlchemyTestRunner.class)
 public class ModuleBananaServiceOperationsTest
 {
+    private ModuleEncryptionMaterialsDev encryptionMaterials;
     private ModuleMemoryDataRepositories dataModule;
     private ModuleBananaServiceOperations instance;
+    
     private final Module mockModule = new AbstractModule()
     {
         @Override
@@ -66,13 +69,14 @@ public class ModuleBananaServiceOperationsTest
     public void setUp()
     {
         dataModule = new ModuleMemoryDataRepositories();
+        encryptionMaterials = new ModuleEncryptionMaterialsDev();
         instance = new ModuleBananaServiceOperations();
     }
 
     @Test
     public void testConfigure()
     {
-        Injector injector = Guice.createInjector(dataModule, mockModule, instance);
+        Injector injector = Guice.createInjector(dataModule, encryptionMaterials, mockModule, instance);
         
     }
 
