@@ -19,8 +19,13 @@ package tech.aroma.banana.service.operations.encryption;
 
 import com.google.inject.ImplementedBy;
 import org.apache.thrift.TException;
+import org.jasypt.digest.StringDigester;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.arguments.NonEmpty;
+import tech.sirwellington.alchemy.annotations.arguments.Required;
+
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 
 /**
@@ -52,4 +57,11 @@ public interface PasswordEncryptor
      * @throws TException If the Operation Failes.
      */
     boolean match(@NonEmpty String candidate, @NonEmpty String existingDigestedPassword) throws TException;
+    
+    public static PasswordEncryptor newInstance(@Required StringDigester stringDigestor)
+    {
+        checkThat(stringDigestor).is(notNull());
+        
+        return new PasswordEncryptorImpl(stringDigestor);
+    }
 }
