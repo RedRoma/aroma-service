@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.data.memory.ModuleMemoryDataRepositories;
 import tech.aroma.banana.service.operations.ModuleBananaServiceOperations;
+import tech.aroma.banana.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.service.BananaService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
@@ -47,12 +48,14 @@ public class ModuleBananaServiceTest
     
     private ModuleBananaServiceOperations operationsModule;
     private ModuleMemoryDataRepositories dataModule;
+    private ModuleEncryptionMaterialsDev encryptionModule;
     private ModuleBananaService instance;
     
     @Before
     public void setUp()
     {
         operationsModule = new ModuleBananaServiceOperations();
+        encryptionModule = new ModuleEncryptionMaterialsDev();
         dataModule = new ModuleMemoryDataRepositories();
         instance = new ModuleBananaService();
     }
@@ -62,6 +65,7 @@ public class ModuleBananaServiceTest
     {
         Injector injector = Guice.createInjector(operationsModule,
                                                  dataModule,
+                                                 encryptionModule,
                                                  instance,
                                                  restOfDependencies);
 

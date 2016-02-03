@@ -32,6 +32,7 @@ import tech.aroma.banana.data.cassandra.ModuleCassandraDataRepositories;
 import tech.aroma.banana.data.cassandra.ModuleCassandraDevCluster;
 import tech.aroma.banana.service.ModuleBananaService;
 import tech.aroma.banana.service.operations.ModuleBananaServiceOperations;
+import tech.aroma.banana.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.service.BananaService;
 import tech.aroma.banana.thrift.service.BananaServiceConstants;
@@ -58,6 +59,7 @@ public final class TcpServer
                                                  new ModuleBananaService(),
                                                  new ModuleCassandraDataRepositories(),
                                                  new ModuleCassandraDevCluster(),
+                                                 new ModuleEncryptionMaterialsDev(),
                                                  new RestOfDependencies());
         
         BananaService.Iface bananaService = injector.getInstance(BananaService.Iface.class);
