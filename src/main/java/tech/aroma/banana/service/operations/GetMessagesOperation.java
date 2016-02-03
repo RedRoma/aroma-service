@@ -21,6 +21,9 @@ package tech.aroma.banana.service.operations;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.data.ApplicationRepository;
+import tech.aroma.banana.data.MessageRepository;
+import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.thrift.Message;
 import tech.aroma.banana.thrift.Urgency;
 import tech.aroma.banana.thrift.service.GetMessagesRequest;
@@ -46,11 +49,19 @@ import static tech.sirwellington.alchemy.generator.TimeGenerators.pastInstants;
 final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, GetMessagesResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetMessagesOperation.class);
+    
+    private ApplicationRepository appRepo;
+    private MessageRepository messageRepo;
+    private UserRepository userRepo;
 
     @Override
     public GetMessagesResponse process(GetMessagesRequest request) throws TException
     {
         checkNotNull(request);
+        
+        //Get the User ID
+        //Get all of the Messages for the App ID
+        //Return the messages
         
         GetMessagesResponse response = new GetMessagesResponse();
         
