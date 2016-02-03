@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2015 Aroma Tech.
  *
@@ -14,33 +15,31 @@
  * limitations under the License.
  */
 
- 
 package tech.aroma.banana.service.operations;
 
-
+import java.util.List;
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.data.ApplicationRepository;
+import tech.aroma.banana.data.InboxRepository;
 import tech.aroma.banana.data.MessageRepository;
 import tech.aroma.banana.data.UserRepository;
+import tech.aroma.banana.thrift.Application;
 import tech.aroma.banana.thrift.Message;
-import tech.aroma.banana.thrift.Urgency;
+import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetMessagesRequest;
 import tech.aroma.banana.thrift.service.GetMessagesResponse;
-import tech.sirwellington.alchemy.generator.AlchemyGenerator;
+import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
-import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
-import static tech.sirwellington.alchemy.generator.EnumGenerators.enumValueOf;
-import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
-import static tech.sirwellington.alchemy.generator.PeopleGenerators.names;
-import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
-import static tech.sirwellington.alchemy.generator.StringGenerators.alphanumericString;
-import static tech.sirwellington.alchemy.generator.StringGenerators.hexadecimalString;
-import static tech.sirwellington.alchemy.generator.TimeGenerators.pastInstants;
+import static java.util.stream.Collectors.toList;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validAppId;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validUserId;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThanOrEqualTo;
 
 /**
  *
@@ -48,62 +47,76 @@ import static tech.sirwellington.alchemy.generator.TimeGenerators.pastInstants;
  */
 final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, GetMessagesResponse>
 {
+
     private final static Logger LOG = LoggerFactory.getLogger(GetMessagesOperation.class);
-    
-    private ApplicationRepository appRepo;
-    private MessageRepository messageRepo;
-    private UserRepository userRepo;
+
+    private final ApplicationRepository appRepo;
+    private final InboxRepository inboxRepo;
+    private final MessageRepository messageRepo;
+    private final UserRepository userRepo;
+
+    @Inject
+    GetMessagesOperation(ApplicationRepository appRepo,
+                         InboxRepository inboxRepo,
+                         MessageRepository messageRepo,
+                         UserRepository userRepo)
+    {
+        checkThat(appRepo, inboxRepo, messageRepo, userRepo)
+            .are(notNull());
+        
+        this.appRepo = appRepo;
+        this.inboxRepo = inboxRepo;
+        this.messageRepo = messageRepo;
+        this.userRepo = userRepo;
+    }
 
     @Override
     public GetMessagesResponse process(GetMessagesRequest request) throws TException
     {
-        checkNotNull(request);
-        
-        //Get the User ID
-        //Get all of the Messages for the App ID
-        //Return the messages
-        
-        GetMessagesResponse response = new GetMessagesResponse();
-        
-        int max;
-        int numberOfMessages;
-        
-        if (hasLimit(request))
-        {
-            max = request.limit;
-        }
-        else
-        {
-            max = 1000;
-        }
-        
-        numberOfMessages = one(integers(0, max));
-        LOG.debug("Sending back {} messages", numberOfMessages);
-        response.setMessages(listOf(messages(), numberOfMessages));
-        
-        return response;
+        checkThat(request)
+            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+            .is(good());
+
+        String appId = request.applicationId;
+        String userId = request.token.userId;
+
+        Application app = appRepo.getById(appId);
+
+        List<Message> messages = inboxRepo.getMessagesForUser(userId)
+            .stream()
+            .limit(1000)
+            .collect(toList());
+
+        LOG.debug("Found {} messages for user [{}] and App [{}]", messages, userId, app);
+
+        return new GetMessagesResponse(messages);
     }
     
-    private AlchemyGenerator<Message> messages()
+    private AlchemyAssertion<GetMessagesRequest> good()
     {
-        return () ->
+        return request ->
         {
-            int bodyLength = one(integers(10, 1_000));
+            checkThat(request)
+                .is(notNull());
             
-            return new Message()
-                .setMessageId(one(hexadecimalString(16)))
-                .setApplicationName(one(names()))
-                .setBody(one(alphabeticString(bodyLength)))
-                .setHostname(one(alphanumericString()))
-                .setUrgency(enumValueOf(Urgency.class).get())
-                .setTimeMessageReceived(one(pastInstants()).toEpochMilli())
-                ;
+            checkThat(request.limit)
+                .usingMessage("Limit must be >= 0")
+                .is(greaterThanOrEqualTo(0));
+            
+            checkThat(request.token)
+                .usingMessage("request missing token")
+                .is(notNull());
+            
+            checkThat(request.token.userId)
+                .usingMessage("token UserID is invalid")
+                .is(validUserId());
+            
+            if (request.isSetApplicationId())
+            {
+                checkThat(request.applicationId)
+                    .is(validAppId());
+            }
         };
-    }
-
-    private boolean hasLimit(GetMessagesRequest request)
-    {
-        return request.limit > 0;
     }
 
 }
