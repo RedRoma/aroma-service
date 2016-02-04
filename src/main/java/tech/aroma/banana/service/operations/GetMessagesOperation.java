@@ -17,6 +17,7 @@
 
 package tech.aroma.banana.service.operations;
 
+import com.google.common.base.Strings;
 import java.util.List;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
@@ -83,14 +84,17 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
         String appId = request.applicationId;
         String userId = request.token.userId;
 
-        Application app = appRepo.getById(appId);
+        if (!Strings.isNullOrEmpty(appId))
+        {
+            Application app = appRepo.getById(appId);
+        }
 
         List<Message> messages = inboxRepo.getMessagesForUser(userId)
             .stream()
             .limit(1000)
             .collect(toList());
 
-        LOG.debug("Found {} messages for user [{}] and App [{}]", messages.size(), userId, app);
+        LOG.debug("Found {} messages for user [{}] ", messages.size(), userId);
 
         return new GetMessagesResponse(messages);
     }
