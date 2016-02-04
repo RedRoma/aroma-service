@@ -95,8 +95,11 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
                 .usingMessage("token userId must be a UUID")
                 .is(validUUID());
             
-            checkThat(request.messageId)
-                .is(validMessageId());
+            if (!request.dismissAll)
+            {
+                checkThat(request.messageId)
+                    .is(validMessageId());
+            }
             
             if(request.isSetMessageIds())
             {
