@@ -74,7 +74,7 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
         
         List<Message> recentMessages = inboxRepo.getMessagesForUser(userId)
             .stream()
-            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived))
+            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
             .limit(3)
             .collect(toList());
         
