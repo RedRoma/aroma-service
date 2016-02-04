@@ -83,7 +83,8 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
 
         String appId = request.applicationId;
         String userId = request.token.userId;
-
+        int limit = request.limit == 0 ? 2000 : request.limit;
+        
         if (!Strings.isNullOrEmpty(appId))
         {
             Application app = appRepo.getById(appId);
@@ -91,7 +92,7 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
 
         List<Message> messages = inboxRepo.getMessagesForUser(userId)
             .stream()
-            .limit(1000)
+            .limit(limit)
             .collect(toList());
 
         LOG.debug("Found {} messages for user [{}] ", messages.size(), userId);
