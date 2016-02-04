@@ -93,7 +93,7 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
 
         List<Message> messages = inboxRepo.getMessagesForUser(userId)
             .stream()
-            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived))
+            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
             .limit(limit)
             .collect(toList());
 
