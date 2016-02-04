@@ -43,12 +43,13 @@ import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.data.assertions.AuthenticationAssertions.completeToken;
-import static tech.aroma.banana.data.assertions.RequestAssertions.validAppId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.inTheFuture;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validApplicationId;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
  *
@@ -119,7 +120,7 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
                 .is(notNull());
             
             checkThat(request.applicationId)
-                .is(validAppId());
+                .is(validApplicationId());
             
             checkThat(request.token)
                 .is(notNull());

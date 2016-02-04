@@ -30,9 +30,10 @@ import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.data.assertions.RequestAssertions.validAppId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validApplicationId;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
  *
@@ -75,7 +76,7 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
                 .is(notNull());
             
             checkThat(request.applicationId)
-                .is(validAppId());
+                .is(validApplicationId());
             
             checkThat(request.token)
                 .usingMessage("request missing token")

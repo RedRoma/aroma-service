@@ -19,35 +19,72 @@ package tech.aroma.banana.service.operations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import tech.aroma.banana.data.MessageRepository;
+import tech.aroma.banana.thrift.Message;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.MessageDoesNotExistException;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
+import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
+import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(100)
 @RunWith(AlchemyTestRunner.class)
-public class GetFullMessageOperationTest 
+public class GetFullMessageOperationTest
 {
+
+    @Mock
+    private MessageRepository messageRepo;
+
     @GeneratePojo
     private GetFullMessageRequest request;
+
+    @GeneratePojo
+    private Message message;
+
+    @GenerateString(UUID)
+    private String appId;
+
+    @GenerateString(UUID)
+    private String messageId;
     
+    @GenerateString(ALPHABETIC)
+    private String badId;
+
     private GetFullMessageOperation instance;
-    
+
     @Before
-    public void setUp()
+    public void setUp() throws Exception
     {
-        instance = new GetFullMessageOperation();
+        instance = new GetFullMessageOperation(messageRepo);
+        verifyZeroInteractions(messageRepo);
+
+        setupData();
+        setupMocks();
+    }
+
+    @DontRepeat
+    @Test
+    public void testConstructor() throws Exception
+    {
+        assertThrows(() -> new GetFullMessageOperation(null))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -55,14 +92,59 @@ public class GetFullMessageOperationTest
     {
         GetFullMessageResponse response = instance.process(request);
         assertThat(response, notNullValue());
+        assertThat(response.fullMessage, is(message));
+    }
+    
+    @Test
+    public void testWhenMessageNotExists() throws Exception
+    {
+        when(messageRepo.getMessage(appId, messageId))
+            .thenThrow(new MessageDoesNotExistException());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(MessageDoesNotExistException.class);
     }
     
     @DontRepeat
     @Test
-    public void testWithBadRequest() throws Exception
+    public void testWithEmptyRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.process(new GetFullMessageRequest()))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+    }
+    
+    @Test
+    public void testWithBadIds() throws Exception
+    {
+        request.messageId = badId;
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        request.messageId = messageId;
+        request.applicationId = badId;
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    private void setupData() throws Exception
+    {
+        request.messageId = messageId;
+        request.applicationId = appId;
+        
+        message.messageId = messageId;
+        message.applicationId = appId;
+    }
+
+    private void setupMocks() throws Exception
+    {
+        when(messageRepo.getMessage(appId, messageId))
+            .thenReturn(message);
     }
 
 }

@@ -37,10 +37,12 @@ import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static java.util.stream.Collectors.toList;
-import static tech.aroma.banana.data.assertions.RequestAssertions.validAppId;
 import static tech.aroma.banana.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThanOrEqualTo;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validApplicationId;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThanOrEqualTo;
 
 /**
@@ -125,7 +127,7 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
             if (request.isSetApplicationId())
             {
                 checkThat(request.applicationId)
-                    .is(validAppId());
+                    .is(validApplicationId());
             }
         };
     }

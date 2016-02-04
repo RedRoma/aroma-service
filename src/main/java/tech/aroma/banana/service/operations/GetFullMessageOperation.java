@@ -18,15 +18,22 @@
 package tech.aroma.banana.service.operations;
 
 
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.banana.data.MessageRepository;
+import tech.aroma.banana.thrift.Message;
+import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
+import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validApplicationId;
+import static tech.aroma.banana.data.assertions.RequestAssertions.validMessageId;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
  *
@@ -36,14 +43,46 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetFullMessageOperation.class);
 
+    private final MessageRepository messageRepo;
+
+    @Inject
+    GetFullMessageOperation(MessageRepository messageRepo)
+    {
+        checkThat(messageRepo).is(notNull());
+        
+        this.messageRepo = messageRepo;
+    }
+    
     @Override
     public GetFullMessageResponse process(GetFullMessageRequest request) throws TException
     {
-        checkNotNull(request);
+        checkThat(request)
+            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+            .is(good());
         
-        GetFullMessageResponse response = pojos(GetFullMessageResponse.class).get();
+        String appId = request.applicationId;
+        String messageId = request.messageId;
         
-        return response;
+        Message message = messageRepo.getMessage(appId, messageId);
+        
+        return new GetFullMessageResponse(message);
+    }
+
+    private AlchemyAssertion<GetFullMessageRequest> good()
+    {
+        return request ->
+        {
+            checkThat(request)
+                .usingMessage("missing request")
+                .is(notNull());
+            
+            checkThat(request.messageId)
+                .is(validMessageId());
+            
+            checkThat(request.applicationId)
+                .is(validApplicationId());
+        };
+        
     }
 
 }

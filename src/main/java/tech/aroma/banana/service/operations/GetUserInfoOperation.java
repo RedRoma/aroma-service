@@ -33,6 +33,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 import static tech.aroma.banana.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
  *
