@@ -143,7 +143,7 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
         }
         catch (TException ex)
         {
-            LOG.warn("Failed to delete message {} for user {}", msgId, userId);
+            LOG.warn("Failed to delete message {} for user {}", msgId, userId, ex);
         }
     }
 }
