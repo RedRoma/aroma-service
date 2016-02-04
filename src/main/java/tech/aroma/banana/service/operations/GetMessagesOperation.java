@@ -74,7 +74,7 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
     public GetMessagesResponse process(GetMessagesRequest request) throws TException
     {
         
-        LOG.debug("Received request to get messages: {}", request);
+        LOG.info("Received request to get messages: {}", request);
         
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
