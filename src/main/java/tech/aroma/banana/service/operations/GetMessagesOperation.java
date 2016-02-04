@@ -18,6 +18,7 @@
 package tech.aroma.banana.service.operations;
 
 import com.google.common.base.Strings;
+import java.util.Comparator;
 import java.util.List;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
@@ -92,6 +93,7 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
 
         List<Message> messages = inboxRepo.getMessagesForUser(userId)
             .stream()
+            .sorted(Comparator.comparingLong(Message::getTimeOfCreation))
             .limit(limit)
             .collect(toList());
 
