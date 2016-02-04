@@ -99,7 +99,8 @@ public class GetMessagesOperationTest
         GetMessagesResponse response = instance.process(request);
         assertThat(response, notNullValue());
         List<Message> sortedMessages = messages.stream()
-            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived))
+            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
+            .limit(request.limit)
             .collect(toList());
         
         assertThat(response.messages, is(sortedMessages));
