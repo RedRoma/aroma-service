@@ -16,6 +16,7 @@
 
 package tech.aroma.banana.service.operations;
 
+import java.util.Comparator;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,7 @@ import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -96,7 +98,11 @@ public class GetMessagesOperationTest
     {
         GetMessagesResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        assertThat(response.messages, is(messages));
+        List<Message> sortedMessages = messages.stream()
+            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived))
+            .collect(toList());
+        
+        assertThat(response.messages, is(sortedMessages));
     }
     
     @DontRepeat
