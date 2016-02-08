@@ -177,27 +177,6 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
         };
     }
 
-    private AlchemyAssertion<User> userWithCredentials()
-    {
-        return user ->
-        {
-            try
-            {
-                if (!credentialsRepo.containsEncryptedPassword(user.userId))
-                {
-                    throw new FailedAssertionException(format("User with ID %s has no saved Credentials", user.userId));
-                }
-            }
-            catch (TException ex)
-            {
-                LOG.error("Failed to check for credentials of user [{}]", user.userId, ex);
-                throw new FailedAssertionException(format("Could not determine is credentials exist for %s. : %s",
-                                                              user.userId,
-                                                              ex.getMessage()));
-            }
-        };
-    }
-
     private String decryptPasswordFrom(SignInRequest request) throws TException
     {
         String encryptedPassword = request.credentials.getAromaPassword().getEncryptedPassword();
@@ -222,5 +201,25 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
             .usingMessage("User has no password stored")
             .is(userWithCredentials());
     }
-
+    
+    private AlchemyAssertion<User> userWithCredentials()
+    {
+        return user ->
+        {
+            try
+            {
+                if (!credentialsRepo.containsEncryptedPassword(user.userId))
+                {
+                    throw new FailedAssertionException(format("User with ID %s has no saved Credentials", user.userId));
+                }
+            }
+            catch (TException ex)
+            {
+                LOG.error("Failed to check for credentials of user [{}]", user.userId, ex);
+                throw new FailedAssertionException(format("Could not determine is credentials exist for %s. : %s",
+                                                          user.userId,
+                                                          ex.getMessage()));
+            }
+        };
+    }
 }
