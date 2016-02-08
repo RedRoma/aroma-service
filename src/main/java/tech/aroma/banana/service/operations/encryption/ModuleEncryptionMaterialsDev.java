@@ -96,8 +96,9 @@ public class ModuleEncryptionMaterialsDev extends AbstractModule
     @Provides
     PBEStringEncryptor provideOverTheWireDecryptor()
     {
-        PBEStringEncryptor decryptor = new StandardPBEStringEncryptor();
+        StandardPBEStringEncryptor decryptor = new StandardPBEStringEncryptor();
         decryptor.setPassword(AuthenticationConstants.OVER_THE_WIRE_PASSWORD_ENCRYPTION_KEY);
+        decryptor.setAlgorithm("PBEWithMD5AndDES");
         return decryptor;
     }
 

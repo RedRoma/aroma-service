@@ -128,7 +128,7 @@
 
 
         <!--=======================-->
-        <!--JASYPT (Encryption)-->
+        <!--ENCRYPTION-->
         <!--=======================-->
         <dependency>
             <groupId>org.jasypt</groupId>
