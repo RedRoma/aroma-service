@@ -21,13 +21,13 @@ import java.util.UUID;
 import java.util.function.Function;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
-import org.jasypt.util.password.PasswordEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.banana.data.CredentialRepository;
 import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.service.operations.encryption.OverTheWireDecryptor;
+import tech.aroma.banana.service.operations.encryption.PasswordEncryptor;
 import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.TokenType;
@@ -37,6 +37,7 @@ import tech.aroma.banana.thrift.authentication.service.CreateTokenRequest;
 import tech.aroma.banana.thrift.authentication.service.CreateTokenResponse;
 import tech.aroma.banana.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.banana.thrift.service.SignUpRequest;
@@ -65,27 +66,33 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
 
     private final AuthenticationService.Iface authenticationService;
 
-    private CredentialRepository credentialsRepo;
+    private final CredentialRepository credentialsRepo;
     private final UserRepository userRepo;
     
     private final Function<AuthenticationToken, UserToken> tokenMapper;
 
-    private OverTheWireDecryptor decryptor;
-    private PasswordEncryptor passwordEncryptor;
-    
+    private final OverTheWireDecryptor decryptor;
+    private final PasswordEncryptor passwordEncryptor;
+
     @Inject
-    SignUpOperation(UserRepository userRepo,
-                    AuthenticationService.Iface authenticationService,
-                    Function<AuthenticationToken, UserToken> tokenMapper)
+    SignUpOperation(AuthenticationService.Iface authenticationService,
+                    CredentialRepository credentialsRepo,
+                    UserRepository userRepo,
+                    Function<AuthenticationToken, UserToken> tokenMapper,
+                    OverTheWireDecryptor decryptor,
+                    PasswordEncryptor passwordEncryptor)
     {
-        checkThat(userRepo, authenticationService, tokenMapper)
+        checkThat(authenticationService, credentialsRepo, userRepo, tokenMapper, decryptor, passwordEncryptor)
             .are(notNull());
-
-        this.userRepo = userRepo;
+        
         this.authenticationService = authenticationService;
+        this.credentialsRepo = credentialsRepo;
+        this.userRepo = userRepo;
         this.tokenMapper = tokenMapper;
+        this.decryptor = decryptor;
+        this.passwordEncryptor = passwordEncryptor;
     }
-
+    
     @Override
     public SignUpResponse process(SignUpRequest request) throws TException
     {
@@ -98,15 +105,14 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
             .usingMessage("Email is already in use")
             .is(notAlreadyInUse());
 
-        //Try to decrypt the over-the-wire password
-        //Run it through the password hashing algorithm
-        //Store the credentials
         //User IDs are always UUIDs
         String userId = UUID.randomUUID().toString();
-
+        
+        tryToSaveCredentialsFor(userId, request);
+        
         User user = createUserFrom(request);
         user.userId = userId;
-
+        
         //Store in Repository
         userRepo.saveUser(user);
 
@@ -294,5 +300,27 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         }
 
         return lastToken;
+    }
+
+    private void tryToSaveCredentialsFor(String userId, SignUpRequest request) throws InvalidCredentialsException, TException
+    {
+        //Try to decrypt the over-the-wire password
+        //Run it through the password hashing algorithm
+        //Store the credentials
+        String encryptedPassword = request.credentials.getAromaPassword().getEncryptedPassword();
+        
+        checkThat(encryptedPassword)
+            .throwing(InvalidCredentialsException.class)
+            .usingMessage("request credentials encrypted password")
+            .is(nonEmptyString());
+        
+        String password = decryptor.decrypt(encryptedPassword);
+        LOG.debug("Password successfully decrypted over the wire");
+        
+        String digestedPassword = passwordEncryptor.encryptPassword(password);
+        LOG.debug("Password successfully encrypted and digested");
+        
+        credentialsRepo.saveEncryptedPassword(userId, digestedPassword);
+        LOG.debug("Password successfully stored");
     }
 }
