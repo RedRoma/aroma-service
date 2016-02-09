@@ -222,4 +222,5 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
             }
         };
     }
+
 }
