@@ -47,8 +47,11 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
@@ -91,7 +94,9 @@ public class SignUpOperationTest
     private ArgumentCaptor<CreateTokenRequest> requestCaptor;
     
     private CreateTokenResponse authResponse;
-
+    
+    private String fullName;
+    
     @Before
     public void setUp() throws TException
     {
@@ -99,7 +104,7 @@ public class SignUpOperationTest
         
         verifyZeroInteractions(userRepo, authenticationService, tokenMapper);
         
-        authResponse = new CreateTokenResponse(authToken);
+        setupData();
         setupMock();
     }
 
@@ -129,6 +134,33 @@ public class SignUpOperationTest
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
+    
+    @Test
+    public void testWhenNamesAreMissing() throws Exception
+    {
+        String firstName = request.firstName;
+        String middleName = request.middleName;
+        String lastName = request.lastName;
+        
+        request.unsetFirstName();
+        request.unsetMiddleName();
+        request.unsetLastName();
+        request.setName(fullName);
+        
+        
+        SignUpResponse response = instance.process(request);
+        
+        assertThat(response, notNullValue());
+        assertThat(response.userToken, is(userToken));
+        
+        verify(userRepo).saveUser(userCaptor.capture());
+        
+        User userSaved = userCaptor.getValue();
+        assertThat(userSaved.name, is(fullName));
+        assertThat(userSaved.firstName, is(firstName));
+        assertThat(userSaved.middleName, is(middleName));
+        assertThat(userSaved.lastName, is(lastName));
+    }
 
     private void setupMock() throws TException
     {
@@ -142,5 +174,22 @@ public class SignUpOperationTest
         
         when(userRepo.getUserByEmail(request.email))
             .thenThrow(new UserDoesNotExistException());
+    }
+
+    private void setupData()
+    {
+        authResponse = new CreateTokenResponse(authToken);
+        
+        String first = one(alphabeticString(10));
+        String middle = one(alphabeticString(10));
+        String last = one(alphabeticString(10));
+        String full = first + " " + middle + " " + last;
+        
+        request.name = full;
+        request.firstName = first;
+        request.middleName = middle;
+        request.lastName = last;
+        
+        fullName = full;
     }
 }

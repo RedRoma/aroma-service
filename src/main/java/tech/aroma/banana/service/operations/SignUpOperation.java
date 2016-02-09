@@ -16,6 +16,7 @@
 
 package tech.aroma.banana.service.operations;
 
+import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.function.Function;
 import javax.inject.Inject;
@@ -48,6 +49,8 @@ import static tech.aroma.banana.data.assertions.AuthenticationAssertions.complet
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthGreaterThanOrEqualTo;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthLessThan;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
 
 /**
@@ -100,17 +103,8 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         //User IDs are always UUIDs
         String userId = UUID.randomUUID().toString();
 
-        User user = new User()
-            .setBirthdate(request.birthDate)
-            .setEmail(request.email)
-            .setFirstName(request.firstName)
-            .setMiddleName(request.middleName)
-            .setLastName(request.lastName)
-            .setGithubProfile(request.githubProfile)
-            .setName(request.name)
-            .setProfileImage(request.profileImage)
-            .setRoles(Sets.createFrom(request.mainRole))
-            .setUserId(userId);
+        User user = createUserFrom(request);
+        user.userId = userId;
 
         //Store in Repository
         userRepo.saveUser(user);
@@ -129,28 +123,32 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     private AlchemyAssertion<SignUpRequest> good()
     {
         return request ->
+        {
+            checkThat(request)
+                .usingMessage("request is null")
+                .is(notNull());
+            
+            checkThat(request.name)
+                .usingMessage("User's Name is required")
+                .is(nonEmptyString())
+                .usingMessage("User's Name too short")
+                .is(stringWithLengthGreaterThanOrEqualTo(2))
+                .usingMessage("User's name is too long")
+                .is(stringWithLengthLessThan(100));
+            
+            checkThat(request.mainRole)
+                .usingMessage("Your main role is required")
+                .is(notNull());
+            
+            if (request.isSetOrganizationId())
             {
-                checkThat(request)
-                    .usingMessage("request is null")
-                    .is(notNull());
-
-                checkThat(request.firstName, request.lastName)
-                    .usingMessage("first and last name are required")
-                    .are(nonEmptyString());
-
-                checkThat(request.mainRole)
-                    .usingMessage("Your main role is required")
-                    .is(notNull());
-
-                if (request.isSetOrganizationId())
-                {
-                    checkThat(request.organizationId)
-                        .usingMessage("organization ID must be a valid UUID type")
-                        .is(validUUID());
-                }
-
-                //TODO: Add check on the email
-            };
+                checkThat(request.organizationId)
+                    .usingMessage("organization ID must be a valid UUID type")
+                    .is(validUUID());
+            }
+            
+            //TODO: Add check on the email
+        };
     }
 
     private CreateTokenRequest makeAuthenticationRequestToCreateToken(User user)
@@ -187,26 +185,105 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         return tokenMapper.apply(token);
     }
 
+    private User createUserFrom(SignUpRequest request) throws InvalidArgumentException
+    {
+        
+        if (isMissingNames(request))
+        {
+            tryToInferNames(request);
+        }
+
+        return new User()
+            .setBirthdate(request.birthDate)
+            .setEmail(request.email)
+            .setFirstName(request.firstName)
+            .setMiddleName(request.middleName)
+            .setLastName(request.lastName)
+            .setGithubProfile(request.githubProfile)
+            .setName(request.name)
+            .setProfileImage(request.profileImage)
+            .setRoles(Sets.createFrom(request.mainRole));
+    }
+    
     private AlchemyAssertion<String> notAlreadyInUse()
     {
         return email ->
+        {
+            checkThat(email).is(nonEmptyString());
+            
+            try
             {
-                checkThat(email).is(nonEmptyString());
-
-                try
-                {
-                    User user = userRepo.getUserByEmail(email);
-                    throw new FailedAssertionException();
-                }
-                catch (UserDoesNotExistException ex)
-                {
-                    //Good
-                }
-                catch (TException ex)
-                {
-                    throw new FailedAssertionException("could not check for existence of email: " + email);
-                }
-            };
+                User user = userRepo.getUserByEmail(email);
+                throw new FailedAssertionException();
+            }
+            catch (UserDoesNotExistException ex)
+            {
+                //Good
+            }
+            catch (TException ex)
+            {
+                throw new FailedAssertionException("could not check for existence of email: " + email);
+            }
+        };
     }
 
+    private boolean isMissingNames(SignUpRequest request)
+    {
+
+        if (request.isSetFirstName() && request.isSetLastName())
+        {
+            return false;
+        }
+
+        if (request.isSetFirstName())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void tryToInferNames(SignUpRequest request) throws InvalidArgumentException
+    {
+        String fullName = request.name;
+
+        StringTokenizer tokenizer = new StringTokenizer(fullName);
+        int numberOfTokens = tokenizer.countTokens();
+
+        switch (numberOfTokens)
+        {
+            case 0:
+                throw new InvalidArgumentException("Full Name is missing from request");
+            case 1:
+                request.firstName = tokenizer.nextToken();
+                break;
+            case 2:
+                request.firstName = tokenizer.nextToken();
+                request.lastName = tokenizer.nextToken();
+                break;
+            case 3:
+                request.firstName = tokenizer.nextToken();
+                request.middleName = tokenizer.nextToken();
+                request.lastName = tokenizer.nextToken();
+                break;
+            default:
+                LOG.warn("Name has more than 4 tokens. Skipping some. [{}]", fullName);
+                request.firstName = tokenizer.nextToken();
+                request.middleName = tokenizer.nextToken();
+                request.lastName = determineLastTokenFrom(tokenizer);
+                break;
+        }
+    }
+
+    private String determineLastTokenFrom(StringTokenizer tokenizer)
+    {
+        String lastToken = tokenizer.nextToken();
+
+        while (tokenizer.hasMoreTokens())
+        {
+            lastToken = tokenizer.nextToken();
+        }
+
+        return lastToken;
+    }
 }
