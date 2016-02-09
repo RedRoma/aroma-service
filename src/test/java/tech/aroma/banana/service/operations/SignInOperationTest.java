@@ -28,7 +28,6 @@ import org.mockito.Mockito;
 import tech.aroma.banana.data.CredentialRepository;
 import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.service.operations.encryption.OverTheWireDecryptor;
-import tech.aroma.banana.service.operations.encryption.PasswordEncryptor;
 import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.Password;
@@ -58,6 +57,8 @@ import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
+import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
+
 /**
  *
  * @author SirWellington
@@ -80,7 +81,7 @@ public class SignInOperationTest
     private OverTheWireDecryptor decryptor;
     
     @Mock
-    private PasswordEncryptor encryptor;
+    private AromaPasswordEncryptor encryptor;
 
     @Mock
     private UserRepository userRepo;

@@ -17,7 +17,7 @@
 package tech.aroma.banana.service.operations.encryption;
 
 import org.apache.thrift.TException;
-import org.jasypt.digest.StringDigester;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,14 +37,13 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  *
  * @author SirWellington
  */
-@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class PasswordEncryptorImplIT
+public class AromaPasswordEncryptorImplIT
 {
 
-    private StringDigester digester;
+    private PasswordEncryptor encryptor;
 
-    private PasswordEncryptorImpl instance;
+    private AromaPasswordEncryptorImpl instance;
 
     @GenerateString(ALPHABETIC)
     private String rawPassword;
@@ -66,11 +65,12 @@ public class PasswordEncryptorImplIT
 
     private void setupMocks() throws Exception
     {
-        digester = TestMaterials.newDigester();
+        encryptor = TestMaterials.newPasswordEncryptor();
 
-        instance = new PasswordEncryptorImpl(digester);
+        instance = new AromaPasswordEncryptorImpl(encryptor);
     }
 
+    @Repeat(50)
     @Test
     public void testEncryptPassword() throws Exception
     {
@@ -82,6 +82,7 @@ public class PasswordEncryptorImplIT
         assertThat(instance.match(rawPassword, digestedPassword), is(true));
     }
 
+    @Repeat(10)
     @Test
     public void testMatch() throws Exception
     {
@@ -100,6 +101,7 @@ public class PasswordEncryptorImplIT
         assertThat(result, is(true));
     }
     
+    @Repeat(2)
     @Test
     public void testConsistencyAccrossRuns() throws TException
     {
@@ -118,8 +120,8 @@ public class PasswordEncryptorImplIT
 
     private void recreateInstance()
     {
-        this.digester = TestMaterials.newDigester();
-        this.instance = new PasswordEncryptorImpl(digester);
+        this.encryptor = TestMaterials.newPasswordEncryptor();
+        this.instance = new AromaPasswordEncryptorImpl(encryptor);
     }
 
 }

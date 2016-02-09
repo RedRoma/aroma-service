@@ -27,7 +27,6 @@ import org.mockito.Mock;
 import tech.aroma.banana.data.CredentialRepository;
 import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.service.operations.encryption.OverTheWireDecryptor;
-import tech.aroma.banana.service.operations.encryption.PasswordEncryptor;
 import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.Credentials;
@@ -69,6 +68,10 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.HEXADECIMAL;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
+import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
+
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
+
 /**
  *
  * @author SirWellington
@@ -93,7 +96,7 @@ public class SignUpOperationTest
     private OverTheWireDecryptor decryptor;
     
     @Mock
-    private PasswordEncryptor encryptor;
+    private AromaPasswordEncryptor encryptor;
     
     @GenerateString(HEXADECIMAL)
     private String overTheWirePassword;

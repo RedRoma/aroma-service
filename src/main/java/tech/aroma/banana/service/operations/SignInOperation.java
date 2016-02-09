@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import tech.aroma.banana.data.CredentialRepository;
 import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.service.operations.encryption.OverTheWireDecryptor;
-import tech.aroma.banana.service.operations.encryption.PasswordEncryptor;
 import tech.aroma.banana.thrift.LengthOfTime;
 import tech.aroma.banana.thrift.TimeUnit;
 import tech.aroma.banana.thrift.User;
@@ -52,6 +51,11 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 
+import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
+
+import static java.lang.String.format;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+
 /**
  *
  * @author SirWellington
@@ -67,7 +71,7 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
 
     private final CredentialRepository credentialsRepo;
     private final OverTheWireDecryptor decryptor;
-    private final PasswordEncryptor encryptor;
+    private final AromaPasswordEncryptor encryptor;
     private final UserRepository userRepo;
 
     @Inject
@@ -75,7 +79,7 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
                     Function<AuthenticationToken, UserToken> tokenMapper,
                     CredentialRepository credentialsRepo,
                     OverTheWireDecryptor decryptor,
-                    PasswordEncryptor encryptor,
+                    AromaPasswordEncryptor encryptor,
                     UserRepository userRepo)
     {
         checkThat(authenticationService, tokenMapper, credentialsRepo, decryptor, encryptor, userRepo)

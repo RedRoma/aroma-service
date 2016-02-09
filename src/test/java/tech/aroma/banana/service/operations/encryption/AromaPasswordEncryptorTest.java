@@ -16,7 +16,7 @@
 
 package tech.aroma.banana.service.operations.encryption;
 
-import org.jasypt.digest.StringDigester;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,11 +35,11 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class PasswordEncryptorTest 
+public class AromaPasswordEncryptorTest 
 {
     
     @Mock
-    private StringDigester stringDigester;
+    private PasswordEncryptor encryptor;
     
     @Before
     public void setUp() throws Exception
@@ -61,7 +61,7 @@ public class PasswordEncryptorTest
     @Test
     public void testNewInstance()
     {
-        PasswordEncryptor result = PasswordEncryptor.newInstance(stringDigester);
+        AromaPasswordEncryptor result = AromaPasswordEncryptor.newInstance(encryptor);
         assertThat(result, notNullValue());
     }
     
@@ -69,7 +69,7 @@ public class PasswordEncryptorTest
     @Test
     public void testNewInstanceWithBadArgs()
     {
-        assertThrows(() -> PasswordEncryptor.newInstance(null))
+        assertThrows(() -> AromaPasswordEncryptor.newInstance(null))
             .isInstanceOf(IllegalArgumentException.class);
     }
 

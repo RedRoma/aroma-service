@@ -17,7 +17,7 @@
 package tech.aroma.banana.service.operations.encryption;
 
 import org.apache.thrift.TException;
-import org.jasypt.digest.StringDigester;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,11 +41,11 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class PasswordEncryptorImplTest 
+public class AromaPasswordEncryptorImplTest 
 {
     
     @Mock
-    private StringDigester encryptor;
+    private PasswordEncryptor encryptor;
     
     @GenerateString(ALPHABETIC)
     private String password;
@@ -53,7 +53,7 @@ public class PasswordEncryptorImplTest
     @GenerateString(HEXADECIMAL)
     private String encrypted;
 
-    private PasswordEncryptorImpl instance;
+    private AromaPasswordEncryptorImpl instance;
     
     
     @Before
@@ -65,23 +65,23 @@ public class PasswordEncryptorImplTest
 
     private void setupData() throws Exception
     {
-        when(encryptor.digest(password))
+        when(encryptor.encryptPassword(password))
             .thenReturn(encrypted);
         
-        when(encryptor.matches(password, encrypted))
+        when(encryptor.checkPassword(password, encrypted))
             .thenReturn(true);
     }
 
     private void setupMocks() throws Exception
     {
-        instance = new PasswordEncryptorImpl(encryptor);
+        instance = new AromaPasswordEncryptorImpl(encryptor);
     }
     
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
     {
-        assertThrows(() -> new PasswordEncryptorImpl(null))
+        assertThrows(() -> new AromaPasswordEncryptorImpl(null))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -96,7 +96,7 @@ public class PasswordEncryptorImplTest
     @Test
     public void testEncryptPasswordWhenFails() throws Exception
     {
-        when(encryptor.digest(password))
+        when(encryptor.encryptPassword(password))
             .thenThrow(new RuntimeException());
         
         assertThrows(() -> instance.encryptPassword(password))
@@ -124,7 +124,7 @@ public class PasswordEncryptorImplTest
     @Test
     public void testMatchWhenDontMatch() throws Exception
     {
-        when(encryptor.matches(password, encrypted))
+        when(encryptor.checkPassword(password, encrypted))
             .thenReturn(false);
         
         boolean result = instance.match(password, encrypted);
@@ -135,7 +135,7 @@ public class PasswordEncryptorImplTest
     @Test
     public void testMatchWhenFails() throws Exception
     {
-        when(encryptor.matches(password, encrypted))
+        when(encryptor.checkPassword(password, encrypted))
             .thenThrow(new RuntimeException());
         
         assertThrows(() -> instance.match(password, encrypted))

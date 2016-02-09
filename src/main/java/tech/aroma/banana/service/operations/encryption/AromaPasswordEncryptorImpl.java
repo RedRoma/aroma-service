@@ -18,7 +18,7 @@ package tech.aroma.banana.service.operations.encryption;
 
 import javax.inject.Inject;
 import org.apache.thrift.TException;
-import org.jasypt.digest.StringDigester;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
@@ -30,15 +30,14 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 
 @Internal
-final class PasswordEncryptorImpl implements PasswordEncryptor
+final class AromaPasswordEncryptorImpl implements AromaPasswordEncryptor
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(PasswordEncryptorImpl.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AromaPasswordEncryptorImpl.class);
     
-    private final StringDigester encryptor;
-    
+    private PasswordEncryptor encryptor;
     @Inject
-    PasswordEncryptorImpl(StringDigester encryptor)
+    AromaPasswordEncryptorImpl(PasswordEncryptor encryptor)
     {
         checkThat(encryptor).is(notNull());
         
@@ -54,7 +53,7 @@ final class PasswordEncryptorImpl implements PasswordEncryptor
         
         try
         {
-            return encryptor.digest(password);
+            return encryptor.encryptPassword(password);
         }
         catch (Exception ex)
         {
@@ -64,16 +63,16 @@ final class PasswordEncryptorImpl implements PasswordEncryptor
     }
     
     @Override
-    public boolean match(String candidate, String existingDigestedPassword) throws TException
+    public boolean match(String plainPassword, String existingDigestedPassword) throws TException
     {
-        checkThat(candidate, existingDigestedPassword)
+        checkThat(plainPassword, existingDigestedPassword)
             .throwing(InvalidCredentialsException.class)
             .usingMessage("credentials cannot be empty")
             .are(nonEmptyString());
         
         try
         {
-            return encryptor.matches(candidate, existingDigestedPassword);
+            return encryptor.checkPassword(plainPassword, existingDigestedPassword);
         }
         catch (Exception ex)
         {

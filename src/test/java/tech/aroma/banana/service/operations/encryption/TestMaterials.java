@@ -20,8 +20,8 @@ package tech.aroma.banana.service.operations.encryption;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jasypt.digest.StringDigester;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +35,9 @@ class TestMaterials
     
     private static final Injector GUICE = Guice.createInjector(new ModuleEncryptionMaterialsDev());
     
-    
-    static StringDigester newDigester()
+    static PasswordEncryptor newPasswordEncryptor()
     {
-        return GUICE.getInstance(StringDigester.class);
+        return GUICE.getInstance(PasswordEncryptor.class);
     }
     
     static PBEStringEncryptor newStringEncryptor()

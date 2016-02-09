@@ -16,10 +16,10 @@
 
 package tech.aroma.banana.service.operations.encryption;
 
-import org.jasypt.digest.config.DigesterConfig;
-import org.jasypt.digest.config.SimpleStringDigesterConfig;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.salt.SaltGenerator;
-import org.jasypt.util.password.PasswordEncryptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
  */
 @IntegrationTest
 @RunWith(AlchemyTestRunner.class)
-public class ModuleDevEncryptionMaterialsTest 
+public class ModuleEncryptionMaterialsDevTest 
 {
     
     private ModuleEncryptionMaterialsDev instance;
@@ -61,22 +61,12 @@ public class ModuleDevEncryptionMaterialsTest
     @Test
     public void testConfigure()
     {
+        Injector injector = Guice.createInjector(instance);
+        AromaPasswordEncryptor encryptor = injector.getInstance(AromaPasswordEncryptor.class);
+        assertThat(encryptor, notNullValue());
         
-    }
-
-    @Test
-    public void testProvidePasswordConfig()
-    {
-        DigesterConfig result = instance.providePasswordConfig();
-        assertThat(result, notNullValue());
-    }
-
-    @Test
-    public void testProvidePasswordEncryptor()
-    {
-        DigesterConfig config = instance.providePasswordConfig();
-        PasswordEncryptor result = instance.providePasswordEncryptor(config);
-        assertThat(result, notNullValue());
+        OverTheWireDecryptor decryptor = injector.getInstance(OverTheWireDecryptor.class);
+        assertThat(decryptor, notNullValue());
     }
 
     @Test
@@ -87,21 +77,10 @@ public class ModuleDevEncryptionMaterialsTest
     }
 
     @Test
-    public void testProvideStringDigesterConfig()
-    {
-        SaltGenerator salt = instance.provideSaltGenerator();
-        SimpleStringDigesterConfig result = instance.provideStringDigesterConfig(salt);
-        assertThat(result, notNullValue());
-    }
-
-    @Test
-    public void testProvideIdentityHashingFunction()
-    {
-    }
-
-    @Test
     public void testProvideOverTheWireDecryptor()
     {
+        PBEStringEncryptor result = instance.provideOverTheWireDecryptor();
+        assertThat(result, notNullValue());
     }
 
 }

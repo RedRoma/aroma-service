@@ -18,8 +18,6 @@ package tech.aroma.banana.service.operations.encryption;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import org.jasypt.digest.StandardStringDigester;
-import org.jasypt.digest.StringDigester;
 import org.jasypt.digest.config.DigesterConfig;
 import org.jasypt.digest.config.SimpleStringDigesterConfig;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
@@ -74,25 +72,6 @@ public class ModuleEncryptionMaterialsDev extends AbstractModule
 //        return new StringFixedSaltGenerator(FIXED_SALT);
     }
     
-    @Provides
-    SimpleStringDigesterConfig provideStringDigesterConfig(SaltGenerator salt)
-    {
-        SimpleStringDigesterConfig config = new SimpleStringDigesterConfig();
-        config.setAlgorithm("SHA-1");
-        config.setIterations(1_000);
-        config.setPoolSize(10);
-        config.setSaltGenerator(salt);
-        return config;
-    }
-
-    @Provides
-    StringDigester provideIdentityHashingFunction(SimpleStringDigesterConfig config)
-    {
-        StandardStringDigester digester = new StandardStringDigester();
-        digester.setConfig(config);
-        return digester;
-    }
-
     @Provides
     PBEStringEncryptor provideOverTheWireDecryptor()
     {

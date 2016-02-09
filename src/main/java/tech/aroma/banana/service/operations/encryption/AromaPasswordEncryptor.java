@@ -19,13 +19,14 @@ package tech.aroma.banana.service.operations.encryption;
 
 import com.google.inject.ImplementedBy;
 import org.apache.thrift.TException;
-import org.jasypt.digest.StringDigester;
+import org.jasypt.util.password.PasswordEncryptor;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.arguments.NonEmpty;
 import tech.sirwellington.alchemy.annotations.arguments.Required;
 
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 
 /**
@@ -34,8 +35,8 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
  * @author SirWellington
  */
 @Internal
-@ImplementedBy(PasswordEncryptorImpl.class)
-public interface PasswordEncryptor 
+@ImplementedBy(AromaPasswordEncryptorImpl.class)
+public interface AromaPasswordEncryptor 
 {
     /**
      * 
@@ -49,19 +50,19 @@ public interface PasswordEncryptor
     /**
      * Determines if the raw candidate password matches the digested password.
      * 
-     * @param candidate The password to check.
+     * @param plainPassword The password to check.
      * @param existingDigestedPassword The encrypted digest of the known accurate password.
      * 
      * @return True if they match, false otherwise.
      * 
      * @throws TException If the Operation Failes.
      */
-    boolean match(@NonEmpty String candidate, @NonEmpty String existingDigestedPassword) throws TException;
+    boolean match(@NonEmpty String plainPassword, @NonEmpty String existingDigestedPassword) throws TException;
     
-    public static PasswordEncryptor newInstance(@Required StringDigester stringDigestor)
+    public static AromaPasswordEncryptor newInstance(@Required PasswordEncryptor jasyptEncryptor)
     {
-        checkThat(stringDigestor).is(notNull());
+        checkThat(jasyptEncryptor).is(notNull());
         
-        return new PasswordEncryptorImpl(stringDigestor);
+        return new AromaPasswordEncryptorImpl(jasyptEncryptor);
     }
 }

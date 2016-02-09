@@ -27,7 +27,6 @@ import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.banana.data.CredentialRepository;
 import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.service.operations.encryption.OverTheWireDecryptor;
-import tech.aroma.banana.service.operations.encryption.PasswordEncryptor;
 import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
 import tech.aroma.banana.thrift.authentication.TokenType;
@@ -55,6 +54,10 @@ import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.s
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthLessThan;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
 
+import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
+
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+
 /**
  *
  * @author SirWellington
@@ -72,7 +75,7 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     private final Function<AuthenticationToken, UserToken> tokenMapper;
 
     private final OverTheWireDecryptor decryptor;
-    private final PasswordEncryptor passwordEncryptor;
+    private final AromaPasswordEncryptor passwordEncryptor;
 
     @Inject
     SignUpOperation(AuthenticationService.Iface authenticationService,
@@ -80,7 +83,7 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
                     UserRepository userRepo,
                     Function<AuthenticationToken, UserToken> tokenMapper,
                     OverTheWireDecryptor decryptor,
-                    PasswordEncryptor passwordEncryptor)
+                    AromaPasswordEncryptor passwordEncryptor)
     {
         checkThat(authenticationService, credentialsRepo, userRepo, tokenMapper, decryptor, passwordEncryptor)
             .are(notNull());
