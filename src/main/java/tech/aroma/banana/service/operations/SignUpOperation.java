@@ -48,6 +48,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 import static tech.aroma.banana.data.assertions.AuthenticationAssertions.completeToken;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthGreaterThanOrEqualTo;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthLessThan;
@@ -146,6 +147,14 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
                     .usingMessage("organization ID must be a valid UUID type")
                     .is(validUUID());
             }
+            
+            checkThat(request.credentials)
+                .usingMessage("request missing credentials")
+                .is(notNull());
+            
+            checkThat(request.credentials.isSet())
+                .usingMessage("request missing credentials")
+                .is(trueStatement());
             
             //TODO: Add check on the email
         };
