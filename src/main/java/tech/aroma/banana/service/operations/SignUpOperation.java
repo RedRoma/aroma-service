@@ -46,7 +46,6 @@ import tech.sirwellington.alchemy.arguments.FailedAssertionException;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.data.assertions.AuthenticationAssertions.completeToken;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
@@ -57,6 +56,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.v
 import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
 
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.PeopleAssertions.validEmailAddress;
 
 /**
  *
@@ -104,6 +104,8 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
             .is(good());
 
         checkThat(request.email)
+            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+            .is(validEmailAddress())
             .throwing(AccountAlreadyExistsException.class)
             .usingMessage("Email is already in use")
             .is(notAlreadyInUse());
