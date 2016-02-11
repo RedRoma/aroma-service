@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.banana.data.CredentialRepository;
 import tech.aroma.banana.data.UserRepository;
+import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.banana.service.operations.encryption.OverTheWireDecryptor;
 import tech.aroma.banana.thrift.LengthOfTime;
 import tech.aroma.banana.thrift.TimeUnit;
@@ -49,12 +50,7 @@ import static tech.aroma.banana.data.assertions.AuthenticationAssertions.complet
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
-
-import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
-
-import static java.lang.String.format;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.PeopleAssertions.validEmailAddress;
 
 /**
  *
@@ -172,11 +168,11 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
                 .is(trueStatement());
             
             checkThat(request.emailAddress)
-                .usingMessage("request missing email")
-                .is(nonEmptyString());
+                .usingMessage("Email address is invalid")
+                .is(validEmailAddress());
             
             checkThat(request.credentials.isSetAromaPassword())
-                .usingMessage("only Password is currently accepted")
+                .usingMessage("Only Passwords are currently accepted")
                 .is(trueStatement());
         };
     }

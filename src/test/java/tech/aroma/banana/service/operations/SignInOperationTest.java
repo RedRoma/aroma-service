@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import tech.aroma.banana.data.CredentialRepository;
 import tech.aroma.banana.data.UserRepository;
+import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.banana.service.operations.encryption.OverTheWireDecryptor;
 import tech.aroma.banana.thrift.User;
 import tech.aroma.banana.thrift.authentication.AuthenticationToken;
@@ -54,10 +55,10 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.PeopleGenerators.emails;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
-
-import tech.aroma.banana.service.operations.encryption.AromaPasswordEncryptor;
 
 /**
  *
@@ -236,6 +237,7 @@ public class SignInOperationTest
         user.userId = userId;
         
         request.credentials.setAromaPassword(password);
+        request.emailAddress = one(emails());
     }
 
     private void setupMocks() throws TException
