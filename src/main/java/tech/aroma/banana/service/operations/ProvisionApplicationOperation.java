@@ -42,6 +42,7 @@ import tech.aroma.banana.thrift.authentication.service.GetTokenInfoResponse;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
+import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
@@ -52,6 +53,8 @@ import static java.time.Instant.now;
 import static tech.aroma.banana.data.assertions.AuthenticationAssertions.completeToken;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthLessThanOrEqualTo;
 
 /**
  *
@@ -216,6 +219,12 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
             checkThat(request.token)
                 .usingMessage("request missing token")
                 .is(notNull());
+            
+            checkThat(request.applicationName)
+                .usingMessage("Application name is required")
+                .is(nonEmptyString())
+                .usingMessage("Application name is too long")
+                .is(stringWithLengthLessThanOrEqualTo(BananaServiceConstants.APPLICATION_NAME_MAX_LENGTH));
         };
     }
 }

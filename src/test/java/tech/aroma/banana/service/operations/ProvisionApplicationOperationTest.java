@@ -40,6 +40,7 @@ import tech.aroma.banana.thrift.authentication.service.GetTokenInfoResponse;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.OperationFailedException;
 import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.banana.thrift.service.BananaServiceConstants;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -55,6 +56,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
@@ -197,6 +200,8 @@ public class ProvisionApplicationOperationTest
     private void setupData()
     {
         request.token.unsetUserId();
+        request.applicationName = one(alphabeticString(BananaServiceConstants.APPLICATION_NAME_MAX_LENGTH - 1));
+        
         authToken.ownerId = userId;
         user.userId = userId;
     }
