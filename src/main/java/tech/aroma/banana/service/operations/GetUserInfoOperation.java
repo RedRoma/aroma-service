@@ -30,10 +30,12 @@ import tech.aroma.banana.thrift.service.GetUserInfoResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static tech.aroma.banana.data.assertions.RequestAssertions.isNullOrEmpty;
 import static tech.aroma.banana.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
+import static tech.sirwellington.alchemy.arguments.assertions.PeopleAssertions.validEmailAddress;
 
 /**
  *
@@ -59,10 +61,18 @@ final class GetUserInfoOperation implements ThriftOperation<GetUserInfoRequest, 
         checkThat(request)
             .throwing(InvalidArgumentException.class)
             .is(good());
-        
-        String userId = request.userId;
-        
-        User user = userRepo.getUser(userId);
+            
+        User user;
+        if (shouldFindByEmail(request))
+        {
+            String email = request.email;
+            user = userRepo.getUserByEmail(email);
+        }
+        else
+        {
+            String userId = request.userId;
+            user = userRepo.getUser(userId);
+        }
         
         return new GetUserInfoResponse().setUserInfo(user);
     }
@@ -77,9 +87,28 @@ final class GetUserInfoOperation implements ThriftOperation<GetUserInfoRequest, 
             checkThat(request.token)
                 .is(notNull());
             
-            checkThat(request.userId)
-                .is(validUserId());
+            checkThat(request.isSetEmail() || request.isSetUserId())
+                .usingMessage("Request must have either email or userId set")
+                .is(trueStatement());
+            
+            if (request.isSetUserId())
+            {
+                checkThat(request.userId)
+                    .is(validUserId());
+            }
+            
+            if(request.isSetEmail())
+            {
+                checkThat(request.email)
+                    .is(validEmailAddress());
+            }
+            
         };
+    }
+
+    private boolean shouldFindByEmail(GetUserInfoRequest request)
+    {
+        return !isNullOrEmpty(request.email);
     }
 
 }

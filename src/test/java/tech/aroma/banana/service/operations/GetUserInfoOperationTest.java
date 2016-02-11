@@ -34,8 +34,12 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.PeopleGenerators.emails;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
@@ -45,32 +49,35 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class GetUserInfoOperationTest 
+public class GetUserInfoOperationTest
 {
+
     @Mock
     private UserRepository userRepo;
-    
+
     @GeneratePojo
     private GetUserInfoRequest request;
-    
+
     @GeneratePojo
     private User user;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
+    private String email;
+
     private GetUserInfoOperation instance;
-    
+
     @Before
     public void setUp() throws TException
     {
         instance = new GetUserInfoOperation(userRepo);
         verifyZeroInteractions(userRepo);
-        
+
         setupData();
         setupMocks();
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor()
@@ -78,35 +85,83 @@ public class GetUserInfoOperationTest
         assertThrows(() -> new GetUserInfoOperation(null))
             .isInstanceOf(IllegalArgumentException.class);
     }
-    
+
     @Test
-    public void testProcess() throws Exception
+    public void testProcessWithUserId() throws Exception
     {
+        request.unsetEmail();
+
         GetUserInfoResponse result = instance.process(request);
-        
+
         assertThat(result, notNullValue());
         assertThat(result.userInfo, is(user));
+
+        verify(userRepo).getUser(userId);
+        verify(userRepo, never()).getUserByEmail(email);
+    }
+
+    @Test
+    public void testProcessWithEmail() throws Exception
+    {
+        request.unsetUserId();
+
+        GetUserInfoResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        assertThat(response.userInfo, is(user));
+
+        verify(userRepo).getUserByEmail(email);
+        verify(userRepo, never()).getUser(userId);
+    }
+
+    @Test
+    public void testWhenBothAreSet() throws Exception
+    {
+        request.setEmail(email)
+            .setUserId(userId);
+
+        GetUserInfoResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        assertThat(response.userInfo, is(user));
     }
 
     @Test
     public void testProcessWhenUserDoesNotExist() throws Exception
     {
+        request.unsetEmail();
+        
         when(userRepo.getUser(userId))
+            .thenThrow(new UserDoesNotExistException());
+
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(UserDoesNotExistException.class);
+    }
+    
+    @Test
+    public void testProcessWhenEmailDoesNotExist() throws Exception
+    {
+        request.unsetUserId();
+        
+        when(userRepo.getUserByEmail(email))
             .thenThrow(new UserDoesNotExistException());
         
         assertThrows(() -> instance.process(request))
             .isInstanceOf(UserDoesNotExistException.class);
     }
-    
+
     private void setupData() throws TException
     {
-        when(userRepo.getUser(userId)).thenReturn(user);
+        request.userId = userId;
+        request.unsetEmail();
+        user.userId = userId;
+
+        email = one(emails());
+        request.email = email;
     }
 
-    private void setupMocks()
+    private void setupMocks() throws TException
     {
-        request.userId = userId;
-        user.userId = userId;
+        when(userRepo.getUser(userId)).thenReturn(user);
+        when(userRepo.getUserByEmail(email)).thenReturn(user);
     }
 
 }
