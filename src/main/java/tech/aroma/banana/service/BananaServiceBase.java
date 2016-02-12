@@ -352,9 +352,11 @@ final class BananaServiceBase implements BananaService.Iface
                                                                TException
     {
         checkNotNull(request);
-
+        ensureEmailIsLowerCased(request);
+        
         LOG.info("Received request to sign in: {}", request);
 
+        
         return signInOperation.process(request);
     }
 
@@ -366,7 +368,8 @@ final class BananaServiceBase implements BananaService.Iface
                                                                TException
     {
         checkNotNull(request);
-
+        ensureEmailIsLowerCased(request);
+        
         LOG.info("Received request to Sign Up: {}", request);
 
         return signUpOperation.process(request);
@@ -520,10 +523,35 @@ final class BananaServiceBase implements BananaService.Iface
                                                                               TException
     {
         checkNotNull(request);
+        ensureEmailIsLowerCasedIfPresent(request);
         
         LOG.info("Received request to get User Info: {}", request);
         
         return getUserInfoOperation.process(request);
+    }
+    
+    private void ensureEmailIsLowerCased(SignInRequest request)
+    {
+        if (request.isSetEmailAddress())
+        {
+            request.setEmailAddress(request.emailAddress.toLowerCase());
+        }
+    }
+    
+    private void ensureEmailIsLowerCased(SignUpRequest request)
+    {
+        if (request.isSetEmail())
+        {
+            request.setEmail(request.email.toLowerCase());
+        }
+    }
+    
+    private void ensureEmailIsLowerCasedIfPresent(GetUserInfoRequest request)
+    {
+        if (request.isSetEmail())
+        {
+            request.setEmail(request.email.toLowerCase());
+        }
     }
 
 }
