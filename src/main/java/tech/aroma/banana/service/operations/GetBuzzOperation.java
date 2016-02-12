@@ -18,6 +18,8 @@
 package tech.aroma.banana.service.operations;
 
 
+import java.util.List;
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import tech.aroma.banana.data.ApplicationRepository;
 import tech.aroma.banana.data.OrganizationRepository;
 import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.service.BananaGenerators;
+import tech.aroma.banana.thrift.Application;
 import tech.aroma.banana.thrift.events.GeneralEvent;
 import tech.aroma.banana.thrift.events.HealthCheckFailed;
 import tech.aroma.banana.thrift.service.GetBuzzRequest;
@@ -33,6 +36,8 @@ import tech.sirwellington.alchemy.generator.AlchemyGenerator;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
@@ -46,14 +51,27 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetBuzzOperation.class);
     
-    private ApplicationRepository appRepo;
-    private OrganizationRepository orgRepo;
-    private UserRepository userRepo;
+    private final ApplicationRepository appRepo;
+    private final OrganizationRepository orgRepo;
+    private final UserRepository userRepo;
 
+    @Inject
+    GetBuzzOperation(ApplicationRepository appRepo, OrganizationRepository orgRepo, UserRepository userRepo)
+    {
+        checkThat(appRepo, orgRepo, userRepo)
+            .are(notNull());
+        
+        this.appRepo = appRepo;
+        this.orgRepo = orgRepo;
+        this.userRepo = userRepo;
+    }
+    
     @Override
     public GetBuzzResponse process(GetBuzzRequest request) throws TException
     {
         checkNotNull(request);
+        
+        List<Application> recentApps = appRepo.getRecentlyCreated();
         //Get recently created apps
         //Get the requester's orgs
         //Get recent users in those orgs
@@ -62,6 +80,7 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
         
         
         GetBuzzResponse response = one(buzz());
+        response.setFreshApplications(recentApps);
         
         LOG.debug("Returning Buzz: {}", response);
         
@@ -80,12 +99,10 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
             AlchemyGenerator<GeneralEvent> generalEvents = pojos(GeneralEvent.class);
             
             int numberOfUsers = one(integers(5, 22));
-            int numberOfApplications = one(integers(1, 20));
             int numberOfFailedHealthChecks = one(integers(0, 6));
             int numberOfGeneralHappenings = one(integers(5, 25));
             
             response.setFreshUsers(listOf(BananaGenerators.users(), numberOfUsers))
-                .setFreshApplications(listOf(BananaGenerators.applications(), numberOfApplications))
                 .setFailedHealthChecks(listOf(healthChecks, numberOfFailedHealthChecks))
                 .setGeneralEvents(listOf(generalEvents, numberOfGeneralHappenings));
             
