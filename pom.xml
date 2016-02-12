@@ -68,7 +68,11 @@
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-test</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+        </dependency>
 
         <!--=======================-->
         <!--ALCHEMY-->
@@ -149,7 +153,7 @@
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+     
     </dependencies>
 
     <build>
