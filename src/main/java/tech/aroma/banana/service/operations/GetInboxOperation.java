@@ -14,25 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package tech.aroma.banana.service.operations;
 
-import com.google.common.base.Strings;
 import java.util.Comparator;
 import java.util.List;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.data.ApplicationRepository;
 import tech.aroma.banana.data.InboxRepository;
-import tech.aroma.banana.data.MessageRepository;
 import tech.aroma.banana.data.UserRepository;
-import tech.aroma.banana.thrift.Application;
 import tech.aroma.banana.thrift.Message;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.service.GetMessagesRequest;
-import tech.aroma.banana.thrift.service.GetMessagesResponse;
+import tech.aroma.banana.thrift.service.GetInboxRequest;
+import tech.aroma.banana.thrift.service.GetInboxResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -41,57 +36,42 @@ import static tech.aroma.banana.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThanOrEqualTo;
-import static tech.aroma.banana.data.assertions.RequestAssertions.validApplicationId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
-import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThanOrEqualTo;
 
 /**
  *
  * @author SirWellington
  */
-final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, GetMessagesResponse>
+final class GetInboxOperation implements ThriftOperation<GetInboxRequest, GetInboxResponse>
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(GetMessagesOperation.class);
+    private final static Logger LOG = LoggerFactory.getLogger(GetInboxOperation.class);
 
-    private final ApplicationRepository appRepo;
     private final InboxRepository inboxRepo;
-    private final MessageRepository messageRepo;
     private final UserRepository userRepo;
 
     @Inject
-    GetMessagesOperation(ApplicationRepository appRepo,
-                         InboxRepository inboxRepo,
-                         MessageRepository messageRepo,
-                         UserRepository userRepo)
+    GetInboxOperation(InboxRepository inboxRepo,
+                      UserRepository userRepo)
     {
-        checkThat(appRepo, inboxRepo, messageRepo, userRepo)
+        checkThat(inboxRepo, userRepo)
             .are(notNull());
-        
-        this.appRepo = appRepo;
+
         this.inboxRepo = inboxRepo;
-        this.messageRepo = messageRepo;
         this.userRepo = userRepo;
     }
 
     @Override
-    public GetMessagesResponse process(GetMessagesRequest request) throws TException
+    public GetInboxResponse process(GetInboxRequest request) throws TException
     {
-        
+
         LOG.debug("Received request to get messages: {}", request);
-        
+
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
 
-        String appId = request.applicationId;
         String userId = request.token.userId;
         int limit = request.limit == 0 ? 2000 : request.limit;
-        
-        if (!Strings.isNullOrEmpty(appId))
-        {
-            Application app = appRepo.getById(appId);
-        }
 
         List<Message> messages = inboxRepo.getMessagesForUser(userId)
             .stream()
@@ -101,10 +81,10 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
 
         LOG.debug("Found {} messages for user [{}] ", messages.size(), userId);
 
-        return new GetMessagesResponse(messages);
+        return new GetInboxResponse(messages);
     }
-    
-    private AlchemyAssertion<GetMessagesRequest> good()
+
+    private AlchemyAssertion<GetInboxRequest> good()
     {
         return request ->
         {
@@ -124,11 +104,6 @@ final class GetMessagesOperation implements ThriftOperation<GetMessagesRequest, 
                 .usingMessage("token UserID is invalid")
                 .is(validUserId());
             
-            if (request.isSetApplicationId())
-            {
-                checkThat(request.applicationId)
-                    .is(validApplicationId());
-            }
         };
     }
 
