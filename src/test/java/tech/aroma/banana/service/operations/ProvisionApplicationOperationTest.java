@@ -111,7 +111,7 @@ public class ProvisionApplicationOperationTest
     @Before
     public void setUp() throws TException
     {
-        instance = new ProvisionApplicationOperation(appRepo, userRepo, authenticationService, appTokenMapper);
+        instance = new ProvisionApplicationOperation(appRepo, mediaRepo, userRepo, authenticationService, appTokenMapper);
         
         verifyZeroInteractions(appRepo, userRepo, authenticationService, appTokenMapper);
         
@@ -123,16 +123,19 @@ public class ProvisionApplicationOperationTest
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new ProvisionApplicationOperation(null, userRepo, authenticationService, appTokenMapper))
+        assertThrows(() -> new ProvisionApplicationOperation(null, mediaRepo, userRepo, authenticationService, appTokenMapper))
             .isInstanceOf(IllegalArgumentException.class);
         
-        assertThrows(() -> new ProvisionApplicationOperation(appRepo, null, authenticationService, appTokenMapper))
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, null, userRepo, authenticationService, appTokenMapper))
             .isInstanceOf(IllegalArgumentException.class);
         
-        assertThrows(() -> new ProvisionApplicationOperation(appRepo, userRepo, null, appTokenMapper))
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, mediaRepo, null, authenticationService, appTokenMapper))
             .isInstanceOf(IllegalArgumentException.class);
         
-        assertThrows(() -> new ProvisionApplicationOperation(appRepo, userRepo, authenticationService, null))
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, mediaRepo, userRepo, null, appTokenMapper))
+            .isInstanceOf(IllegalArgumentException.class);
+        
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, mediaRepo, userRepo, authenticationService, null))
             .isInstanceOf(IllegalArgumentException.class);
         
     }
@@ -166,6 +169,32 @@ public class ProvisionApplicationOperationTest
         assertThat(authRequestMade.ownerId, is(savedApp.applicationId));
         assertThat(authRequestMade.desiredTokenType, is(TokenType.APPLICATION));
         assertThat(authRequestMade.ownerName, is(savedApp.name));
+        
+        verify(mediaRepo).saveMedia(savedApp.applicationIconMediaId, request.icon);
+    }
+    
+    @Test
+    public void testWithoutAppIcon() throws Exception
+    {
+        request.unsetIcon();
+        
+        ProvisionApplicationResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        
+        verify(appRepo).saveApplication(captor.capture());
+        
+        Application savedApp = captor.getValue();
+        assertThat(savedApp, notNullValue());
+        assertThat(savedApp.name, is(request.applicationName));
+        assertThat(savedApp.tier, is(request.tier));
+        assertThat(savedApp.owners.contains(userId), is(true));
+        assertThat(savedApp.owners.containsAll(request.owners), is(true));
+        assertThat(savedApp.organizationId, is(request.organizationId));
+        assertThat(savedApp.applicationDescription, is(request.applicationDescription));
+        assertThat(savedApp.timeOfTokenExpiration, is(appToken.timeOfExpiration));
+        assertThat(savedApp.isSetApplicationIconMediaId(), is(false));
+        
+        verifyZeroInteractions(mediaRepo);
     }
     
     @Test
