@@ -26,6 +26,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import tech.aroma.banana.data.ApplicationRepository;
+import tech.aroma.banana.data.MediaRepository;
 import tech.aroma.banana.data.UserRepository;
 import tech.aroma.banana.thrift.Application;
 import tech.aroma.banana.thrift.User;
@@ -64,14 +65,17 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class ProvisionApplicationOperationTest
 {
 
     @Mock
     private ApplicationRepository appRepo;
-
+    
+    @Mock
+    private MediaRepository mediaRepo;
+    
     @Mock
     private UserRepository userRepo;
 
