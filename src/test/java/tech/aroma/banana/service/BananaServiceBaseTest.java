@@ -36,14 +36,16 @@ import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesRequest;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesResponse;
 import tech.aroma.banana.thrift.service.GetBuzzRequest;
 import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
-import tech.aroma.banana.thrift.service.GetMessagesRequest;
-import tech.aroma.banana.thrift.service.GetMessagesResponse;
+import tech.aroma.banana.thrift.service.GetInboxRequest;
+import tech.aroma.banana.thrift.service.GetInboxResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -96,7 +98,7 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
 public class BananaServiceBaseTest
 {
     //Action and Save Operations
-    
+
     @Mock
     private ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation;
 
@@ -105,65 +107,67 @@ public class BananaServiceBaseTest
 
     @Mock
     private ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
-    
+
     @Mock
     private ThriftOperation<SignInRequest, SignInResponse> signInOperation;
-    
+
     @Mock
     private ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
-    
+
     @Mock
     private ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
-    
+
     @Mock
     private ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
 
     @Mock
     private ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
-    
+
     @Mock
     private ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
-    
+
     @Mock
     private ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
-    
+
     @Mock
     private ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
-    
+
     @Mock
     private ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
-    
+
     @Mock
     private ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
-    
+
     //Query and GET Operations
     @Mock
     private ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
-    
+
     @Mock
     private ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
-    
+
     @Mock
     private ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
-    
+
     @Mock
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
-    
+
     @Mock
     private ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
-    
+
     @Mock
     private ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
-    
+
     @Mock
-    private ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation;
-    
+    private ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
+
+    @Mock
+    private ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation;
+
     @Mock
     private ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
-    
+
     @Mock
     private ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
-
 
     private BananaServiceBase instance;
 
@@ -189,7 +193,8 @@ public class BananaServiceBaseTest
                                          getMySavedChannelsOperation,
                                          getApplicationInfoOperation,
                                          getDashboardOperation,
-                                         getMessagesOperation,
+                                         getInboxOperation,
+                                         getApplicationMessagesOperation,
                                          getFullMessageOperation,
                                          getUserInfoOperation);
 
@@ -212,7 +217,8 @@ public class BananaServiceBaseTest
                                getMySavedChannelsOperation,
                                getApplicationInfoOperation,
                                getDashboardOperation,
-                               getMessagesOperation,
+                               getInboxOperation,
+                               getApplicationMessagesOperation,
                                getFullMessageOperation,
                                getUserInfoOperation);
 
@@ -270,24 +276,22 @@ public class BananaServiceBaseTest
     @Test
     public void testGetApplicationInfo() throws Exception
     {
-        
+
         GetApplicationInfoRequest request = pojos(GetApplicationInfoRequest.class).get();
         GetApplicationInfoResponse expectedResponse = pojos(GetApplicationInfoResponse.class).get();
-        
+
         when(getApplicationInfoOperation.process(request))
             .thenReturn(expectedResponse);
-        
+
         GetApplicationInfoResponse response = instance.getApplicationInfo(request);
         assertThat(response, notNullValue());
         assertThat(response, is(expectedResponse));
-        
+
         verify(getApplicationInfoOperation).process(request);
-        
+
         assertThrows(() -> instance.getApplicationInfo(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
-
-   
 
     @Test
     public void testProvisionApplication() throws Exception
@@ -312,18 +316,18 @@ public class BananaServiceBaseTest
         RegenerateApplicationTokenResponse expectedResponse = mock(RegenerateApplicationTokenResponse.class);
         when(regenerateApplicationTokenOperation.process(request))
             .thenReturn(expectedResponse);
-        
+
         RegenerateApplicationTokenResponse result = instance.regenerateToken(request);
         assertThat(result, is(expectedResponse));
         verify(regenerateApplicationTokenOperation).process(request);
-        
+
         //Edge Cases
         assertThrows(() -> instance.regenerateToken(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(regenerateApplicationTokenOperation.process(request))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.regenerateToken(request))
             .isInstanceOf(OperationFailedException.class);
     }
@@ -335,15 +339,15 @@ public class BananaServiceBaseTest
         RegisterHealthCheckResponse response = mock(RegisterHealthCheckResponse.class);
         when(registerHealthCheckOperation.process(request))
             .thenReturn(response);
-        
+
         RegisterHealthCheckResponse result = instance.registerHealthCheck(request);
         assertThat(result, is(response));
         verify(registerHealthCheckOperation).process(request);
-        
+
         //Edge cases
         assertThrows(() -> instance.registerHealthCheck(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(registerHealthCheckOperation.process(request))
             .thenThrow(new OperationFailedException());
         assertThrows(() -> instance.registerHealthCheck(request))
@@ -357,15 +361,15 @@ public class BananaServiceBaseTest
         RemoveSavedChannelResponse response = mock(RemoveSavedChannelResponse.class);
         when(removeSavedChannelOperation.process(request))
             .thenReturn(response);
-        
+
         RemoveSavedChannelResponse result = instance.removeSavedChannel(request);
         assertThat(result, is(response));
         verify(removeSavedChannelOperation).process(request);
-        
+
         //Edge cases
         assertThrows(() -> instance.removeSavedChannel(null))
             .isInstanceOf(InvalidArgumentException.class);
-       
+
         when(removeSavedChannelOperation.process(request))
             .thenThrow(new OperationFailedException());
         assertThrows(() -> instance.removeSavedChannel(request))
@@ -379,15 +383,15 @@ public class BananaServiceBaseTest
         RenewApplicationTokenResponse response = mock(RenewApplicationTokenResponse.class);
         when(renewApplicationTokenOperation.process(request))
             .thenReturn(response);
-        
+
         RenewApplicationTokenResponse result = instance.renewApplicationToken(request);
         assertThat(result, is(response));
         verify(renewApplicationTokenOperation).process(request);
-        
+
         //Edge cases
         assertThrows(() -> instance.renewApplicationToken(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(renewApplicationTokenOperation.process(request))
             .thenThrow(new OperationFailedException());
         assertThrows(() -> instance.renewApplicationToken(request))
@@ -397,22 +401,22 @@ public class BananaServiceBaseTest
     @Test
     public void testSaveChannel() throws Exception
     {
-        SaveChannelRequest request  = one(pojos(SaveChannelRequest.class));
+        SaveChannelRequest request = one(pojos(SaveChannelRequest.class));
         SaveChannelResponse response = mock(SaveChannelResponse.class);
         when(saveChannelOperation.process(request))
             .thenReturn(response);
-        
+
         SaveChannelResponse result = instance.saveChannel(request);
         assertThat(result, is(response));
         verify(saveChannelOperation).process(request);
-        
+
         //Edge cases
         assertThrows(() -> instance.saveChannel(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(saveChannelOperation.process(request))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.saveChannel(request))
             .isInstanceOf(OperationFailedException.class);
     }
@@ -424,22 +428,21 @@ public class BananaServiceBaseTest
         SearchForApplicationsResponse response = mock(SearchForApplicationsResponse.class);
         when(searchForApplicationsOperation.process(request))
             .thenReturn(response);
-        
+
         SearchForApplicationsResponse result = instance.searchForApplications(request);
         assertThat(result, is(response));
         verify(searchForApplicationsOperation).process(request);
-        
+
         //Edge cases
         assertThrows(() -> instance.searchForApplications(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(searchForApplicationsOperation.process(request))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.searchForApplications(request))
             .isInstanceOf(OperationFailedException.class);
     }
-
 
     @Test
     public void testSendMessageAsync() throws Exception
@@ -457,7 +460,7 @@ public class BananaServiceBaseTest
         assertThat(response, is(expectedResponse));
         verify(signInOperation).process(request);
     }
-    
+
     @DontRepeat
     @Test
     public void testSignInWhenFails() throws Exception
@@ -465,11 +468,11 @@ public class BananaServiceBaseTest
         SignInRequest request = new SignInRequest();
         when(signInOperation.process(request))
             .thenThrow(new UserDoesNotExistException());
-        
+
         assertThrows(() -> instance.signIn(request))
             .isInstanceOf(UserDoesNotExistException.class);
     }
-    
+
     @DontRepeat
     @Test
     public void testSignInWithBadRequest() throws Exception
@@ -485,18 +488,18 @@ public class BananaServiceBaseTest
         SignUpResponse response = mock(SignUpResponse.class);
         when(signUpOperation.process(request))
             .thenReturn(response);
-            
+
         SignUpResponse result = instance.signUp(request);
         assertThat(result, is(response));
         verify(signUpOperation).process(request);
-        
+
         //Edge cases
         assertThrows(() -> instance.signUp(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(signUpOperation.process(request))
             .thenThrow(new InvalidCredentialsException());
-        
+
         assertThrows(() -> instance.signUp(request))
             .isInstanceOf(InvalidCredentialsException.class);
     }
@@ -508,17 +511,17 @@ public class BananaServiceBaseTest
         SnoozeChannelResponse response = mock(SnoozeChannelResponse.class);
         when(snoozeChannelOperation.process(request))
             .thenReturn(response);
-        
+
         SnoozeChannelResponse result = instance.snoozeChannel(request);
         assertThat(result, is(response));
-        
+
         //Edge cases
         assertThrows(() -> instance.snoozeChannel(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         when(snoozeChannelOperation.process(request))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.snoozeChannel(request))
             .isInstanceOf(OperationFailedException.class);
     }
@@ -528,7 +531,7 @@ public class BananaServiceBaseTest
     {
         FollowApplicationRequest request = one(pojos(FollowApplicationRequest.class));
         FollowApplicationResponse expected = one(pojos(FollowApplicationResponse.class));
-        
+
     }
 
     @Test
@@ -537,11 +540,11 @@ public class BananaServiceBaseTest
         RegenerateApplicationTokenRequest request = one(pojos(RegenerateApplicationTokenRequest.class));
         RegenerateApplicationTokenResponse expected = one(pojos(RegenerateApplicationTokenResponse.class));
         when(regenerateApplicationTokenOperation.process(request)).thenReturn(expected);
-        
+
         RegenerateApplicationTokenResponse response = instance.regenerateToken(request);
         assertThat(response, is(sameInstance(expected)));
     }
-    
+
     @DontRepeat
     @Test
     public void testRegenerateTokenWithBadArgs()
@@ -549,7 +552,7 @@ public class BananaServiceBaseTest
         assertThrows(() -> instance.regenerateToken(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
-    
+
     @Test
     public void testGetApiVersion() throws Exception
     {
@@ -563,44 +566,67 @@ public class BananaServiceBaseTest
         GetActivityRequest request = one(pojos(GetActivityRequest.class));
         GetActivityResponse expected = one(pojos(GetActivityResponse.class));
         when(getActivityOperation.process(request)).thenReturn(expected);
-        
+
         GetActivityResponse response = instance.getActivity(request);
         assertThat(response, is(sameInstance(response)));
     }
-    
+
     @DontRepeat
     @Test
     public void testGetActivityWhenFails() throws Exception
     {
         GetActivityRequest request = one(pojos(GetActivityRequest.class));
-        
+
         when(getActivityOperation.process(request))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.getActivity(request))
             .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
-    public void testGetMessages() throws Exception
+    public void testGetApplicationMessages() throws Exception
     {
-        GetMessagesRequest request = one(pojos(GetMessagesRequest.class));
-        GetMessagesResponse expected = one(pojos(GetMessagesResponse.class));
-        when(getMessagesOperation.process(request)).thenReturn(expected);
-        
-        GetMessagesResponse response = instance.getMessages(request);
+        GetApplicationMessagesRequest request = one(pojos(GetApplicationMessagesRequest.class));
+        GetApplicationMessagesResponse expected = one(pojos(GetApplicationMessagesResponse.class));
+        when(getApplicationMessagesOperation.process(request)).thenReturn(expected);
+
+        GetApplicationMessagesResponse response = instance.getApplicationMessages(request);
         assertThat(response, is(sameInstance(response)));
     }
 
     @DontRepeat
     @Test
-    public void testGetMessagesWhenFails() throws Exception
+    public void testGetApplicationMessagesWhenFails() throws Exception
     {
-        GetMessagesRequest request = one(pojos(GetMessagesRequest.class));
-        when(getMessagesOperation.process(request))
+        GetApplicationMessagesRequest request = one(pojos(GetApplicationMessagesRequest.class));
+        when(getApplicationMessagesOperation.process(request))
             .thenThrow(new OperationFailedException());
-        
-        assertThrows(() -> instance.getMessages(request))
+
+        assertThrows(() -> instance.getApplicationMessages(request))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+    @Test
+    public void testGetInbox() throws Exception
+    {
+        GetInboxRequest request = one(pojos(GetInboxRequest.class));
+        GetInboxResponse expected = one(pojos(GetInboxResponse.class));
+        when(getInboxOperation.process(request)).thenReturn(expected);
+
+        GetInboxResponse response = instance.getInbox(request);
+        assertThat(response, is(sameInstance(response)));
+    }
+
+    @DontRepeat
+    @Test
+    public void testGetInboxWhenFails() throws Exception
+    {
+        GetInboxRequest request = one(pojos(GetInboxRequest.class));
+        when(getInboxOperation.process(request))
+            .thenThrow(new OperationFailedException());
+
+        assertThrows(() -> instance.getInbox(request))
             .isInstanceOf(OperationFailedException.class);
     }
 
@@ -610,7 +636,7 @@ public class BananaServiceBaseTest
         GetFullMessageRequest request = one(pojos(GetFullMessageRequest.class));
         GetFullMessageResponse expected = one(pojos(GetFullMessageResponse.class));
         when(getFullMessageOperation.process(request)).thenReturn(expected);
-        
+
         GetFullMessageResponse response = instance.getFullMessage(request);
         assertThat(response, is(sameInstance(expected)));
     }
@@ -621,7 +647,7 @@ public class BananaServiceBaseTest
         GetFullMessageRequest request = one(pojos(GetFullMessageRequest.class));
         when(getFullMessageOperation.process(request))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.getFullMessage(request))
             .isInstanceOf(OperationFailedException.class);
     }
@@ -632,12 +658,12 @@ public class BananaServiceBaseTest
         GetBuzzRequest request = pojos(GetBuzzRequest.class).get();
         GetBuzzResponse expectedResponse = mock(GetBuzzResponse.class);
         when(getBuzzOperation.process(request)).thenReturn(expectedResponse);
-        
+
         GetBuzzResponse result = instance.getBuzz(request);
         assertThat(result, is(expectedResponse));
         verify(getBuzzOperation).process(request);
     }
-    
+
     @DontRepeat
     @Test
     public void testGetBuzzWhenThrows() throws Exception
@@ -658,11 +684,11 @@ public class BananaServiceBaseTest
     public void testGetUserInfo() throws Exception
     {
         GetUserInfoRequest request = pojos(GetUserInfoRequest.class).get();
-        
+
         GetUserInfoResponse expectedResponse = mock(GetUserInfoResponse.class);
         when(getUserInfoOperation.process(request))
             .thenReturn(expectedResponse);
-        
+
         GetUserInfoResponse result = instance.getUserInfo(request);
         assertThat(result, is(expectedResponse));
         verify(getUserInfoOperation).process(request);
@@ -690,18 +716,18 @@ public class BananaServiceBaseTest
         DeleteMessageRequest request = one(pojos(DeleteMessageRequest.class));
         DeleteMessageResponse expected = one(pojos(DeleteMessageResponse.class));
         when(deleteMessageOperation.process(request)).thenReturn(expected);
-        
+
         DeleteMessageResponse response = instance.deleteMessage(request);
         assertThat(response, is(sameInstance(expected)));
     }
-    
+
     @DontRepeat
     @Test
     public void testDeleteMessageWhenThrows() throws Exception
     {
         when(deleteMessageOperation.process(Mockito.any()))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.deleteMessage(new DeleteMessageRequest()))
             .isInstanceOf(OperationFailedException.class);
     }
@@ -712,18 +738,18 @@ public class BananaServiceBaseTest
         DismissMessageRequest request = one(pojos(DismissMessageRequest.class));
         DismissMessageResponse expected = one(pojos(DismissMessageResponse.class));
         when(dismissMessageOperation.process(request)).thenReturn(expected);
-        
+
         DismissMessageResponse response = instance.dismissMessage(request);
         assertThat(response, is(sameInstance(response)));
     }
-    
+
     @DontRepeat
     @Test
     public void testDismissMessageWhenThrows() throws Exception
     {
         when(dismissMessageOperation.process(Mockito.any()))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.dismissMessage(new DismissMessageRequest()))
             .isInstanceOf(OperationFailedException.class);
     }

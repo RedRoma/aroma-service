@@ -44,14 +44,16 @@ import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesRequest;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesResponse;
 import tech.aroma.banana.thrift.service.GetBuzzRequest;
 import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
-import tech.aroma.banana.thrift.service.GetMessagesRequest;
-import tech.aroma.banana.thrift.service.GetMessagesResponse;
+import tech.aroma.banana.thrift.service.GetInboxRequest;
+import tech.aroma.banana.thrift.service.GetInboxResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -121,7 +123,8 @@ final class BananaServiceBase implements BananaService.Iface
     private final ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
     private final ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
     private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
-    private final ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation;
+    private final ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation;
+    private final ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
     private final ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
     private final ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
@@ -146,7 +149,8 @@ final class BananaServiceBase implements BananaService.Iface
                       ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
                       ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
                       ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
-                      ThriftOperation<GetMessagesRequest, GetMessagesResponse> getMessagesOperation,
+                      ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
+                      ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
                       ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
                       ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
     {
@@ -158,7 +162,8 @@ final class BananaServiceBase implements BananaService.Iface
                   getBuzzOperation,
                   getDashboardOperation,
                   getFullMessageOperation,
-                  getMessagesOperation,
+                  getInboxOperation,
+                  getApplicationMessagesOperation,
                   getMyApplicationsOperation,
                   getMySavedChannelsOperation,
                   getUserInfoOperation,
@@ -193,7 +198,8 @@ final class BananaServiceBase implements BananaService.Iface
         this.getBuzzOperation = getBuzzOperation;
         this.getDashboardOperation = getDashboardOperation;
         this.getFullMessageOperation = getFullMessageOperation;
-        this.getMessagesOperation = getMessagesOperation;
+        this.getInboxOperation = getInboxOperation;
+        this.getApplicationMessagesOperation = getApplicationMessagesOperation;
         this.getMyApplicationsOperation = getMyApplicationsOperation;
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
         this.getUserInfoOperation = getUserInfoOperation;
@@ -432,16 +438,31 @@ final class BananaServiceBase implements BananaService.Iface
     }
 
     @Override
-    public GetMessagesResponse getMessages(GetMessagesRequest request) throws OperationFailedException,
+    public GetApplicationMessagesResponse getApplicationMessages(GetApplicationMessagesRequest request) throws OperationFailedException,
+                                                                                                               InvalidArgumentException,
+                                                                                                               InvalidTokenException,
+                                                                                                               UnauthorizedException,
+                                                                                                               TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to Get Application Messages: {}", request);
+        
+        return getApplicationMessagesOperation.process(request);
+    }
+    
+
+    @Override
+    public GetInboxResponse getInbox(GetInboxRequest request) throws OperationFailedException,
                                                                               InvalidArgumentException,
                                                                               InvalidCredentialsException,
                                                                               TException
     {
         checkNotNull(request);
 
-        LOG.info("Received request to Get Messages: {}", request);
+        LOG.info("Received request to Get Inbox: {}", request);
         
-        return getMessagesOperation.process(request);
+        return getInboxOperation.process(request);
     }
 
     @Override
