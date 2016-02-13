@@ -42,14 +42,16 @@ import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesRequest;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesResponse;
 import tech.aroma.banana.thrift.service.GetBuzzRequest;
 import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
-import tech.aroma.banana.thrift.service.GetMessagesRequest;
-import tech.aroma.banana.thrift.service.GetMessagesResponse;
+import tech.aroma.banana.thrift.service.GetInboxRequest;
+import tech.aroma.banana.thrift.service.GetInboxResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -484,7 +486,7 @@ public class AuthenticationLayerTest
 
         FollowApplicationResponse result = instance.followApplication(request);
         assertThat(result, is(sameInstance(expected)));
-        
+
         verify(delegate).followApplication(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
         verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
@@ -634,40 +636,79 @@ public class AuthenticationLayerTest
     }
 
     @Test
-    public void testGetMessages() throws Exception
+    public void testGetApplicationMessages() throws Exception
     {
-        GetMessagesRequest request = new GetMessagesRequest().setToken(userToken);
-        GetMessagesResponse expected = new GetMessagesResponse();
-        when(delegate.getMessages(request))
+        GetApplicationMessagesRequest request = new GetApplicationMessagesRequest().setToken(userToken);
+        GetApplicationMessagesResponse expected = new GetApplicationMessagesResponse();
+        when(delegate.getApplicationMessages(request))
             .thenReturn(expected);
 
-        GetMessagesResponse result = instance.getMessages(request);
+        GetApplicationMessagesResponse result = instance.getApplicationMessages(request);
         assertThat(result, is(expected));
-        verify(delegate).getMessages(request);
+        verify(delegate).getApplicationMessages(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
         verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @DontRepeat
     @Test
-    public void testGetMessagesWithBadRequest() throws Exception
+    public void testGetApplicationMessagesWithBadRequest() throws Exception
     {
-        assertThrows(() -> instance.getMessages(null))
+        assertThrows(() -> instance.getApplicationMessages(null))
             .isInstanceOf(InvalidArgumentException.class);
 
-        assertThrows(() -> instance.getMessages(new GetMessagesRequest()))
+        assertThrows(() -> instance.getApplicationMessages(new GetApplicationMessagesRequest()))
             .isInstanceOf(InvalidTokenException.class);
     }
 
     @Test
-    public void testGetMessagesWithBadToken() throws Exception
+    public void testGetApplicationMessagesWithBadToken() throws Exception
     {
         setupWithBadToken();
 
-        GetMessagesRequest request = new GetMessagesRequest()
+        GetApplicationMessagesRequest request = new GetApplicationMessagesRequest()
             .setToken(userToken);
 
-        assertThrows(() -> instance.getMessages(request))
+        assertThrows(() -> instance.getApplicationMessages(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testGetInbox() throws Exception
+    {
+        GetInboxRequest request = new GetInboxRequest().setToken(userToken);
+        GetInboxResponse expected = new GetInboxResponse();
+        when(delegate.getInbox(request))
+            .thenReturn(expected);
+
+        GetInboxResponse result = instance.getInbox(request);
+        assertThat(result, is(expected));
+        verify(delegate).getInbox(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+    }
+
+    @DontRepeat
+    @Test
+    public void testGetInboxWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.getInbox(null))
+            .isInstanceOf(InvalidArgumentException.class);
+
+        assertThrows(() -> instance.getInbox(new GetInboxRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+
+    @Test
+    public void testGetInboxWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+
+        GetInboxRequest request = new GetInboxRequest()
+            .setToken(userToken);
+
+        assertThrows(() -> instance.getInbox(request))
             .isInstanceOf(InvalidTokenException.class);
         verifyZeroInteractions(delegate);
     }

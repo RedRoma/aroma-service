@@ -50,14 +50,16 @@ import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesRequest;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesResponse;
 import tech.aroma.banana.thrift.service.GetBuzzRequest;
 import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
-import tech.aroma.banana.thrift.service.GetMessagesRequest;
-import tech.aroma.banana.thrift.service.GetMessagesResponse;
+import tech.aroma.banana.thrift.service.GetInboxRequest;
+import tech.aroma.banana.thrift.service.GetInboxResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -330,17 +332,28 @@ final class AuthenticationLayer implements BananaService.Iface
     }
 
     @Override
-    public GetMessagesResponse getMessages(GetMessagesRequest request) throws OperationFailedException,
-                                                                              InvalidArgumentException,
-                                                                              InvalidCredentialsException, 
-                                                                              TException
+    public GetApplicationMessagesResponse getApplicationMessages(GetApplicationMessagesRequest request) throws OperationFailedException,
+                                                                                                               InvalidArgumentException,
+                                                                                                               InvalidTokenException,
+                                                                                                               UnauthorizedException,
+                                                                                                               TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-
-        return delegate.getMessages(request);
+        
+        return delegate.getApplicationMessages(request);
     }
 
+    @Override
+    public GetInboxResponse getInbox(GetInboxRequest request) throws OperationFailedException, InvalidArgumentException,
+                                                                     InvalidTokenException, TException
+    {
+        checkNotNull(request);
+        checkAndEnrichToken(request.token);
+        
+        return delegate.getInbox(request);
+    }
+    
     @Override
     public GetFullMessageResponse getFullMessage(GetFullMessageRequest request) throws OperationFailedException,
                                                                                        InvalidArgumentException,
