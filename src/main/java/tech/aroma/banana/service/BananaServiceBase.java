@@ -25,6 +25,7 @@ import tech.aroma.banana.thrift.exceptions.ApplicationAlreadyRegisteredException
 import tech.aroma.banana.thrift.exceptions.ApplicationDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.ChannelDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.CustomChannelUnreachableException;
+import tech.aroma.banana.thrift.exceptions.DoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
@@ -54,6 +55,8 @@ import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
 import tech.aroma.banana.thrift.service.GetInboxRequest;
 import tech.aroma.banana.thrift.service.GetInboxResponse;
+import tech.aroma.banana.thrift.service.GetMediaRequest;
+import tech.aroma.banana.thrift.service.GetMediaResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -124,6 +127,7 @@ final class BananaServiceBase implements BananaService.Iface
     private final ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
     private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
     private final ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation;
+    private final ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation;
     private final ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
     private final ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
     private final ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
@@ -150,6 +154,7 @@ final class BananaServiceBase implements BananaService.Iface
                       ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
                       ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
                       ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
+                      ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation,
                       ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
                       ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
                       ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
@@ -163,6 +168,7 @@ final class BananaServiceBase implements BananaService.Iface
                   getDashboardOperation,
                   getFullMessageOperation,
                   getInboxOperation,
+                  getMediaOperation,
                   getApplicationMessagesOperation,
                   getMyApplicationsOperation,
                   getMySavedChannelsOperation,
@@ -199,6 +205,7 @@ final class BananaServiceBase implements BananaService.Iface
         this.getDashboardOperation = getDashboardOperation;
         this.getFullMessageOperation = getFullMessageOperation;
         this.getInboxOperation = getInboxOperation;
+        this.getMediaOperation = getMediaOperation;
         this.getApplicationMessagesOperation = getApplicationMessagesOperation;
         this.getMyApplicationsOperation = getMyApplicationsOperation;
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
@@ -465,6 +472,22 @@ final class BananaServiceBase implements BananaService.Iface
         return getInboxOperation.process(request);
     }
 
+    @Override
+    public GetMediaResponse getMedia(GetMediaRequest request) throws OperationFailedException, 
+                                                                     InvalidArgumentException,
+                                                                     InvalidTokenException, 
+                                                                     DoesNotExistException,
+                                                                     UnauthorizedException,
+                                                                     TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to Get Media: {}", request);
+        
+        return getMediaOperation.process(request);
+    }
+
+    
     @Override
     public GetFullMessageResponse getFullMessage(GetFullMessageRequest request) throws OperationFailedException,
                                                                                        InvalidArgumentException,

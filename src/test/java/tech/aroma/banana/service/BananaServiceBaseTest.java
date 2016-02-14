@@ -46,6 +46,8 @@ import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
 import tech.aroma.banana.thrift.service.GetInboxRequest;
 import tech.aroma.banana.thrift.service.GetInboxResponse;
+import tech.aroma.banana.thrift.service.GetMediaRequest;
+import tech.aroma.banana.thrift.service.GetMediaResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -164,6 +166,9 @@ public class BananaServiceBaseTest
     private ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation;
 
     @Mock
+    private ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation;
+
+    @Mock
     private ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
 
     @Mock
@@ -194,6 +199,7 @@ public class BananaServiceBaseTest
                                          getApplicationInfoOperation,
                                          getDashboardOperation,
                                          getInboxOperation,
+                                         getMediaOperation,
                                          getApplicationMessagesOperation,
                                          getFullMessageOperation,
                                          getUserInfoOperation);
@@ -218,6 +224,7 @@ public class BananaServiceBaseTest
                                getApplicationInfoOperation,
                                getDashboardOperation,
                                getInboxOperation,
+                               getMediaOperation,
                                getApplicationMessagesOperation,
                                getFullMessageOperation,
                                getUserInfoOperation);
@@ -627,6 +634,30 @@ public class BananaServiceBaseTest
             .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.getInbox(request))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+
+    @Test
+    public void testGetMedia() throws Exception
+    {
+        GetMediaRequest request = one(pojos(GetMediaRequest.class));
+        GetMediaResponse expected = one(pojos(GetMediaResponse.class));
+        when(getMediaOperation.process(request)).thenReturn(expected);
+
+        GetMediaResponse response = instance.getMedia(request);
+        assertThat(response, is(sameInstance(response)));
+    }
+
+    @DontRepeat
+    @Test
+    public void testGetMediaWhenFails() throws Exception
+    {
+        GetMediaRequest request = one(pojos(GetMediaRequest.class));
+        when(getMediaOperation.process(request))
+            .thenThrow(new OperationFailedException());
+
+        assertThrows(() -> instance.getMedia(request))
             .isInstanceOf(OperationFailedException.class);
     }
 
