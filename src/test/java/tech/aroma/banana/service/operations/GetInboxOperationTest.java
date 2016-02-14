@@ -45,9 +45,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 /**
  *
@@ -89,6 +86,7 @@ public class GetInboxOperationTest
     {
         GetInboxResponse response = instance.process(request);
         assertThat(response, notNullValue());
+        
         List<Message> sortedMessages = messages.stream()
             .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
             .limit(request.limit)
