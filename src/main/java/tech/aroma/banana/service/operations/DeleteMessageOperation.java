@@ -32,13 +32,12 @@ import tech.aroma.banana.thrift.service.DeleteMessageResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static tech.aroma.banana.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.banana.data.assertions.RequestAssertions.validMessageId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
-import static tech.aroma.banana.data.assertions.RequestAssertions.validApplicationId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
  *
