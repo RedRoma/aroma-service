@@ -38,6 +38,8 @@ import tech.aroma.banana.thrift.service.GetActivityRequest;
 import tech.aroma.banana.thrift.service.GetActivityResponse;
 import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesRequest;
+import tech.aroma.banana.thrift.service.GetApplicationMessagesResponse;
 import tech.aroma.banana.thrift.service.GetBuzzRequest;
 import tech.aroma.banana.thrift.service.GetBuzzResponse;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
@@ -141,6 +143,8 @@ public final class ModuleBananaServiceOperations extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse>>() {})
             .to(GetApplicationInfoOperation.class);
         
+        bind(new TypeLiteral<ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse>>() {})
+            .to(GetApplicationMessagesOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetBuzzRequest, GetBuzzResponse>>() {})
             .to(GetBuzzOperation.class);
