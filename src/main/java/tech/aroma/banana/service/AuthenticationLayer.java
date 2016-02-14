@@ -33,6 +33,7 @@ import tech.aroma.banana.thrift.exceptions.ApplicationAlreadyRegisteredException
 import tech.aroma.banana.thrift.exceptions.ApplicationDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.ChannelDoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.CustomChannelUnreachableException;
+import tech.aroma.banana.thrift.exceptions.DoesNotExistException;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
@@ -61,6 +62,8 @@ import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
 import tech.aroma.banana.thrift.service.GetInboxRequest;
 import tech.aroma.banana.thrift.service.GetInboxResponse;
+import tech.aroma.banana.thrift.service.GetMediaRequest;
+import tech.aroma.banana.thrift.service.GetMediaResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -366,6 +369,20 @@ final class AuthenticationLayer implements BananaService.Iface
         return delegate.getFullMessage(request);
     }
 
+    @Override
+    public GetMediaResponse getMedia(GetMediaRequest request) throws OperationFailedException, 
+                                                                     InvalidArgumentException,
+                                                                     InvalidTokenException,
+                                                                     DoesNotExistException,
+                                                                     UnauthorizedException,
+                                                                     TException
+    {
+        checkNotNull(request);
+        checkAndEnrichToken(request.token);
+        
+        return delegate.getMedia(request);
+    }
+    
     @Override
     public GetMyApplicationsResponse getMyApplications(GetMyApplicationsRequest request) throws OperationFailedException,
                                                                                                 InvalidArgumentException,

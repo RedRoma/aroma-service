@@ -52,6 +52,8 @@ import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
 import tech.aroma.banana.thrift.service.GetInboxRequest;
 import tech.aroma.banana.thrift.service.GetInboxResponse;
+import tech.aroma.banana.thrift.service.GetMediaRequest;
+import tech.aroma.banana.thrift.service.GetMediaResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -752,6 +754,46 @@ public class AuthenticationLayerTest
         verifyZeroInteractions(delegate);
     }
 
+    
+    @Test
+    public void testGetMedia() throws Exception
+    {
+        GetMediaRequest request = new GetMediaRequest().setToken(userToken);
+        GetMediaResponse expected = new GetMediaResponse();
+        when(delegate.getMedia(request))
+            .thenReturn(expected);
+        
+        GetMediaResponse response = instance.getMedia(request);
+        assertThat(response, is(expected));
+        
+        verify(delegate).getMedia(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+    }
+    
+    @Test
+    public void testGetMediaWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+        GetMediaRequest request = new GetMediaRequest().setToken(userToken);
+        
+        assertThrows(() -> instance.getMedia(request))
+            .isInstanceOf(InvalidTokenException.class);
+        
+        verifyZeroInteractions(delegate);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testGetMediaWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.getMedia(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.getMedia(new GetMediaRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
     @Test
     public void testGetMyApplications() throws Exception
     {
@@ -1013,5 +1055,6 @@ public class AuthenticationLayerTest
             .setTokenType(TokenType.USER)
             .setTokenId(tokenId);
     }
+
 
 }
