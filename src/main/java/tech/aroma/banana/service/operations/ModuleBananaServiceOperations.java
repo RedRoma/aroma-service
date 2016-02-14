@@ -48,6 +48,8 @@ import tech.aroma.banana.thrift.service.GetFullMessageRequest;
 import tech.aroma.banana.thrift.service.GetFullMessageResponse;
 import tech.aroma.banana.thrift.service.GetInboxRequest;
 import tech.aroma.banana.thrift.service.GetInboxResponse;
+import tech.aroma.banana.thrift.service.GetMediaRequest;
+import tech.aroma.banana.thrift.service.GetMediaResponse;
 import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
 import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
@@ -157,6 +159,10 @@ public final class ModuleBananaServiceOperations extends AbstractModule
               
         bind(new TypeLiteral<ThriftOperation<GetInboxRequest, GetInboxResponse>>() {})
             .to(GetInboxOperation.class);
+        
+              
+        bind(new TypeLiteral<ThriftOperation<GetMediaRequest, GetMediaResponse>>() {})
+            .to(GetMediaOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse>>(){})
             .to(GetMySavedChannelsOperation.class);
