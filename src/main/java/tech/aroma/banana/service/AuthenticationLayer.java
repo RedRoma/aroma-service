@@ -27,6 +27,7 @@ import tech.aroma.banana.thrift.authentication.UserToken;
 import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
 import tech.aroma.banana.thrift.authentication.service.GetTokenInfoRequest;
 import tech.aroma.banana.thrift.authentication.service.GetTokenInfoResponse;
+import tech.aroma.banana.thrift.authentication.service.VerifyTokenRequest;
 import tech.aroma.banana.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.banana.thrift.exceptions.ApplicationAlreadyRegisteredException;
 import tech.aroma.banana.thrift.exceptions.ApplicationDoesNotExistException;
@@ -90,11 +91,10 @@ import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 
 import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
-import static tech.aroma.banana.thrift.assertions.BananaAssertions.validTokenIn;
-import static tech.aroma.banana.thrift.assertions.BananaAssertions.validUserTokenIn;
 import static tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern.Role.DECORATOR;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 
 /**
  * This Layer decorates an existing {@link BananaService.Iface} and authenticates calls against an
@@ -437,9 +437,7 @@ final class AuthenticationLayer implements BananaService.Iface
 
     private void checkAndEnrichToken(UserToken token) throws InvalidTokenException, TException
     {
-        checkThat(token)
-            .throwing(InvalidTokenException.class)
-            .is(validUserTokenIn(authenticationService));
+        checkTokenIsValid(token);
         
         if(token.isSetUserId())
         {
@@ -475,11 +473,62 @@ final class AuthenticationLayer implements BananaService.Iface
         token.setOrganization(authToken.organizationId);
     }
 
-    private void checkToken(AuthenticationToken token) throws InvalidTokenException
+    private void checkTokenIsValid(UserToken token) throws TException
     {
         checkThat(token)
             .throwing(InvalidTokenException.class)
-            .is(validTokenIn(authenticationService));
+            .usingMessage("Request missing Token")
+            .is(notNull());
+        
+        VerifyTokenRequest request = new VerifyTokenRequest()
+            .setTokenId(token.tokenId)
+            .setOwnerId(token.userId);
+
+        try
+        {
+            authenticationService.verifyToken(request);
+        }
+        catch (TException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            LOG.error("Failed to make request to Authentication Service", ex);
+            throw new OperationFailedException("Could not query Authentication Service for Token: " + ex.getMessage());
+        }
+
+    }
+
+    private void checkToken(AuthenticationToken token) throws TException
+    {
+        checkThat(token)
+            .throwing(InvalidTokenException.class)
+            .usingMessage("Request missing Token")
+            .is(notNull());
+        
+        checkThat(token.tokenId)
+            .usingMessage("Request Token is Invalid")
+            .throwing(InvalidTokenException.class)
+            .is(nonEmptyString());
+        
+        VerifyTokenRequest request = new VerifyTokenRequest()
+            .setTokenId(token.tokenId)
+            .setOwnerId(token.ownerId);
+
+        try
+        {
+            authenticationService.verifyToken(request);
+        }
+        catch (TException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            LOG.error("Failed to make request to Authentication Service", ex);
+            throw new OperationFailedException("Could not query Authentication Service for Token: " + ex.getMessage());
+        }
     }
 
 
