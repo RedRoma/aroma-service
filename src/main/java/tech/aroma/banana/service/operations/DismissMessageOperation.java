@@ -64,9 +64,10 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
 
         String userId = request.token.userId;
 
+        long count;
         if (request.dismissAll)
         {
-            clearInboxFor(userId);
+            count = clearInboxFor(userId);
         }
         else
         {
@@ -76,7 +77,7 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
             return new DismissMessageResponse().setMessagesDismissed(messageIds.size());
         }
 
-        return new DismissMessageResponse();
+        return new DismissMessageResponse().setMessagesDismissed((int) count);
     }
 
     private AlchemyAssertion<DismissMessageRequest> good()
@@ -111,9 +112,13 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
         };
     }
 
-    private void clearInboxFor(String userId) throws TException
+    private long clearInboxFor(String userId) throws TException
     {
+        long count = inboxRepo.countInboxForUser(userId);
         inboxRepo.deleteAllMessagesForUser(userId);
+        
+        LOG.debug("Deleted {} messages from Inbox of User [{}]", count, userId);
+        return count;
     }
 
     private Set<String> getAllMessageIdsFrom(DismissMessageRequest request)
