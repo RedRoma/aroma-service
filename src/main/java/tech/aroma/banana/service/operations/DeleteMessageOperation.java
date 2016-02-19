@@ -77,7 +77,7 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
             .throwing(UnauthorizedException.class)
             .is(elementInCollection(app.owners));
 
-        int count = 0;
+        int count;
         if (request.deleteAll)
         {
             count = deleteAllMessages(appId);
@@ -94,37 +94,37 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
     private AlchemyAssertion<DeleteMessageRequest> good()
     {
         return request ->
+        {
+            checkThat(request)
+                .usingMessage("request is null")
+                .is(notNull());
+            
+            checkThat(request.token)
+                .usingMessage("request missing token")
+                .is(notNull());
+            
+            checkThat(request.token.userId)
+                .usingMessage("request missing userId in Token")
+                .is(nonEmptyString());
+            
+            checkThat(request.applicationId)
+                .is(validApplicationId());
+            
+            if (request.isSetMessageId())
             {
-                checkThat(request)
-                    .usingMessage("request is null")
-                    .is(notNull());
-
-                checkThat(request.token)
-                    .usingMessage("request missing token")
-                    .is(notNull());
-
-                checkThat(request.token.userId)
-                    .usingMessage("request missing userId in Token")
-                    .is(nonEmptyString());
-
-                checkThat(request.applicationId)
-                    .is(validApplicationId());
-
-                if (request.isSetMessageId())
+                checkThat(request.messageId)
+                    .is(validMessageId());
+            }
+            
+            if (request.isSetMessageIds())
+            {
+                for (String messageId : request.messageIds)
                 {
-                    checkThat(request.messageId)
+                    checkThat(messageId)
                         .is(validMessageId());
                 }
-
-                if (request.isSetMessageIds())
-                {
-                    for (String messageId : request.messageIds)
-                    {
-                        checkThat(messageId)
-                            .is(validMessageId());
-                    }
-                }
-            };
+            }
+        };
     }
 
     private int deleteWithOptions(DeleteMessageRequest request)
@@ -155,7 +155,7 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
         Long count = messageRepo.getCountByApplication(appId);
         messageRepo.deleteAllMessages(appId);
 
-        LOG.debug("Deleted all {} messages for App {}", appId);
+        LOG.debug("Deleted all {} messages for App {}", count, appId);
         return count.intValue();
     }
 
