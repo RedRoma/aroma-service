@@ -1,5 +1,5 @@
 <configuration>
-    <contextName>Banana</contextName>
+    <contextName>Aroma</contextName>
     <jmxConfigurator />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -23,11 +23,11 @@
         <appender-ref ref="rollingFile"/>
     </appender>
 
-    <root level="debug">
+    <root level="DEBUG">
         <appender-ref ref="async"/>
     </root>
 
-    <root level="info">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
     
