@@ -107,7 +107,7 @@
 
 
         <!--=======================-->
-        <!--BANANA-->
+        <!--AROMA-->
         <!--=======================-->
         <dependency>
             <groupId>${project.groupId}</groupId>
