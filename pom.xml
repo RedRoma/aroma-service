@@ -80,6 +80,12 @@
         
         <dependency>
             <groupId>tech.sirwellington.alchemy</groupId>
+            <artifactId>alchemy-annotations</artifactId>
+            <version>1.5</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-collections</artifactId>
         </dependency>
         
@@ -112,7 +118,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>banana-data-operations</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
         
 
