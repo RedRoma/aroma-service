@@ -105,6 +105,11 @@ public class UpdateApplicationOperationTest
             .thenReturn(true);
 
         when(appRepo.getById(appId)).thenReturn(app);
+        
+        for (String ownerId : app.owners)
+        {
+            when(userRepo.containsUser(ownerId)).thenReturn(true);
+        }
     }
 
     @DontRepeat

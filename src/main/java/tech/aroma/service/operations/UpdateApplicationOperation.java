@@ -37,6 +37,7 @@ import static tech.aroma.data.assertions.RequestAssertions.validApplication;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.nonEmptySet;
 
 /**
  *
@@ -102,6 +103,17 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
 
                 checkThat(request.updatedApplication)
                     .is(validApplication());
+                
+                checkThat(request.updatedApplication.owners)
+                    .usingMessage("Application must have at least 1 owner")
+                    .is(nonEmptySet());
+                
+                for (String ownerId : request.updatedApplication.owners)
+                {
+                    checkThat(ownerId)
+                        .usingMessage("Application Owner Does not exist: " + ownerId)
+                        .is(existingUser());
+                }
             };
     }
 
@@ -122,6 +134,25 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
                                                               appId));
                 }
             };
+    }
+
+    private AlchemyAssertion<String> existingUser()
+    {
+        return userId ->
+        {
+            try
+            {
+                if (!userRepo.containsUser(userId))                
+                {
+                    throw new FailedAssertionException(format("User [%s] does not exist", userId));
+                }
+            }
+            catch (TException ex)
+            {
+                LOG.error("Failed to check if user [{}] exists", userId, ex);
+                throw new FailedAssertionException(format("Could not check if user exists: [%s]", userId));
+            }
+        };
     }
 
 }
