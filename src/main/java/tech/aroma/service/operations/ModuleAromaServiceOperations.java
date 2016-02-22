@@ -76,6 +76,10 @@ import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.aroma.thrift.service.SnoozeChannelRequest;
 import tech.aroma.thrift.service.SnoozeChannelResponse;
+import tech.aroma.thrift.service.UnfollowApplicationRequest;
+import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UpdateApplicationRequest;
+import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
@@ -134,6 +138,14 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         
         bind(new TypeLiteral<ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse>>(){})
             .to(SnoozeChannelOperation.class);
+        
+        
+        bind(new TypeLiteral<ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse>>(){})
+            .to(UnfollowApplicationOperation.class);
+        
+        
+        bind(new TypeLiteral<ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse>>(){})
+            .to(UpdateApplicationOperation.class);
         
         
         //QUERY OPERATIONS
