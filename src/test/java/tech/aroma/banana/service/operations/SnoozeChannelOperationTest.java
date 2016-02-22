@@ -20,8 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.service.GetApplicationSubscribersRequest;
-import tech.aroma.banana.thrift.service.GetApplicationSubscribersResponse;
+import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
+import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -35,36 +35,35 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  *
  * @author SirWellington
  */
-@Repeat(50)
+@Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class GetApplicationSubscribersOperationTest 
+public class SnoozeChannelOperationTest
 {
 
     @GeneratePojo
-    private GetApplicationSubscribersRequest request;
-    
-    private GetApplicationSubscribersOperation instance;
-    
+    private SnoozeChannelRequest request;
+
+    private SnoozeChannelOperation instance;
+
     @Before
     public void setUp()
     {
-        instance = new GetApplicationSubscribersOperation();
+        instance = new SnoozeChannelOperation();
     }
 
     @Test
     public void testProcess() throws Exception
     {
-        GetApplicationSubscribersResponse response = instance.process(request);
+        SnoozeChannelResponse response = instance.process(request);
         assertThat(response, notNullValue());
     }
-    
+
     @DontRepeat
     @Test
-    public void testProcessWithBadArgs() throws Exception
+    public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
-    
 
 }

@@ -5,15 +5,15 @@
     <parent>
         <groupId>tech.aroma.banana</groupId>
         <artifactId>banana</artifactId>
-        <version>1.2</version>
+        <version>1.3</version>
     </parent>
 
     <artifactId>banana-service</artifactId>
-    <version>0.9</version>
+    <version>1.0</version>
     <name>${project.artifactId}</name>
     <packaging>jar</packaging>
 
-    <url>https://github.com/AromaTech/banana-service</url>
+    <url>https://github.com/RedRoma/banana-service</url>
     <description>
         Part of the Banana Service Project.
         Simplicity is paramount.
@@ -26,13 +26,13 @@
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/AromaTech/banana-service/issues</url>
+        <url>https://github.com/RedRoma/banana-service/issues</url>
     </issueManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:AromaTech/banana-service.git</connection>
-        <developerConnection>scm:git:git@github.com:AromaTech/banana-service.git</developerConnection>
-        <url>git@github.com:AromaTech/banana-service.git</url>
+        <connection>scm:git:git@github.com:RedRoma/banana-service.git</connection>
+        <developerConnection>scm:git:git@github.com:RedRoma/banana-service.git</developerConnection>
+        <url>git@github.com:RedRoma/banana-service.git</url>
     </scm>
 
     <inceptionYear>2015</inceptionYear>
@@ -68,22 +68,31 @@
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-test</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
+            <artifactId>slf4j-nop</artifactId>
         </dependency>
-
 
         <!--=======================-->
         <!--ALCHEMY-->
         <!--=======================-->
+        
+        <dependency>
+            <groupId>tech.sirwellington.alchemy</groupId>
+            <artifactId>alchemy-annotations</artifactId>
+            <version>1.5</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>tech.sirwellington.alchemy</groupId>
+            <artifactId>alchemy-collections</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>tech.sirwellington.alchemy</groupId>
             <artifactId>alchemy-generator</artifactId>
             <scope>compile</scope>
-            <version>1.3.1</version>
         </dependency>
 
         <dependency>
@@ -98,14 +107,20 @@
 
 
         <!--=======================-->
-        <!--BANANA-->
+        <!--AROMA-->
         <!--=======================-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>banana-thrift</artifactId>
-            <version>1.3</version>
+            <version>1.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>banana-data-operations</artifactId>
+            <version>1.0</version>
+        </dependency>
+        
 
         <!--=======================-->
         <!--GUICE-->
@@ -113,6 +128,21 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
+        </dependency>
+        
+        <!--Guice Decoration Library-->
+        <dependency>
+            <groupId>tech.sirwellington.decorice</groupId>
+            <artifactId>decorice</artifactId>
+        </dependency>
+
+
+        <!--=======================-->
+        <!--ENCRYPTION-->
+        <!--=======================-->
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
         </dependency>
 
 
@@ -123,16 +153,17 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
-        </dependency>  
-            
+        </dependency>
+        
     </dependencies>
 
     <build>
+
         <plugins>
 
             <plugin>
@@ -144,6 +175,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
+                            <useUniqueVersions>false</useUniqueVersions>
                             <mainClass>tech.aroma.banana.service.server.TcpServer</mainClass>
                         </manifest>
                     </archive>
@@ -153,43 +185,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>${project.basedir}/src/main/assembly/assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
-
 
         </plugins>
     </build>

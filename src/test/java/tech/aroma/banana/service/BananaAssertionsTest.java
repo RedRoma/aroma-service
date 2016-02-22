@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
-import tech.aroma.banana.thrift.service.SendMessageRequest;
+import tech.aroma.banana.thrift.service.SignInRequest;
 import tech.sirwellington.alchemy.arguments.ExceptionMapper;
 import tech.sirwellington.alchemy.arguments.FailedAssertionException;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -61,7 +61,7 @@ public class BananaAssertionsTest
     @Test
     public void testNotMissing()
     {
-        SendMessageRequest request = pojos(SendMessageRequest.class).get();
+        SignInRequest request = pojos(SignInRequest.class).get();
         BananaAssertions.notMissing().check(request);
         
         assertThrows(() -> BananaAssertions.notMissing().check(null))

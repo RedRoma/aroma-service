@@ -17,8 +17,8 @@
 /**
  * This Package contains all of the {@linkplain tech.sirwellington.alchemy.thrift.operations.ThriftOperation Thrift Operations}
  * defined in the Banana Service Specification. The Bindings can be obtained via the exposed
- * {@linkplain BananaServiceOperationsModule Guice Module}.
+ * {@linkplain ModuleBananaServiceOperations Guice Module}.
  *
- * @see BananaServiceOperationsModule
+ * @see ModuleBananaServiceOperations
  */
 package tech.aroma.banana.service.operations;

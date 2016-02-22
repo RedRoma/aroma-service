@@ -16,28 +16,46 @@
 
 package tech.aroma.banana.service.operations;
 
+import java.util.List;
+import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import tech.aroma.banana.data.InboxRepository;
+import tech.aroma.banana.thrift.Message;
 import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.banana.thrift.service.GetDashboardRequest;
 import tech.aroma.banana.thrift.service.GetDashboardResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
+import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
+import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class GetDashboardOperationTest 
 {
+    @Mock
+    private InboxRepository inboxRepo;
+    
+    @GenerateList(Message.class)
+    private List<Message> messages;
+    
+    @GenerateString(UUID)
+    private String userId;
     
     @GeneratePojo
     private GetDashboardRequest request;
@@ -45,9 +63,12 @@ public class GetDashboardOperationTest
     private GetDashboardOperation instance;
     
     @Before
-    public void setUp()
+    public void setUp() throws Exception
     {
-        instance = new GetDashboardOperation();
+        instance = new GetDashboardOperation(inboxRepo);
+        
+        setupData();
+        setupMocks();
     }
 
     @Test
@@ -55,6 +76,8 @@ public class GetDashboardOperationTest
     {
         GetDashboardResponse response = instance.process(request);
         assertThat(response, notNullValue());
+        
+        response.recentMessages.forEach(m -> assertThat(m, isIn(messages)));
     }
     
     @Test
@@ -62,6 +85,17 @@ public class GetDashboardOperationTest
     {
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    private void setupMocks() throws TException
+    {
+        when(inboxRepo.getMessagesForUser(userId))
+            .thenReturn(messages);
+    }
+
+    private void setupData()
+    {
+        request.token.userId = userId;
     }
 
 }

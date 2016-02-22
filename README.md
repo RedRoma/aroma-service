@@ -1,23 +1,23 @@
-Banana Service
+Aroma Service
 ==============================================
 
-[<img src="https://raw.githubusercontent.com/AromaTech/banana/develop/Graphics/Logo.png" width="300">](https://github.com/AromaTech/banana)
+[<img src="https://raw.githubusercontent.com/RedRoma/Aroma/develop/Graphics/Logo.png" width="300">](https://github.com/RedRoma/Aroma)
 
-[![Build Status](http://jenkins.sirwellington.tech/view/Banana/job/Banana%20Service/badge/icon)](http://jenkins.sirwellington.tech/view/Banana/job/Banana%20Service/)
+[![Build Status](http://jenkins.sirwellington.tech/view/Aroma/job/Aroma%20Service/badge/icon)](http://jenkins.sirwellington.tech/view/Aroma/job/Aroma%20Service/)
 
 
-The Famed Banana Service!
+The Famed Aroma Service!
 
-The Banana Service is Application Notifications for Developers.
+Aroma allows developers and Product Owners to communicate and stay in touch with their Live Software.
 
 Developers can be conveniently notified of Urgent events that occur
 within their Applications or Micro-Service, with a system designed and built from the ground up for that purpose.
 
-The Banana Service can also be used to setup Service Health Checks and Alerts.
+The Aroma Service can also be used to setup Service Health Checks and Alerts.
 
 # Open Source
 
-The Open Source version of the Banana Service is fully functional, with the following things left out:
+The Open Source version of the Aroma Service is fully functional, with the following things left out:
 
 ## No Payments
 There are no payment collection systems built into the Service.

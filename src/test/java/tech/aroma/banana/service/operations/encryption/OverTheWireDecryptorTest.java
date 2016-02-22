@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Aroma Tech.
+ * Copyright 2016 Aroma Tech.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package tech.aroma.banana.service.operations;
+package tech.aroma.banana.service.operations.encryption;
 
+import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.service.SendMessageRequest;
-import tech.aroma.banana.thrift.service.SendMessageResponse;
+import org.mockito.Mock;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
+import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
@@ -36,32 +35,39 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class SendMessageOperationTest
+public class OverTheWireDecryptorTest 
 {
-
-    @GeneratePojo
-    private SendMessageRequest request;
-
-    private SendMessageOperation instance;
-
+    @Mock
+    private PBEStringEncryptor stringEncryptor;
+    
     @Before
-    public void setUp()
+    public void setUp() throws Exception
     {
-        instance = new SendMessageOperation();
+        setupData();
+        setupMocks();
     }
 
-    @Test
-    public void testProcess() throws Exception
+    private void setupData() throws Exception
     {
-        SendMessageResponse response = instance.process(request);
 
-        assertThat(response, notNullValue());
     }
 
-    @Test
-    public void testProcessEdgeCases()
+    private void setupMocks() throws Exception
     {
-        assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+
+    }
+    @Test
+    public void testNewInstance()
+    {
+        OverTheWireDecryptor result = OverTheWireDecryptor.newInstance(stringEncryptor);
+        assertThat(result, notNullValue());
+    }
+    
+    @DontRepeat
+    @Test
+    public void testNewInstanceWithBadArgs()
+    {
+        assertThrows(() -> OverTheWireDecryptor.newInstance(null))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 }
