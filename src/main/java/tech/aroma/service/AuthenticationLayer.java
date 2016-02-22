@@ -90,6 +90,10 @@ import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.aroma.thrift.service.SnoozeChannelRequest;
 import tech.aroma.thrift.service.SnoozeChannelResponse;
+import tech.aroma.thrift.service.UnfollowApplicationRequest;
+import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UpdateApplicationRequest;
+import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 
@@ -451,7 +455,36 @@ final class AuthenticationLayer implements AromaService.Iface
 
         return delegate.searchForApplications(request);
     }
-
+    
+    @Override
+    public UpdateApplicationResponse updateApplication(UpdateApplicationRequest request) throws OperationFailedException,
+                                                                                                InvalidArgumentException,
+                                                                                                InvalidTokenException,
+                                                                                                ApplicationDoesNotExistException,
+                                                                                                UnauthorizedException,
+                                                                                                TException
+    {
+        checkNotNull(request);
+        checkAndEnrichToken(request.token);
+        
+        return delegate.updateApplication(request);
+    }
+    
+    @Override
+    public UnfollowApplicationResponse unfollowApplication(UnfollowApplicationRequest request) throws OperationFailedException,
+                                                                                                      InvalidArgumentException,
+                                                                                                      InvalidTokenException,
+                                                                                                      ApplicationDoesNotExistException,
+                                                                                                      UnauthorizedException,
+                                                                                                      TException
+    {
+        checkNotNull(request);
+        checkAndEnrichToken(request.token);
+        
+        return delegate.unfollowApplication(request);
+    }
+    
+    
     private void checkAndEnrichToken(UserToken token) throws InvalidTokenException, TException
     {
         checkTokenIsValid(token);

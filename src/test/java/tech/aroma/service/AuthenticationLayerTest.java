@@ -80,6 +80,10 @@ import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.aroma.thrift.service.SnoozeChannelRequest;
 import tech.aroma.thrift.service.SnoozeChannelResponse;
+import tech.aroma.thrift.service.UnfollowApplicationRequest;
+import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UpdateApplicationRequest;
+import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -754,7 +758,6 @@ public class AuthenticationLayerTest
         verifyZeroInteractions(delegate);
     }
 
-    
     @Test
     public void testGetMedia() throws Exception
     {
@@ -762,38 +765,38 @@ public class AuthenticationLayerTest
         GetMediaResponse expected = new GetMediaResponse();
         when(delegate.getMedia(request))
             .thenReturn(expected);
-        
+
         GetMediaResponse response = instance.getMedia(request);
         assertThat(response, is(expected));
-        
+
         verify(delegate).getMedia(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
         verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
-    
+
     @Test
     public void testGetMediaWithBadToken() throws Exception
     {
         setupWithBadToken();
         GetMediaRequest request = new GetMediaRequest().setToken(userToken);
-        
+
         assertThrows(() -> instance.getMedia(request))
             .isInstanceOf(InvalidTokenException.class);
-        
+
         verifyZeroInteractions(delegate);
     }
-    
+
     @DontRepeat
     @Test
     public void testGetMediaWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.getMedia(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         assertThrows(() -> instance.getMedia(new GetMediaRequest()))
             .isInstanceOf(InvalidTokenException.class);
     }
-    
+
     @Test
     public void testGetMyApplications() throws Exception
     {
@@ -1030,6 +1033,85 @@ public class AuthenticationLayerTest
             .isInstanceOf(InvalidTokenException.class);
     }
 
+    @Test
+    public void testUpdateApplication() throws Exception
+    {
+        UpdateApplicationRequest request = new UpdateApplicationRequest().setToken(userToken);
+        
+        UpdateApplicationResponse expectedResponse = new UpdateApplicationResponse();
+        
+        when(delegate.updateApplication(request)).thenReturn(expectedResponse);
+        
+        UpdateApplicationResponse response = instance.updateApplication(request);
+        assertThat(response, is(sameInstance(expectedResponse)));
+        verify(delegate).updateApplication(request);
+        
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+    }
+
+    @Test
+    public void testUpdateApplicationWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.updateApplication(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.updateApplication(new UpdateApplicationRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testUpdateApplicationWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+        
+        UpdateApplicationRequest request = new UpdateApplicationRequest().setToken(userToken);
+        
+        assertThrows(() -> instance.updateApplication(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testUnfollowApplication() throws Exception
+    {
+        UnfollowApplicationRequest request = new UnfollowApplicationRequest().setToken(userToken);
+        UnfollowApplicationResponse expectedReponse = new UnfollowApplicationResponse();
+        when(delegate.unfollowApplication(request)).thenReturn(expectedReponse);
+        
+        UnfollowApplicationResponse response = instance.unfollowApplication(request);
+        assertThat(response, is(sameInstance(expectedReponse)));
+        
+        verify(delegate).unfollowApplication(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+    }
+
+    @Test
+    public void testUnfollowApplicationWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+        
+        UnfollowApplicationRequest request = new UnfollowApplicationRequest().setToken(userToken);
+        
+        assertThrows(() -> instance.unfollowApplication(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testUnfollowApplicationWithBadRequests() throws Exception
+    {
+        assertThrows(() -> instance.unfollowApplication(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.unfollowApplication(new UnfollowApplicationRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+        
+        verifyZeroInteractions(delegate);
+    }
+
     private void setupWithBadToken() throws TException
     {
         when(authenticationService.verifyToken(expectedVerifyTokenRequest))
@@ -1055,6 +1137,5 @@ public class AuthenticationLayerTest
             .setTokenType(TokenType.USER)
             .setTokenId(tokenId);
     }
-
 
 }
