@@ -174,7 +174,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                             <useUniqueVersions>false</useUniqueVersions>
-                            <mainClass>tech.aroma.banana.service.server.TcpServer</mainClass>
+                            <mainClass>tech.aroma.service.server.TcpServer</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
