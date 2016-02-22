@@ -62,8 +62,8 @@ public final class TcpServer
                                                  new ModuleEncryptionMaterialsDev(),
                                                  new RestOfDependencies());
         
-        AromaService.Iface bananaService = injector.getInstance(AromaService.Iface.class);
-        AromaService.Processor processor = new AromaService.Processor<>(bananaService);
+        AromaService.Iface aromaService = injector.getInstance(AromaService.Iface.class);
+        AromaService.Processor processor = new AromaService.Processor<>(aromaService);
         
         TServerSocket socket = new TServerSocket(PORT);
         socket.getServerSocket().setSoTimeout((int) SECONDS.toMillis(30));
