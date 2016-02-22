@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.service.BananaAssertions;
-import tech.aroma.banana.thrift.events.Event;
-import tech.aroma.banana.thrift.service.GetActivityRequest;
-import tech.aroma.banana.thrift.service.GetActivityResponse;
+import tech.aroma.banana.service.AromaAssertions;
+import tech.aroma.thrift.events.Event;
+import tech.aroma.thrift.service.GetActivityRequest;
+import tech.aroma.thrift.service.GetActivityResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaGenerators.events;
+import static tech.aroma.banana.service.AromaGenerators.events;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
@@ -44,7 +44,7 @@ final class GetActivityOperation implements ThriftOperation<GetActivityRequest, 
     @Override
     public GetActivityResponse process(GetActivityRequest request) throws TException
     {
-        BananaAssertions.checkNotNull(request);
+        AromaAssertions.checkNotNull(request);
         
         int numberOfEvents = one(integers(0, 100));
         List<Event> events = listOf(events(), numberOfEvents).stream()

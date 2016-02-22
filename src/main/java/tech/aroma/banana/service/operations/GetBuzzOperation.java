@@ -23,19 +23,19 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.data.ApplicationRepository;
-import tech.aroma.banana.data.OrganizationRepository;
-import tech.aroma.banana.data.UserRepository;
-import tech.aroma.banana.service.BananaGenerators;
-import tech.aroma.banana.thrift.Application;
-import tech.aroma.banana.thrift.events.GeneralEvent;
-import tech.aroma.banana.thrift.events.HealthCheckFailed;
-import tech.aroma.banana.thrift.service.GetBuzzRequest;
-import tech.aroma.banana.thrift.service.GetBuzzResponse;
+import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.OrganizationRepository;
+import tech.aroma.data.UserRepository;
+import tech.aroma.banana.service.AromaGenerators;
+import tech.aroma.thrift.Application;
+import tech.aroma.thrift.events.GeneralEvent;
+import tech.aroma.thrift.events.HealthCheckFailed;
+import tech.aroma.thrift.service.GetBuzzRequest;
+import tech.aroma.thrift.service.GetBuzzResponse;
 import tech.sirwellington.alchemy.generator.AlchemyGenerator;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.aroma.banana.service.AromaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
@@ -102,7 +102,7 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
             int numberOfFailedHealthChecks = one(integers(0, 6));
             int numberOfGeneralHappenings = one(integers(5, 25));
             
-            response.setFreshUsers(listOf(BananaGenerators.users(), numberOfUsers))
+            response.setFreshUsers(listOf(AromaGenerators.users(), numberOfUsers))
                 .setFailedHealthChecks(listOf(healthChecks, numberOfFailedHealthChecks))
                 .setGeneralEvents(listOf(generalEvents, numberOfGeneralHappenings));
             

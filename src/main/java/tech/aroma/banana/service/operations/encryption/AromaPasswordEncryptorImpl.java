@@ -21,8 +21,8 @@ import org.apache.thrift.TException;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
-import tech.aroma.banana.thrift.exceptions.OperationFailedException;
+import tech.aroma.thrift.exceptions.InvalidCredentialsException;
+import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;

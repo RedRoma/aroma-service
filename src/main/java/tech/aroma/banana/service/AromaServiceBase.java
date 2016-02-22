@@ -20,90 +20,90 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.exceptions.AccountAlreadyExistsException;
-import tech.aroma.banana.thrift.exceptions.ApplicationAlreadyRegisteredException;
-import tech.aroma.banana.thrift.exceptions.ApplicationDoesNotExistException;
-import tech.aroma.banana.thrift.exceptions.ChannelDoesNotExistException;
-import tech.aroma.banana.thrift.exceptions.CustomChannelUnreachableException;
-import tech.aroma.banana.thrift.exceptions.DoesNotExistException;
-import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.exceptions.InvalidCredentialsException;
-import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
-import tech.aroma.banana.thrift.exceptions.MessageDoesNotExistException;
-import tech.aroma.banana.thrift.exceptions.OperationFailedException;
-import tech.aroma.banana.thrift.exceptions.UnauthorizedException;
-import tech.aroma.banana.thrift.exceptions.UserDoesNotExistException;
-import tech.aroma.banana.thrift.service.BananaService;
-import tech.aroma.banana.thrift.service.BananaServiceConstants;
-import tech.aroma.banana.thrift.service.DeleteMessageRequest;
-import tech.aroma.banana.thrift.service.DeleteMessageResponse;
-import tech.aroma.banana.thrift.service.DismissMessageRequest;
-import tech.aroma.banana.thrift.service.DismissMessageResponse;
-import tech.aroma.banana.thrift.service.FollowApplicationRequest;
-import tech.aroma.banana.thrift.service.FollowApplicationResponse;
-import tech.aroma.banana.thrift.service.GetActivityRequest;
-import tech.aroma.banana.thrift.service.GetActivityResponse;
-import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
-import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
-import tech.aroma.banana.thrift.service.GetApplicationMessagesRequest;
-import tech.aroma.banana.thrift.service.GetApplicationMessagesResponse;
-import tech.aroma.banana.thrift.service.GetBuzzRequest;
-import tech.aroma.banana.thrift.service.GetBuzzResponse;
-import tech.aroma.banana.thrift.service.GetDashboardRequest;
-import tech.aroma.banana.thrift.service.GetDashboardResponse;
-import tech.aroma.banana.thrift.service.GetFullMessageRequest;
-import tech.aroma.banana.thrift.service.GetFullMessageResponse;
-import tech.aroma.banana.thrift.service.GetInboxRequest;
-import tech.aroma.banana.thrift.service.GetInboxResponse;
-import tech.aroma.banana.thrift.service.GetMediaRequest;
-import tech.aroma.banana.thrift.service.GetMediaResponse;
-import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
-import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
-import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
-import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
-import tech.aroma.banana.thrift.service.GetUserInfoRequest;
-import tech.aroma.banana.thrift.service.GetUserInfoResponse;
-import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
-import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.banana.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.banana.thrift.service.RegenerateApplicationTokenResponse;
-import tech.aroma.banana.thrift.service.RegisterHealthCheckRequest;
-import tech.aroma.banana.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.banana.thrift.service.RemoveSavedChannelRequest;
-import tech.aroma.banana.thrift.service.RemoveSavedChannelResponse;
-import tech.aroma.banana.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.banana.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.banana.thrift.service.SaveChannelRequest;
-import tech.aroma.banana.thrift.service.SaveChannelResponse;
-import tech.aroma.banana.thrift.service.SearchForApplicationsRequest;
-import tech.aroma.banana.thrift.service.SearchForApplicationsResponse;
-import tech.aroma.banana.thrift.service.SignInRequest;
-import tech.aroma.banana.thrift.service.SignInResponse;
-import tech.aroma.banana.thrift.service.SignUpRequest;
-import tech.aroma.banana.thrift.service.SignUpResponse;
-import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
-import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
+import tech.aroma.thrift.exceptions.AccountAlreadyExistsException;
+import tech.aroma.thrift.exceptions.ApplicationAlreadyRegisteredException;
+import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
+import tech.aroma.thrift.exceptions.ChannelDoesNotExistException;
+import tech.aroma.thrift.exceptions.CustomChannelUnreachableException;
+import tech.aroma.thrift.exceptions.DoesNotExistException;
+import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.exceptions.InvalidCredentialsException;
+import tech.aroma.thrift.exceptions.InvalidTokenException;
+import tech.aroma.thrift.exceptions.MessageDoesNotExistException;
+import tech.aroma.thrift.exceptions.OperationFailedException;
+import tech.aroma.thrift.exceptions.UnauthorizedException;
+import tech.aroma.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.thrift.service.AromaService;
+import tech.aroma.thrift.service.AromaServiceConstants;
+import tech.aroma.thrift.service.DeleteMessageRequest;
+import tech.aroma.thrift.service.DeleteMessageResponse;
+import tech.aroma.thrift.service.DismissMessageRequest;
+import tech.aroma.thrift.service.DismissMessageResponse;
+import tech.aroma.thrift.service.FollowApplicationRequest;
+import tech.aroma.thrift.service.FollowApplicationResponse;
+import tech.aroma.thrift.service.GetActivityRequest;
+import tech.aroma.thrift.service.GetActivityResponse;
+import tech.aroma.thrift.service.GetApplicationInfoRequest;
+import tech.aroma.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.thrift.service.GetApplicationMessagesRequest;
+import tech.aroma.thrift.service.GetApplicationMessagesResponse;
+import tech.aroma.thrift.service.GetBuzzRequest;
+import tech.aroma.thrift.service.GetBuzzResponse;
+import tech.aroma.thrift.service.GetDashboardRequest;
+import tech.aroma.thrift.service.GetDashboardResponse;
+import tech.aroma.thrift.service.GetFullMessageRequest;
+import tech.aroma.thrift.service.GetFullMessageResponse;
+import tech.aroma.thrift.service.GetInboxRequest;
+import tech.aroma.thrift.service.GetInboxResponse;
+import tech.aroma.thrift.service.GetMediaRequest;
+import tech.aroma.thrift.service.GetMediaResponse;
+import tech.aroma.thrift.service.GetMyApplicationsRequest;
+import tech.aroma.thrift.service.GetMyApplicationsResponse;
+import tech.aroma.thrift.service.GetMySavedChannelsRequest;
+import tech.aroma.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.thrift.service.GetUserInfoRequest;
+import tech.aroma.thrift.service.GetUserInfoResponse;
+import tech.aroma.thrift.service.ProvisionApplicationRequest;
+import tech.aroma.thrift.service.ProvisionApplicationResponse;
+import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
+import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RegisterHealthCheckRequest;
+import tech.aroma.thrift.service.RegisterHealthCheckResponse;
+import tech.aroma.thrift.service.RemoveSavedChannelRequest;
+import tech.aroma.thrift.service.RemoveSavedChannelResponse;
+import tech.aroma.thrift.service.RenewApplicationTokenRequest;
+import tech.aroma.thrift.service.RenewApplicationTokenResponse;
+import tech.aroma.thrift.service.SaveChannelRequest;
+import tech.aroma.thrift.service.SaveChannelResponse;
+import tech.aroma.thrift.service.SearchForApplicationsRequest;
+import tech.aroma.thrift.service.SearchForApplicationsResponse;
+import tech.aroma.thrift.service.SignInRequest;
+import tech.aroma.thrift.service.SignInResponse;
+import tech.aroma.thrift.service.SignUpRequest;
+import tech.aroma.thrift.service.SignUpResponse;
+import tech.aroma.thrift.service.SnoozeChannelRequest;
+import tech.aroma.thrift.service.SnoozeChannelResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.aroma.banana.service.AromaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern.Role.COMPONENT;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- * This is the Top Level of the Banana Service. All of the Operations arrive here and routed to their respective
+ * This is the Top Level of the Aroma Service. All of the Operations arrive here and routed to their respective
  * {@linkplain ThriftOperation Operation}.
  *
  * @author SirWellington
  */
 @DecoratorPattern(role = COMPONENT)
 @Internal
-final class BananaServiceBase implements BananaService.Iface
+final class AromaServiceBase implements AromaService.Iface
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(BananaServiceBase.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AromaServiceBase.class);
 
     //Action and Save Operations
     private final ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation;
@@ -134,7 +134,7 @@ final class BananaServiceBase implements BananaService.Iface
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
     @Inject
-    BananaServiceBase(ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation,
+    AromaServiceBase(ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation,
                       ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation,
                       ThriftOperation<SignInRequest, SignInResponse> signInOperation,
                       ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
@@ -219,7 +219,7 @@ final class BananaServiceBase implements BananaService.Iface
     @Override
     public double getApiVersion() throws TException
     {
-        return BananaServiceConstants.API_VERSION;
+        return AromaServiceConstants.API_VERSION;
     }
    
     @Override

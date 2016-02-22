@@ -24,69 +24,69 @@ import com.google.inject.TypeLiteral;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.authentication.ApplicationToken;
-import tech.aroma.banana.thrift.authentication.AuthenticationToken;
-import tech.aroma.banana.thrift.authentication.UserToken;
-import tech.aroma.banana.thrift.functions.TokenFunctions;
-import tech.aroma.banana.thrift.service.DeleteMessageRequest;
-import tech.aroma.banana.thrift.service.DeleteMessageResponse;
-import tech.aroma.banana.thrift.service.DismissMessageRequest;
-import tech.aroma.banana.thrift.service.DismissMessageResponse;
-import tech.aroma.banana.thrift.service.FollowApplicationRequest;
-import tech.aroma.banana.thrift.service.FollowApplicationResponse;
-import tech.aroma.banana.thrift.service.GetActivityRequest;
-import tech.aroma.banana.thrift.service.GetActivityResponse;
-import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
-import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
-import tech.aroma.banana.thrift.service.GetApplicationMessagesRequest;
-import tech.aroma.banana.thrift.service.GetApplicationMessagesResponse;
-import tech.aroma.banana.thrift.service.GetBuzzRequest;
-import tech.aroma.banana.thrift.service.GetBuzzResponse;
-import tech.aroma.banana.thrift.service.GetDashboardRequest;
-import tech.aroma.banana.thrift.service.GetDashboardResponse;
-import tech.aroma.banana.thrift.service.GetFullMessageRequest;
-import tech.aroma.banana.thrift.service.GetFullMessageResponse;
-import tech.aroma.banana.thrift.service.GetInboxRequest;
-import tech.aroma.banana.thrift.service.GetInboxResponse;
-import tech.aroma.banana.thrift.service.GetMediaRequest;
-import tech.aroma.banana.thrift.service.GetMediaResponse;
-import tech.aroma.banana.thrift.service.GetMyApplicationsRequest;
-import tech.aroma.banana.thrift.service.GetMyApplicationsResponse;
-import tech.aroma.banana.thrift.service.GetMySavedChannelsRequest;
-import tech.aroma.banana.thrift.service.GetMySavedChannelsResponse;
-import tech.aroma.banana.thrift.service.GetUserInfoRequest;
-import tech.aroma.banana.thrift.service.GetUserInfoResponse;
-import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
-import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.banana.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.banana.thrift.service.RegenerateApplicationTokenResponse;
-import tech.aroma.banana.thrift.service.RegisterHealthCheckRequest;
-import tech.aroma.banana.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.banana.thrift.service.RemoveSavedChannelRequest;
-import tech.aroma.banana.thrift.service.RemoveSavedChannelResponse;
-import tech.aroma.banana.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.banana.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.banana.thrift.service.SaveChannelRequest;
-import tech.aroma.banana.thrift.service.SaveChannelResponse;
-import tech.aroma.banana.thrift.service.SearchForApplicationsRequest;
-import tech.aroma.banana.thrift.service.SearchForApplicationsResponse;
-import tech.aroma.banana.thrift.service.SignInRequest;
-import tech.aroma.banana.thrift.service.SignInResponse;
-import tech.aroma.banana.thrift.service.SignUpRequest;
-import tech.aroma.banana.thrift.service.SignUpResponse;
-import tech.aroma.banana.thrift.service.SnoozeChannelRequest;
-import tech.aroma.banana.thrift.service.SnoozeChannelResponse;
+import tech.aroma.thrift.authentication.ApplicationToken;
+import tech.aroma.thrift.authentication.AuthenticationToken;
+import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.functions.TokenFunctions;
+import tech.aroma.thrift.service.DeleteMessageRequest;
+import tech.aroma.thrift.service.DeleteMessageResponse;
+import tech.aroma.thrift.service.DismissMessageRequest;
+import tech.aroma.thrift.service.DismissMessageResponse;
+import tech.aroma.thrift.service.FollowApplicationRequest;
+import tech.aroma.thrift.service.FollowApplicationResponse;
+import tech.aroma.thrift.service.GetActivityRequest;
+import tech.aroma.thrift.service.GetActivityResponse;
+import tech.aroma.thrift.service.GetApplicationInfoRequest;
+import tech.aroma.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.thrift.service.GetApplicationMessagesRequest;
+import tech.aroma.thrift.service.GetApplicationMessagesResponse;
+import tech.aroma.thrift.service.GetBuzzRequest;
+import tech.aroma.thrift.service.GetBuzzResponse;
+import tech.aroma.thrift.service.GetDashboardRequest;
+import tech.aroma.thrift.service.GetDashboardResponse;
+import tech.aroma.thrift.service.GetFullMessageRequest;
+import tech.aroma.thrift.service.GetFullMessageResponse;
+import tech.aroma.thrift.service.GetInboxRequest;
+import tech.aroma.thrift.service.GetInboxResponse;
+import tech.aroma.thrift.service.GetMediaRequest;
+import tech.aroma.thrift.service.GetMediaResponse;
+import tech.aroma.thrift.service.GetMyApplicationsRequest;
+import tech.aroma.thrift.service.GetMyApplicationsResponse;
+import tech.aroma.thrift.service.GetMySavedChannelsRequest;
+import tech.aroma.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.thrift.service.GetUserInfoRequest;
+import tech.aroma.thrift.service.GetUserInfoResponse;
+import tech.aroma.thrift.service.ProvisionApplicationRequest;
+import tech.aroma.thrift.service.ProvisionApplicationResponse;
+import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
+import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RegisterHealthCheckRequest;
+import tech.aroma.thrift.service.RegisterHealthCheckResponse;
+import tech.aroma.thrift.service.RemoveSavedChannelRequest;
+import tech.aroma.thrift.service.RemoveSavedChannelResponse;
+import tech.aroma.thrift.service.RenewApplicationTokenRequest;
+import tech.aroma.thrift.service.RenewApplicationTokenResponse;
+import tech.aroma.thrift.service.SaveChannelRequest;
+import tech.aroma.thrift.service.SaveChannelResponse;
+import tech.aroma.thrift.service.SearchForApplicationsRequest;
+import tech.aroma.thrift.service.SearchForApplicationsResponse;
+import tech.aroma.thrift.service.SignInRequest;
+import tech.aroma.thrift.service.SignInResponse;
+import tech.aroma.thrift.service.SignUpRequest;
+import tech.aroma.thrift.service.SignUpResponse;
+import tech.aroma.thrift.service.SnoozeChannelRequest;
+import tech.aroma.thrift.service.SnoozeChannelResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
  * This Module defines the bindings for the implementations of the
- * Banana Service Operations.
+ * Aroma Service Operations.
  *
  * @author SirWellington
  */
-public final class ModuleBananaServiceOperations extends AbstractModule
+public final class ModuleAromaServiceOperations extends AbstractModule
 {
-    private final static Logger LOG = LoggerFactory.getLogger(ModuleBananaServiceOperations.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ModuleAromaServiceOperations.class);
     
     @Override
     protected void configure()

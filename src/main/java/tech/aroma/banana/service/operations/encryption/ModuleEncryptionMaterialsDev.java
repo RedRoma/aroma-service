@@ -28,7 +28,7 @@ import org.jasypt.util.password.ConfigurablePasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.authentication.AuthenticationConstants;
+import tech.aroma.thrift.authentication.AuthenticationConstants;
 
 /**
  *

@@ -24,35 +24,35 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
-import tech.aroma.banana.data.ApplicationRepository;
-import tech.aroma.banana.data.MediaRepository;
-import tech.aroma.banana.data.UserRepository;
-import tech.aroma.banana.thrift.Application;
-import tech.aroma.banana.thrift.Image;
-import tech.aroma.banana.thrift.LengthOfTime;
-import tech.aroma.banana.thrift.TimeUnit;
-import tech.aroma.banana.thrift.User;
-import tech.aroma.banana.thrift.authentication.ApplicationToken;
-import tech.aroma.banana.thrift.authentication.AuthenticationToken;
-import tech.aroma.banana.thrift.authentication.TokenType;
-import tech.aroma.banana.thrift.authentication.UserToken;
-import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
-import tech.aroma.banana.thrift.authentication.service.CreateTokenRequest;
-import tech.aroma.banana.thrift.authentication.service.CreateTokenResponse;
-import tech.aroma.banana.thrift.authentication.service.GetTokenInfoRequest;
-import tech.aroma.banana.thrift.authentication.service.GetTokenInfoResponse;
-import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.exceptions.InvalidTokenException;
-import tech.aroma.banana.thrift.exceptions.OperationFailedException;
-import tech.aroma.banana.thrift.service.BananaServiceConstants;
-import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
-import tech.aroma.banana.thrift.service.ProvisionApplicationResponse;
+import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.MediaRepository;
+import tech.aroma.data.UserRepository;
+import tech.aroma.thrift.Application;
+import tech.aroma.thrift.Image;
+import tech.aroma.thrift.LengthOfTime;
+import tech.aroma.thrift.TimeUnit;
+import tech.aroma.thrift.User;
+import tech.aroma.thrift.authentication.ApplicationToken;
+import tech.aroma.thrift.authentication.AuthenticationToken;
+import tech.aroma.thrift.authentication.TokenType;
+import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.authentication.service.AuthenticationService;
+import tech.aroma.thrift.authentication.service.CreateTokenRequest;
+import tech.aroma.thrift.authentication.service.CreateTokenResponse;
+import tech.aroma.thrift.authentication.service.GetTokenInfoRequest;
+import tech.aroma.thrift.authentication.service.GetTokenInfoResponse;
+import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.exceptions.InvalidTokenException;
+import tech.aroma.thrift.exceptions.OperationFailedException;
+import tech.aroma.thrift.service.AromaServiceConstants;
+import tech.aroma.thrift.service.ProvisionApplicationRequest;
+import tech.aroma.thrift.service.ProvisionApplicationResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static java.time.Instant.now;
-import static tech.aroma.banana.data.assertions.AuthenticationAssertions.completeToken;
+import static tech.aroma.data.assertions.AuthenticationAssertions.completeToken;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
@@ -232,7 +232,7 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
                 .usingMessage("Application name is required")
                 .is(nonEmptyString())
                 .usingMessage("Application name is too long")
-                .is(stringWithLengthLessThanOrEqualTo(BananaServiceConstants.APPLICATION_NAME_MAX_LENGTH));
+                .is(stringWithLengthLessThanOrEqualTo(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH));
         };
     }
 

@@ -20,7 +20,7 @@ package tech.aroma.banana.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.access.NonInstantiable;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
@@ -35,11 +35,11 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
  */
 @Internal
 @NonInstantiable
-public final class BananaAssertions 
+public final class AromaAssertions 
 {
-    private final static Logger LOG = LoggerFactory.getLogger(BananaAssertions.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AromaAssertions.class);
     
-    private BananaAssertions() throws IllegalAccessException
+    private AromaAssertions() throws IllegalAccessException
     {
         throw new IllegalAccessException("cannot instantiate");
     }

@@ -25,12 +25,12 @@ import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import tech.aroma.banana.data.memory.ModuleMemoryDataRepositories;
+import tech.aroma.data.memory.ModuleMemoryDataRepositories;
 import tech.aroma.banana.service.operations.encryption.ModuleEncryptionMaterialsDev;
-import tech.aroma.banana.thrift.authentication.ApplicationToken;
-import tech.aroma.banana.thrift.authentication.AuthenticationToken;
-import tech.aroma.banana.thrift.authentication.UserToken;
-import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
+import tech.aroma.thrift.authentication.ApplicationToken;
+import tech.aroma.thrift.authentication.AuthenticationToken;
+import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.authentication.service.AuthenticationService;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
@@ -44,11 +44,11 @@ import static org.mockito.Mockito.mock;
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class ModuleBananaServiceOperationsTest
+public class ModuleAromaServiceOperationsTest
 {
     private ModuleEncryptionMaterialsDev encryptionMaterials;
     private ModuleMemoryDataRepositories dataModule;
-    private ModuleBananaServiceOperations instance;
+    private ModuleAromaServiceOperations instance;
     
     private final Module mockModule = new AbstractModule()
     {
@@ -70,7 +70,7 @@ public class ModuleBananaServiceOperationsTest
     {
         dataModule = new ModuleMemoryDataRepositories();
         encryptionMaterials = new ModuleEncryptionMaterialsDev();
-        instance = new ModuleBananaServiceOperations();
+        instance = new ModuleAromaServiceOperations();
     }
 
     @Test

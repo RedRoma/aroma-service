@@ -25,17 +25,17 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.service.BananaService;
+import tech.aroma.thrift.service.AromaService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 
 /**
  *
  * @author SirWellington
  */
-public class ModuleBananaService extends AbstractModule
+public class ModuleAromaService extends AbstractModule
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(ModuleBananaService.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ModuleAromaService.class);
 
     @Override
     protected void configure()
@@ -61,8 +61,8 @@ public class ModuleBananaService extends AbstractModule
     {
 
         {
-            bind(BananaService.Iface.class)
-                .to(BananaServiceBase.class)
+            bind(AromaService.Iface.class)
+                .to(AromaServiceBase.class)
                 .decoratedBy(AuthenticationLayer.class);
         }
     }

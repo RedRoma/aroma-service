@@ -22,17 +22,17 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.data.ApplicationRepository;
-import tech.aroma.banana.thrift.Application;
-import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.service.GetApplicationInfoRequest;
-import tech.aroma.banana.thrift.service.GetApplicationInfoResponse;
+import tech.aroma.data.ApplicationRepository;
+import tech.aroma.thrift.Application;
+import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.service.GetApplicationInfoRequest;
+import tech.aroma.thrift.service.GetApplicationInfoResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.aroma.banana.data.assertions.RequestAssertions.validApplicationId;
+import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**

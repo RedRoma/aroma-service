@@ -19,11 +19,11 @@ package tech.aroma.banana.service;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import tech.aroma.banana.thrift.Application;
-import tech.aroma.banana.thrift.Image;
-import tech.aroma.banana.thrift.User;
-import tech.aroma.banana.thrift.events.Event;
-import tech.aroma.banana.thrift.events.EventType;
+import tech.aroma.thrift.Application;
+import tech.aroma.thrift.Image;
+import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.Event;
+import tech.aroma.thrift.events.EventType;
 import tech.sirwellington.alchemy.generator.AlchemyGenerator;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
  */
 @Repeat(100)
 @RunWith(AlchemyTestRunner.class)
-public class BananaGeneratorsTest
+public class AromaGeneratorsTest
 {
 
     @Before
@@ -49,7 +49,7 @@ public class BananaGeneratorsTest
     @Test
     public void testEventTypes()
     {
-        AlchemyGenerator<EventType> generator = BananaGenerators.eventTypes();
+        AlchemyGenerator<EventType> generator = AromaGenerators.eventTypes();
         assertThat(generator, notNullValue());
         assertThat(generator.get(), notNullValue());
     }
@@ -57,7 +57,7 @@ public class BananaGeneratorsTest
     @Test
     public void testEvents()
     {
-        AlchemyGenerator<Event> generator = BananaGenerators.events();
+        AlchemyGenerator<Event> generator = AromaGenerators.events();
         assertThat(generator, notNullValue());
         
         Event event = generator.get();
@@ -69,7 +69,7 @@ public class BananaGeneratorsTest
     @Test
     public void testUsers()
     {
-        AlchemyGenerator<User> generator = BananaGenerators.users();
+        AlchemyGenerator<User> generator = AromaGenerators.users();
         assertThat(generator, notNullValue());
         
         User user = generator.get();
@@ -83,7 +83,7 @@ public class BananaGeneratorsTest
     @Test
     public void testUsersWithoutProfileImages()
     {
-        AlchemyGenerator<User> generator = BananaGenerators.usersWithoutProfileImages();
+        AlchemyGenerator<User> generator = AromaGenerators.usersWithoutProfileImages();
         assertThat(generator, notNullValue());
         
         User user = generator.get();
@@ -97,7 +97,7 @@ public class BananaGeneratorsTest
     @Test
     public void testProfileImages()
     {
-        AlchemyGenerator<Image> generator = BananaGenerators.profileImages();
+        AlchemyGenerator<Image> generator = AromaGenerators.profileImages();
         assertThat(generator, notNullValue());
         
         Image image = generator.get();
@@ -108,7 +108,7 @@ public class BananaGeneratorsTest
     @Test
     public void testPastTimes()
     {
-        AlchemyGenerator<Long> generator = BananaGenerators.pastTimes();
+        AlchemyGenerator<Long> generator = AromaGenerators.pastTimes();
         assertThat(generator, notNullValue());
         
         Long time = generator.get();
@@ -119,7 +119,7 @@ public class BananaGeneratorsTest
     @Test
     public void testApplications()
     {
-        AlchemyGenerator<Application> generator = BananaGenerators.applications();
+        AlchemyGenerator<Application> generator = AromaGenerators.applications();
         assertThat(generator, notNullValue());
  
         Application application = generator.get();

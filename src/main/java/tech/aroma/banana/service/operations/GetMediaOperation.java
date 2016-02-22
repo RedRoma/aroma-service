@@ -22,11 +22,11 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.data.MediaRepository;
-import tech.aroma.banana.thrift.Image;
-import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.service.GetMediaRequest;
-import tech.aroma.banana.thrift.service.GetMediaResponse;
+import tech.aroma.data.MediaRepository;
+import tech.aroma.thrift.Image;
+import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.service.GetMediaRequest;
+import tech.aroma.thrift.service.GetMediaResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 

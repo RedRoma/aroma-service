@@ -19,11 +19,11 @@ package tech.aroma.banana.service.operations;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.banana.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.banana.thrift.service.RenewApplicationTokenResponse;
+import tech.aroma.thrift.service.RenewApplicationTokenRequest;
+import tech.aroma.thrift.service.RenewApplicationTokenResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.banana.service.BananaAssertions.checkNotNull;
+import static tech.aroma.banana.service.AromaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**

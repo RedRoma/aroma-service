@@ -24,11 +24,11 @@ import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import tech.aroma.banana.data.memory.ModuleMemoryDataRepositories;
-import tech.aroma.banana.service.operations.ModuleBananaServiceOperations;
+import tech.aroma.data.memory.ModuleMemoryDataRepositories;
+import tech.aroma.banana.service.operations.ModuleAromaServiceOperations;
 import tech.aroma.banana.service.operations.encryption.ModuleEncryptionMaterialsDev;
-import tech.aroma.banana.thrift.authentication.service.AuthenticationService;
-import tech.aroma.banana.thrift.service.BananaService;
+import tech.aroma.thrift.authentication.service.AuthenticationService;
+import tech.aroma.thrift.service.AromaService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 
@@ -43,21 +43,21 @@ import static org.mockito.Mockito.mock;
  * @author SirWellington
  */
 @RunWith(AlchemyTestRunner.class)
-public class ModuleBananaServiceTest 
+public class ModuleAromaServiceTest 
 {
     
-    private ModuleBananaServiceOperations operationsModule;
+    private ModuleAromaServiceOperations operationsModule;
     private ModuleMemoryDataRepositories dataModule;
     private ModuleEncryptionMaterialsDev encryptionModule;
-    private ModuleBananaService instance;
+    private ModuleAromaService instance;
     
     @Before
     public void setUp()
     {
-        operationsModule = new ModuleBananaServiceOperations();
+        operationsModule = new ModuleAromaServiceOperations();
         encryptionModule = new ModuleEncryptionMaterialsDev();
         dataModule = new ModuleMemoryDataRepositories();
-        instance = new ModuleBananaService();
+        instance = new ModuleAromaService();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ModuleBananaServiceTest
 
         assertThat(injector, notNullValue());
         
-        BananaService.Iface service = injector.getInstance(BananaService.Iface.class);
+        AromaService.Iface service = injector.getInstance(AromaService.Iface.class);
         assertThat(service, notNullValue());
         service.getApiVersion();
     }

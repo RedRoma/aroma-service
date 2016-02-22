@@ -24,19 +24,19 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.lists.Lists;
-import tech.aroma.banana.thrift.Application;
-import tech.aroma.banana.thrift.Image;
-import tech.aroma.banana.thrift.ImageType;
-import tech.aroma.banana.thrift.ProgrammingLanguage;
-import tech.aroma.banana.thrift.User;
-import tech.aroma.banana.thrift.events.ApplicationSentMessage;
-import tech.aroma.banana.thrift.events.ApplicationTokenRegenerated;
-import tech.aroma.banana.thrift.events.ApplicationTokenRenewed;
-import tech.aroma.banana.thrift.events.Event;
-import tech.aroma.banana.thrift.events.EventType;
-import tech.aroma.banana.thrift.events.HealthCheckBackToNormal;
-import tech.aroma.banana.thrift.events.HealthCheckFailed;
-import tech.aroma.banana.thrift.events.OwnerApprovedRequest;
+import tech.aroma.thrift.Application;
+import tech.aroma.thrift.Image;
+import tech.aroma.thrift.ImageType;
+import tech.aroma.thrift.ProgrammingLanguage;
+import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.ApplicationSentMessage;
+import tech.aroma.thrift.events.ApplicationTokenRegenerated;
+import tech.aroma.thrift.events.ApplicationTokenRenewed;
+import tech.aroma.thrift.events.Event;
+import tech.aroma.thrift.events.EventType;
+import tech.aroma.thrift.events.HealthCheckBackToNormal;
+import tech.aroma.thrift.events.HealthCheckFailed;
+import tech.aroma.thrift.events.OwnerApprovedRequest;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.access.NonInstantiable;
 import tech.sirwellington.alchemy.generator.AlchemyGenerator;
@@ -62,10 +62,10 @@ import static tech.sirwellington.alchemy.generator.TimeGenerators.pastInstants;
  */
 @NonInstantiable
 @Internal
-public final class BananaGenerators
+public final class AromaGenerators
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(BananaGenerators.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AromaGenerators.class);
 
     public static AlchemyGenerator<EventType> eventTypes()
     {

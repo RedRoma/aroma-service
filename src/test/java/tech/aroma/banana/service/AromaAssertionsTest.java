@@ -19,9 +19,9 @@ package tech.aroma.banana.service;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import tech.aroma.banana.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.banana.thrift.service.ProvisionApplicationRequest;
-import tech.aroma.banana.thrift.service.SignInRequest;
+import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.service.ProvisionApplicationRequest;
+import tech.aroma.thrift.service.SignInRequest;
 import tech.sirwellington.alchemy.arguments.ExceptionMapper;
 import tech.sirwellington.alchemy.arguments.FailedAssertionException;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -42,7 +42,7 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class BananaAssertionsTest 
+public class AromaAssertionsTest 
 {
 
     @Before
@@ -54,7 +54,7 @@ public class BananaAssertionsTest
     @Test
     public void testCannotInstantiate()
     {
-        assertThrows(() -> BananaAssertions.class.newInstance())
+        assertThrows(() -> AromaAssertions.class.newInstance())
             .isInstanceOf(IllegalAccessException.class);
     }
 
@@ -62,9 +62,9 @@ public class BananaAssertionsTest
     public void testNotMissing()
     {
         SignInRequest request = pojos(SignInRequest.class).get();
-        BananaAssertions.notMissing().check(request);
+        AromaAssertions.notMissing().check(request);
         
-        assertThrows(() -> BananaAssertions.notMissing().check(null))
+        assertThrows(() -> AromaAssertions.notMissing().check(null))
             .isInstanceOf(FailedAssertionException.class);
     }
 
@@ -73,9 +73,9 @@ public class BananaAssertionsTest
     public void testCheckNotNull() throws Exception
     {
         ProvisionApplicationRequest request = pojos(ProvisionApplicationRequest.class).get();
-        BananaAssertions.checkNotNull(request);
+        AromaAssertions.checkNotNull(request);
         
-        assertThrows(() -> BananaAssertions.checkNotNull(null))
+        assertThrows(() -> AromaAssertions.checkNotNull(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
 
@@ -84,7 +84,7 @@ public class BananaAssertionsTest
     {
         String message = one(alphanumericString());
         
-        ExceptionMapper<InvalidArgumentException> result = BananaAssertions.withMessage(message);
+        ExceptionMapper<InvalidArgumentException> result = AromaAssertions.withMessage(message);
         assertThat(result, notNullValue());
         
         InvalidArgumentException ex = result.apply(null);
