@@ -83,6 +83,10 @@ import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.aroma.thrift.service.SnoozeChannelRequest;
 import tech.aroma.thrift.service.SnoozeChannelResponse;
+import tech.aroma.thrift.service.UnfollowApplicationRequest;
+import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UpdateApplicationRequest;
+import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
@@ -119,6 +123,8 @@ final class AromaServiceBase implements AromaService.Iface
     private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
     private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
     private final ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
+    private final ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
+    private final ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
     
     //Query and GET Operations
     private final ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
@@ -147,6 +153,8 @@ final class AromaServiceBase implements AromaService.Iface
                       ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
                       ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
                       ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
+                      ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
+                      ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation,
                       ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
                       ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
                       ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation,
@@ -182,7 +190,9 @@ final class AromaServiceBase implements AromaService.Iface
                   searchForApplicationsOperation,
                   signUpOperation,
                   snoozeChannelOperation,
-                  signInOperation)
+                  signInOperation,
+                  updateApplicationOperation,
+                  unfollowApplicationOperation)
             .are(notNull());
 
         this.deleteMessageOperation = deleteMessageOperation;
@@ -198,6 +208,8 @@ final class AromaServiceBase implements AromaService.Iface
         this.signInOperation = signInOperation;
         this.signUpOperation = signUpOperation;
         this.snoozeChannelOperation = snoozeChannelOperation;
+        this.updateApplicationOperation = updateApplicationOperation;
+        this.unfollowApplicationOperation = unfollowApplicationOperation;
         
         this.getActivityOperation = getActivityOperation;
         this.getApplicationInfoOperation = getApplicationInfoOperation;
@@ -401,6 +413,37 @@ final class AromaServiceBase implements AromaService.Iface
         LOG.info("Received request to snooze a channel: {}", request);
 
         return snoozeChannelOperation.process(request);
+    }
+    
+       
+    @Override
+    public UpdateApplicationResponse updateApplication(UpdateApplicationRequest request) throws OperationFailedException,
+                                                                                                InvalidArgumentException,
+                                                                                                InvalidTokenException,
+                                                                                                ApplicationDoesNotExistException,
+                                                                                                UnauthorizedException,
+                                                                                                TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to update Application: {}", request);
+        
+        return updateApplicationOperation.process(request);
+    }
+    
+    @Override
+    public UnfollowApplicationResponse unfollowApplication(UnfollowApplicationRequest request) throws OperationFailedException,
+                                                                                                      InvalidArgumentException,
+                                                                                                      InvalidTokenException,
+                                                                                                      ApplicationDoesNotExistException,
+                                                                                                      UnauthorizedException,
+                                                                                                      TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to Unfollow Application: {}", request);
+        
+        return unfollowApplicationOperation.process(request);
     }
 
     @Override

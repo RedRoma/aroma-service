@@ -74,6 +74,10 @@ import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.aroma.thrift.service.SnoozeChannelRequest;
 import tech.aroma.thrift.service.SnoozeChannelResponse;
+import tech.aroma.thrift.service.UnfollowApplicationRequest;
+import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UpdateApplicationRequest;
+import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
@@ -139,6 +143,12 @@ public class AromaServiceBaseTest
 
     @Mock
     private ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
+  
+    @Mock
+    private ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
+    
+    @Mock
+    private ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
 
     //Query and GET Operations
     @Mock
@@ -180,29 +190,31 @@ public class AromaServiceBaseTest
     public void setUp()
     {
         instance = new AromaServiceBase(deleteMessageOperation,
-                                         dismissMessageOperation,
-                                         signInOperation,
-                                         signUpOperation,
-                                         provisionApplicationOperation,
-                                         regenerateApplicationTokenOperation,
-                                         followApplicationOperation,
-                                         registerHealthCheckOperation,
-                                         renewApplicationTokenOperation,
-                                         searchForApplicationsOperation,
-                                         saveChannelOperation,
-                                         removeSavedChannelOperation,
-                                         snoozeChannelOperation,
-                                         getActivityOperation,
-                                         getBuzzOperation,
-                                         getMyApplicationsOperation,
-                                         getMySavedChannelsOperation,
-                                         getApplicationInfoOperation,
-                                         getDashboardOperation,
-                                         getInboxOperation,
-                                         getMediaOperation,
-                                         getApplicationMessagesOperation,
-                                         getFullMessageOperation,
-                                         getUserInfoOperation);
+                                        dismissMessageOperation,
+                                        signInOperation,
+                                        signUpOperation,
+                                        provisionApplicationOperation,
+                                        regenerateApplicationTokenOperation,
+                                        followApplicationOperation,
+                                        registerHealthCheckOperation,
+                                        renewApplicationTokenOperation,
+                                        searchForApplicationsOperation,
+                                        saveChannelOperation,
+                                        removeSavedChannelOperation,
+                                        snoozeChannelOperation,
+                                        updateApplicationOperation,
+                                        unfollowApplicationOperation,
+                                        getActivityOperation,
+                                        getBuzzOperation,
+                                        getMyApplicationsOperation,
+                                        getMySavedChannelsOperation,
+                                        getApplicationInfoOperation,
+                                        getDashboardOperation,
+                                        getInboxOperation,
+                                        getMediaOperation,
+                                        getApplicationMessagesOperation,
+                                        getFullMessageOperation,
+                                        getUserInfoOperation);
 
         verifyZeroInteractions(deleteMessageOperation,
                                dismissMessageOperation,
@@ -217,6 +229,8 @@ public class AromaServiceBaseTest
                                saveChannelOperation,
                                removeSavedChannelOperation,
                                snoozeChannelOperation,
+                               updateApplicationOperation,
+                               unfollowApplicationOperation,
                                getActivityOperation,
                                getBuzzOperation,
                                getMyApplicationsOperation,
@@ -782,6 +796,51 @@ public class AromaServiceBaseTest
             .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.dismissMessage(new DismissMessageRequest()))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+    @Test
+    public void testUpdateApplication() throws Exception
+    {
+        UpdateApplicationRequest request = one(pojos(UpdateApplicationRequest.class));
+        UpdateApplicationResponse expected = one(pojos(UpdateApplicationResponse.class));
+        when(updateApplicationOperation.process(request)).thenReturn(expected);
+        
+        UpdateApplicationResponse response = instance.updateApplication(request);
+        assertThat(response, is(expected));
+        verify(updateApplicationOperation).process(request);
+    }
+    
+    @Test
+    public void testUpdateApplicationWhenFails() throws Exception
+    {
+        when(updateApplicationOperation.process(Mockito.any()))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.updateApplication(new UpdateApplicationRequest()))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+    @Test
+    public void testUnfollowApplication() throws Exception
+    {
+        UnfollowApplicationRequest request = one(pojos(UnfollowApplicationRequest.class));
+        UnfollowApplicationResponse expected = one(pojos(UnfollowApplicationResponse.class));
+        when(unfollowApplicationOperation.process(request)).thenReturn(expected);
+        
+        UnfollowApplicationResponse response = instance.unfollowApplication(request);
+        assertThat(response, is(expected));
+        
+        verify(unfollowApplicationOperation).process(request);
+    }
+
+    @Test
+    public void testUnfollowApplicationWhenFails() throws Exception
+    {
+        when(unfollowApplicationOperation.process(Mockito.any()))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.unfollowApplication(new UnfollowApplicationRequest()))
             .isInstanceOf(OperationFailedException.class);
     }
 
