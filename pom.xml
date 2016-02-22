@@ -15,13 +15,11 @@
 
     <url>https://github.com/RedRoma/aroma-service</url>
     <description>
-        Part of the Banana Service Project.
+        Part of the Aroma Project.
         Simplicity is paramount.
-        The Banana Service is Service Notifications for Developers.
+        Aroma allows two-way communication between Developers and their Applications.
         Developers are able to be notified of Urgent events that occur
         within the Micro-Services.
-        The Banana Service can also be used to setup Service
-        Health Checks and Alerts.
     </description>
 
     <issueManagement>
