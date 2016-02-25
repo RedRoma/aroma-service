@@ -44,6 +44,7 @@ import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
+import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
  *
@@ -51,7 +52,7 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class GetMyApplicationsOperationTest
+public class GetApplicationsOwnedByOperationTest
 {
 
     @Mock
@@ -60,7 +61,7 @@ public class GetMyApplicationsOperationTest
     @GeneratePojo
     private GetMyApplicationsRequest request;
 
-    private GetMyApplicationsOperation instance;
+    private GetApplicationsOwnedByOperation instance;
 
     @GenerateString(UUID)
     private String userId;
@@ -75,7 +76,7 @@ public class GetMyApplicationsOperationTest
     public void setUp() throws Exception
     {
         request = pojos(GetMyApplicationsRequest.class).get();
-        instance = new GetMyApplicationsOperation(appRepo);
+        instance = new GetApplicationsOwnedByOperation(appRepo);
 
         setupData();
         setupMocks();
@@ -85,7 +86,7 @@ public class GetMyApplicationsOperationTest
     @Test
     public void testConstructor() throws Exception
     {
-        assertThrows(() -> new GetMyApplicationsOperation(null))
+        assertThrows(() -> new GetApplicationsOwnedByOperation(null))
             .isInstanceOf(IllegalArgumentException.class);
     }
 

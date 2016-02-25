@@ -180,7 +180,7 @@ public final class ModuleAromaServiceOperations extends AbstractModule
             .to(GetMySavedChannelsOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse>>(){})
-            .to(GetMyApplicationsOperation.class);
+            .to(GetApplicationsOwnedByOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetUserInfoRequest, GetUserInfoResponse>>(){})
             .to(GetUserInfoOperation.class);

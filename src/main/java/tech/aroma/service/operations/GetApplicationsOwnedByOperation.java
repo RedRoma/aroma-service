@@ -33,20 +33,21 @@ import static tech.aroma.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
  *
  * @author SirWellington
  */
-final class GetMyApplicationsOperation implements ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse>
+final class GetApplicationsOwnedByOperation implements ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse>
 {
     
-    private final static Logger LOG = LoggerFactory.getLogger(GetMyApplicationsOperation.class);
+    private final static Logger LOG = LoggerFactory.getLogger(GetApplicationsOwnedByOperation.class);
     
     private final ApplicationRepository appRepo;
     
     @Inject
-    GetMyApplicationsOperation(ApplicationRepository appRepo)
+    GetApplicationsOwnedByOperation(ApplicationRepository appRepo)
     {
         checkThat(appRepo)
             .is(notNull());
