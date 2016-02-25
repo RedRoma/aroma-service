@@ -236,6 +236,8 @@ public class ProvisionApplicationOperationTest
         assertThat(authRequestMade.ownerName, is(savedApp.name));
         
         verify(mediaRepo).saveMedia(savedApp.applicationIconMediaId, request.icon);
+        
+        verify(followerRepo).saveFollowing(user, savedApp);
     }
     
     @Test
@@ -293,6 +295,12 @@ public class ProvisionApplicationOperationTest
         ProvisionApplicationRequest emptyRequest = new ProvisionApplicationRequest();
         assertThrows(() -> instance.process(emptyRequest))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+    
+    @Test
+    public void testWhenMultipleOwners() throws Exception
+    {
+        
     }
 
     private void setupData()
