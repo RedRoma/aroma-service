@@ -16,9 +16,11 @@
 
 package tech.aroma.service.operations;
 
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
@@ -38,6 +40,16 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(UnfollowApplicationOperation.class);
+    private final FollowerRepository followerRepo;
+
+    @Inject
+    UnfollowApplicationOperation(FollowerRepository followerRepo)
+    {
+        checkThat(followerRepo)
+            .is(notNull());
+        
+        this.followerRepo = followerRepo;
+    }
 
     @Override
     public UnfollowApplicationResponse process(UnfollowApplicationRequest request) throws TException
@@ -45,6 +57,11 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
+        
+        String userId = request.token.userId;
+        String appId = request.applicationId;
+        
+        followerRepo.deleteFollowing(userId, appId);
 
         return new UnfollowApplicationResponse();
     }

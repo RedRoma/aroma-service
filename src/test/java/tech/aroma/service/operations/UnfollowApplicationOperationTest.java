@@ -19,6 +19,8 @@ package tech.aroma.service.operations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.thrift.authentication.UserToken;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
@@ -31,6 +33,7 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -43,6 +46,9 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 @RunWith(AlchemyTestRunner.class)
 public class UnfollowApplicationOperationTest
 {
+    
+    @Mock
+    private FollowerRepository followerRepo;
 
     @GeneratePojo
     private UnfollowApplicationRequest request;
@@ -61,7 +67,7 @@ public class UnfollowApplicationOperationTest
     @Before
     public void setUp() throws Exception
     {
-        instance = new UnfollowApplicationOperation();
+        instance = new UnfollowApplicationOperation(followerRepo);
 
         setupData();
         setupMocks();
@@ -83,7 +89,8 @@ public class UnfollowApplicationOperationTest
     @Test
     public void testConstructor() throws Exception
     {
-
+        assertThrows(() -> new UnfollowApplicationOperation(null))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -91,6 +98,8 @@ public class UnfollowApplicationOperationTest
     {
         UnfollowApplicationResponse response = instance.process(request);
         assertThat(response, notNullValue());
+        
+        verify(followerRepo).deleteFollowing(userId, appId);
     }
 
     @Test
