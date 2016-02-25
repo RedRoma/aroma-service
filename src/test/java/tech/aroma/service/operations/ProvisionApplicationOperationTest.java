@@ -16,6 +16,9 @@
 
 package tech.aroma.service.operations;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import org.apache.thrift.TException;
 import org.junit.Before;
@@ -25,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
@@ -52,6 +56,8 @@ import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -60,7 +66,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
+import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
 /**
@@ -300,7 +309,36 @@ public class ProvisionApplicationOperationTest
     @Test
     public void testWhenMultipleOwners() throws Exception
     {
+        List<User> additionalOwners = listOf(pojos(User.class), 5)
+            .stream()
+            .map(u -> u.setUserId(one(uuids)))
+            .collect(toList());
         
+        Map<String, User> ownerMap = additionalOwners.stream()
+            .collect(toMap(User::getUserId, u -> u));
+        
+        for (Map.Entry<String, User> owner : ownerMap.entrySet())
+        {
+            when(userRepo.getUser(owner.getKey())).thenReturn(owner.getValue());
+        }
+        
+        request.setOwners(Sets.copyOf(ownerMap.keySet()));
+        
+        ProvisionApplicationResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        
+        verify(appRepo).saveApplication(captor.capture());
+        
+        Application savedApp = captor.getValue();
+        Set<String> expectedOwners = Sets.copyOf(ownerMap.keySet());
+        expectedOwners.add(userId);
+        
+        assertThat(savedApp.owners, is(expectedOwners));
+        
+        for (User owner : additionalOwners)
+        {
+            verify(followerRepo).saveFollowing(owner, savedApp);
+        }
     }
 
     private void setupData()
