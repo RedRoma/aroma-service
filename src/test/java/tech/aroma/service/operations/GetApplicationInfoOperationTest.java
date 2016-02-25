@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -39,34 +40,40 @@ import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
-
 /**
  *
  * @author SirWellington
  */
 @RunWith(AlchemyTestRunner.class)
-public class GetApplicationInfoOperationTest 
+public class GetApplicationInfoOperationTest
 {
+
     @Mock
     private ApplicationRepository appRepo;
-    
+
+    @Mock
+    private FollowerRepository followingRepo;
+
     @GeneratePojo
     private GetApplicationInfoRequest request;
-    
+
     @GeneratePojo
     private Application app;
-    
+
     @GenerateString(UUID)
     private String appId;
-    
+
+    @GenerateString(UUID)
+    private String userId;
+
     private GetApplicationInfoOperation instance;
 
     @Before
     public void setUp() throws Exception
     {
-        instance = new GetApplicationInfoOperation(appRepo);
-        verifyZeroInteractions(appRepo);
-        
+        instance = new GetApplicationInfoOperation(appRepo, followingRepo);
+        verifyZeroInteractions(appRepo, followingRepo);
+
         setupData();
         setupMocks();
     }
@@ -74,6 +81,19 @@ public class GetApplicationInfoOperationTest
     @Test
     public void testProcess() throws Exception
     {
+        app.isFollowing = true;
+
+        GetApplicationInfoResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+
+        assertThat(response.applicationInfo, is(app));
+    }
+
+    @Test
+    public void testWhenUserNotFollowingApp() throws Exception
+    {
+        app.isFollowing = false;
+        
         GetApplicationInfoResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.applicationInfo, is(app));
@@ -85,20 +105,20 @@ public class GetApplicationInfoOperationTest
     {
         when(appRepo.getById(appId))
             .thenThrow(new ApplicationDoesNotExistException());
-        
+
         assertThrows(() -> instance.process(request))
             .isInstanceOf(ApplicationDoesNotExistException.class);
     }
-    
+
     @Test
     public void testProcessWithBadRequest()
     {
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         assertThrows(() -> instance.process(new GetApplicationInfoRequest()))
             .isInstanceOf(InvalidArgumentException.class);
-        
+
         GetApplicationInfoRequest requestWithoutToken = new GetApplicationInfoRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken))
@@ -109,11 +129,14 @@ public class GetApplicationInfoOperationTest
     {
         app.applicationId = appId;
         request.applicationId = appId;
+        request.token.ownerId = userId;
     }
 
     private void setupMocks() throws Exception
     {
         when(appRepo.getById(appId)).thenReturn(app);
+        when(followingRepo.followingExists(userId, appId))
+            .thenReturn(false);
     }
 
 }

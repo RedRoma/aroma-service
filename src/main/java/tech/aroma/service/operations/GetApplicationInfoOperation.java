@@ -23,6 +23,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetApplicationInfoRequest;
@@ -43,13 +44,16 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
     private final static Logger LOG = LoggerFactory.getLogger(GetApplicationInfoOperation.class);
     
     private final ApplicationRepository appRepo;
+    private final FollowerRepository followerRepo;
 
     @Inject
-    GetApplicationInfoOperation(ApplicationRepository appRepo)
+    GetApplicationInfoOperation(ApplicationRepository appRepo, FollowerRepository followerRepo)
     {
-        checkThat(appRepo).is(notNull());
+        checkThat(appRepo, followerRepo)
+            .are(notNull());
         
         this.appRepo = appRepo;
+        this.followerRepo = followerRepo;
     }
 
     @Override
@@ -60,8 +64,12 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
             .is(good());
         
         String appId = request.applicationId;
-        
         Application app = appRepo.getById(appId);
+        
+        String userId = request.token.ownerId;
+        
+        boolean isFollowing = tryToDetermineIfUserFollowingApp(userId, appId);
+        app.setIsFollowing(isFollowing);
         
         return new GetApplicationInfoResponse().setApplicationInfo(app);
     }
@@ -81,6 +89,20 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
                 .usingMessage("request missing token")
                 .is(notNull());
         };
+    }
+
+    private boolean tryToDetermineIfUserFollowingApp(String userId, String appId)
+    {
+        try
+        {
+            return followerRepo.followingExists(userId, appId);
+        }
+        catch(TException ex)
+        {
+            LOG.error("Failed to determine if user [{]] follows app [{}]", userId, appId, ex);
+            return false;
+        }
+        
     }
 
 }
