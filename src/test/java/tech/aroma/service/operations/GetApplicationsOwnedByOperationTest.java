@@ -34,6 +34,7 @@ import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -44,7 +45,6 @@ import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
-import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
  *
@@ -82,6 +82,18 @@ public class GetApplicationsOwnedByOperationTest
         setupMocks();
     }
 
+    private void setupData()
+    {
+        request.token.userId = userId;
+        apps.forEach((Application app) -> app.setIsFollowingIsSet(true));
+    }
+
+    private void setupMocks() throws Exception
+    {
+        when(appRepo.getApplicationsOwnedBy(userId))
+            .thenReturn(apps);
+    }
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
@@ -95,7 +107,12 @@ public class GetApplicationsOwnedByOperationTest
     {
         GetMyApplicationsResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        assertThat(response.applications, is(apps));
+
+        List<Application> sortedApps = apps.stream()
+            .sorted((left, right) -> left.name.compareTo(right.name))
+            .collect(toList());
+
+        assertThat(response.applications, is(sortedApps));
 
         verify(appRepo).getApplicationsOwnedBy(userId);
     }
@@ -150,15 +167,5 @@ public class GetApplicationsOwnedByOperationTest
 
     }
 
-    private void setupData()
-    {
-        request.token.userId = userId;
-    }
-
-    private void setupMocks() throws Exception
-    {
-        when(appRepo.getApplicationsOwnedBy(userId))
-            .thenReturn(apps);
-    }
 
 }

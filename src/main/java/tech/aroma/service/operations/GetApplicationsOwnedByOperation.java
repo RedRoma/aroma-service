@@ -29,11 +29,12 @@ import tech.aroma.thrift.service.GetMyApplicationsResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
  *
@@ -65,7 +66,11 @@ final class GetApplicationsOwnedByOperation implements ThriftOperation<GetMyAppl
         LOG.debug("Received request to GetMyApplications {}", request);
         
         String userId = request.token.userId;
-        List<Application> apps = appRepo.getApplicationsOwnedBy(userId);
+        List<Application> apps = appRepo.getApplicationsOwnedBy(userId)
+            .parallelStream()
+            .map(app -> app.setIsFollowing(true))
+            .sorted(comparing(Application::getName))
+            .collect(toList());
         
         LOG.debug("Found {} applications owned by {}", apps.size(), userId);
         
