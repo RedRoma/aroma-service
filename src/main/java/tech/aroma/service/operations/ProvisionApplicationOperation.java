@@ -16,6 +16,7 @@
 
 package tech.aroma.service.operations;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
@@ -69,6 +71,7 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
     private final static Logger LOG = LoggerFactory.getLogger(ProvisionApplicationOperation.class);
 
     private final ApplicationRepository appRepo;
+    private final FollowerRepository followerRepo;
     private final MediaRepository mediaRepo;
     private final UserRepository userRepo;
     private final AuthenticationService.Iface authenticationService;
@@ -76,15 +79,22 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
 
     @Inject
     ProvisionApplicationOperation(ApplicationRepository appRepo,
+                                  FollowerRepository followerRepo,
                                   MediaRepository mediaRepo,
                                   UserRepository userRepo,
                                   AuthenticationService.Iface authenticationService,
                                   Function<AuthenticationToken, ApplicationToken> appTokenMapper)
     {
-        checkThat(appRepo, mediaRepo, userRepo, authenticationService, appTokenMapper)
+        checkThat(appRepo,
+                  followerRepo,
+                  mediaRepo, 
+                  userRepo,
+                  authenticationService, 
+                  appTokenMapper)
             .are(notNull());
 
         this.appRepo = appRepo;
+        this.followerRepo = followerRepo;
         this.mediaRepo = mediaRepo;
         this.userRepo = userRepo;
         this.authenticationService = authenticationService;
@@ -122,7 +132,9 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         app.setTimeOfTokenExpiration(appToken.timeOfExpiration);
 
         appRepo.saveApplication(app);
-
+        
+        saveOwnersAsFollowers(app);
+        
         return new ProvisionApplicationResponse()
             .setApplicationInfo(app)
             .setApplicationToken(appToken);
@@ -254,5 +266,39 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         }
 
         return false;
+    }
+
+    private void saveOwnersAsFollowers(Application app)
+    {
+        Sets.nullToEmpty(app.owners)
+            .parallelStream()
+            .map(this::getUserInfo)
+            .filter(Objects::nonNull)
+            .forEach(owner -> this.tryToSaveOwner(owner, app));
+    }
+
+    private User getUserInfo(String userId)
+    {
+        try
+        {
+            return userRepo.getUser(userId);
+        }
+        catch (TException ex)
+        {
+            LOG.warn("Could not get user info for Owner with ID [{}]", userId, ex);
+            return null;
+        }
+    }
+
+    private void tryToSaveOwner(User owner, Application app)
+    {
+        try
+        {
+            followerRepo.saveFollowing(owner, app);
+        }
+        catch (TException ex)
+        {
+            LOG.warn("Could not save Following Information between Owner [{}] and App [{}]", owner, app, ex);
+        }
     }
 }

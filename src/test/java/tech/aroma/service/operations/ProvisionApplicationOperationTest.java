@@ -26,6 +26,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
@@ -44,6 +45,7 @@ import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.AromaServiceConstants;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
+import tech.sirwellington.alchemy.test.junit.ExceptionOperation;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -72,6 +74,9 @@ public class ProvisionApplicationOperationTest
 
     @Mock
     private ApplicationRepository appRepo;
+    
+    @Mock
+    private FollowerRepository followerRepo;
     
     @Mock
     private MediaRepository mediaRepo;
@@ -111,9 +116,19 @@ public class ProvisionApplicationOperationTest
     @Before
     public void setUp() throws TException
     {
-        instance = new ProvisionApplicationOperation(appRepo, mediaRepo, userRepo, authenticationService, appTokenMapper);
+        instance = new ProvisionApplicationOperation(appRepo,
+                                                     followerRepo,
+                                                     mediaRepo,
+                                                     userRepo,
+                                                     authenticationService,
+                                                     appTokenMapper);
         
-        verifyZeroInteractions(appRepo, userRepo, authenticationService, appTokenMapper);
+        verifyZeroInteractions(appRepo,
+                               followerRepo,
+                               mediaRepo,
+                               userRepo,
+                               authenticationService,
+                               appTokenMapper);
         
         setupData();
         setupMocks();
@@ -123,21 +138,71 @@ public class ProvisionApplicationOperationTest
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new ProvisionApplicationOperation(null, mediaRepo, userRepo, authenticationService, appTokenMapper))
-            .isInstanceOf(IllegalArgumentException.class);
+        ExceptionOperation badOp = () ->
+        {
+            new ProvisionApplicationOperation(null,
+                                              followerRepo,
+                                              mediaRepo,
+                                              userRepo,
+                                              authenticationService,
+                                              appTokenMapper);
+        };
+        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
         
-        assertThrows(() -> new ProvisionApplicationOperation(appRepo, null, userRepo, authenticationService, appTokenMapper))
-            .isInstanceOf(IllegalArgumentException.class);
+        badOp = () ->
+        {
+            new ProvisionApplicationOperation(appRepo,
+                                              null,
+                                              mediaRepo,
+                                              userRepo,
+                                              authenticationService,
+                                              appTokenMapper);
+        };
+        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
         
-        assertThrows(() -> new ProvisionApplicationOperation(appRepo, mediaRepo, null, authenticationService, appTokenMapper))
-            .isInstanceOf(IllegalArgumentException.class);
+        badOp = () ->
+        {
+            new ProvisionApplicationOperation(appRepo,
+                                              followerRepo,
+                                              null,
+                                              userRepo,
+                                              authenticationService,
+                                              appTokenMapper);
+        };
+        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
         
-        assertThrows(() -> new ProvisionApplicationOperation(appRepo, mediaRepo, userRepo, null, appTokenMapper))
-            .isInstanceOf(IllegalArgumentException.class);
+        badOp = () ->
+        {
+            new ProvisionApplicationOperation(appRepo,
+                                              followerRepo,
+                                              mediaRepo,
+                                              null,
+                                              authenticationService,
+                                              appTokenMapper);
+        };
+        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
         
-        assertThrows(() -> new ProvisionApplicationOperation(appRepo, mediaRepo, userRepo, authenticationService, null))
-            .isInstanceOf(IllegalArgumentException.class);
+        badOp = () ->
+        {
+            new ProvisionApplicationOperation(appRepo,
+                                              followerRepo,
+                                              mediaRepo,
+                                              userRepo,
+                                              null,
+                                              appTokenMapper);
+        };
+        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
         
+        badOp = () ->
+        {
+            new ProvisionApplicationOperation(appRepo,
+                                              followerRepo,
+                                              mediaRepo,
+                                              userRepo,
+                                              authenticationService,
+                                              null);
+        };
+        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -234,6 +299,7 @@ public class ProvisionApplicationOperationTest
     {
         request.token.unsetUserId();
         request.applicationName = one(alphabeticString(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH - 1));
+        request.owners.clear();
         
         authToken.ownerId = userId;
         user.userId = userId;
