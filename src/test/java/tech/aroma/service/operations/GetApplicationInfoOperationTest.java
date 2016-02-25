@@ -99,6 +99,19 @@ public class GetApplicationInfoOperationTest
         assertThat(response.applicationInfo, is(app));
     }
     
+    @Test
+    public void testWhenFollowingInfoNotRequested() throws Exception
+    {
+        request.includeFollowingInfo = false;
+        app.isFollowing = false;
+
+        GetApplicationInfoResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        assertThat(response.applicationInfo, is(app));
+        verifyZeroInteractions(followingRepo);
+
+    }
+    
     @DontRepeat
     @Test
     public void testProcessWhenAppDoesNotExist() throws Exception
@@ -130,6 +143,7 @@ public class GetApplicationInfoOperationTest
         app.applicationId = appId;
         request.applicationId = appId;
         request.token.ownerId = userId;
+        request.includeFollowingInfo = true;
     }
 
     private void setupMocks() throws Exception

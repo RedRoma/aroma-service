@@ -68,8 +68,11 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
         
         String userId = request.token.ownerId;
         
-        boolean isFollowing = tryToDetermineIfUserFollowingApp(userId, appId);
-        app.setIsFollowing(isFollowing);
+        if (request.includeFollowingInfo)
+        {
+            boolean isFollowing = tryToDetermineIfUserFollowingApp(userId, appId);
+            app.setIsFollowing(isFollowing);
+        }
         
         return new GetApplicationInfoResponse().setApplicationInfo(app);
     }
