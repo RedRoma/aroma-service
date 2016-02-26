@@ -44,6 +44,10 @@ import tech.aroma.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.thrift.service.GetApplicationInfoResponse;
 import tech.aroma.thrift.service.GetApplicationMessagesRequest;
 import tech.aroma.thrift.service.GetApplicationMessagesResponse;
+import tech.aroma.thrift.service.GetApplicationsFollowedByRequest;
+import tech.aroma.thrift.service.GetApplicationsFollowedByResponse;
+import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
+import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
 import tech.aroma.thrift.service.GetBuzzRequest;
 import tech.aroma.thrift.service.GetBuzzResponse;
 import tech.aroma.thrift.service.GetDashboardRequest;
@@ -54,8 +58,6 @@ import tech.aroma.thrift.service.GetInboxRequest;
 import tech.aroma.thrift.service.GetInboxResponse;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetMyApplicationsRequest;
-import tech.aroma.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
@@ -798,38 +800,74 @@ public class AuthenticationLayerTest
     }
 
     @Test
-    public void testGetMyApplications() throws Exception
+    public void testGetApplicationsFollowedBy() throws Exception
     {
-        GetMyApplicationsRequest request = new GetMyApplicationsRequest().setToken(userToken);
-        GetMyApplicationsResponse expected = new GetMyApplicationsResponse();
-        when(delegate.getMyApplications(request))
+        GetApplicationsFollowedByRequest request = new GetApplicationsFollowedByRequest(userToken);
+        GetApplicationsFollowedByResponse expected = new GetApplicationsFollowedByResponse();
+        when(delegate.getApplicationsFollowedBy(request)).thenReturn(expected);
+        
+        GetApplicationsFollowedByResponse response = instance.getApplicationsFollowedBy(request);
+        assertThat(response, is(expected));
+        verify(delegate).getApplicationsFollowedBy(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+    }
+    
+    @Test
+    public void testGetApplicationsFollowedByWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+        
+        GetApplicationsFollowedByRequest request = new GetApplicationsFollowedByRequest(userToken);
+        
+        assertThrows(() -> instance.getApplicationsFollowedBy(request))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testGetApplicationsFollowedByWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.getApplicationsFollowedBy(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.getApplicationsFollowedBy(new GetApplicationsFollowedByRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+    
+    @Test
+    public void testGetApplicationsOwnedBy() throws Exception
+    {
+        GetApplicationsOwnedByRequest request = new GetApplicationsOwnedByRequest().setToken(userToken);
+        GetApplicationsOwnedByResponse expected = new GetApplicationsOwnedByResponse();
+        when(delegate.getApplicationsOwnedBy(request))
             .thenReturn(expected);
 
-        GetMyApplicationsResponse result = instance.getMyApplications(request);
+        GetApplicationsOwnedByResponse result = instance.getApplicationsOwnedBy(request);
         assertThat(result, is(expected));
-        verify(delegate).getMyApplications(request);
+        verify(delegate).getApplicationsOwnedBy(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
         verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
     }
 
     @DontRepeat
     @Test
-    public void testGetMyApplicationsWithBadRequest() throws Exception
+    public void testGetApplicationsOwnedByWithBadRequest() throws Exception
     {
-        assertThrows(() -> instance.getMyApplications(null))
+        assertThrows(() -> instance.getApplicationsOwnedBy(null))
             .isInstanceOf(InvalidArgumentException.class);
 
-        assertThrows(() -> instance.getMyApplications(new GetMyApplicationsRequest()))
+        assertThrows(() -> instance.getApplicationsOwnedBy(new GetApplicationsOwnedByRequest()))
             .isInstanceOf(InvalidTokenException.class);
     }
 
     @Test
-    public void testGetMyApplicationsWithBadToken() throws Exception
+    public void testGetApplicationsOwnedByWithBadToken() throws Exception
     {
         setupWithBadToken();
 
-        GetMyApplicationsRequest request = new GetMyApplicationsRequest().setToken(userToken);
-        assertThrows(() -> instance.getMyApplications(request))
+        GetApplicationsOwnedByRequest request = new GetApplicationsOwnedByRequest().setToken(userToken);
+        assertThrows(() -> instance.getApplicationsOwnedBy(request))
             .isInstanceOf(InvalidTokenException.class);
 
         verifyZeroInteractions(delegate);
@@ -1137,5 +1175,7 @@ public class AuthenticationLayerTest
             .setTokenType(TokenType.USER)
             .setTokenId(tokenId);
     }
+
+
 
 }
