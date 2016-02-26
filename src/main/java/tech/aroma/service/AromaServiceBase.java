@@ -47,6 +47,8 @@ import tech.aroma.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.thrift.service.GetApplicationInfoResponse;
 import tech.aroma.thrift.service.GetApplicationMessagesRequest;
 import tech.aroma.thrift.service.GetApplicationMessagesResponse;
+import tech.aroma.thrift.service.GetApplicationsFollowedByRequest;
+import tech.aroma.thrift.service.GetApplicationsFollowedByResponse;
 import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
 import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
 import tech.aroma.thrift.service.GetBuzzRequest;
@@ -136,6 +138,7 @@ final class AromaServiceBase implements AromaService.Iface
     private final ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation;
     private final ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
     private final ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation;
+    private final ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation;
     private final ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
@@ -157,6 +160,7 @@ final class AromaServiceBase implements AromaService.Iface
                       ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation,
                       ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
                       ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
+                      ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation,
                       ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation,
                       ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
                       ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
@@ -178,6 +182,7 @@ final class AromaServiceBase implements AromaService.Iface
                   getInboxOperation,
                   getMediaOperation,
                   getApplicationMessagesOperation,
+                  getApplicationsFollowedByOperation,
                   getApplicationsOwnedByOperation,
                   getMySavedChannelsOperation,
                   getUserInfoOperation,
@@ -219,6 +224,7 @@ final class AromaServiceBase implements AromaService.Iface
         this.getInboxOperation = getInboxOperation;
         this.getMediaOperation = getMediaOperation;
         this.getApplicationMessagesOperation = getApplicationMessagesOperation;
+        this.getApplicationsFollowedByOperation = getApplicationsFollowedByOperation;
         this.getApplicationsOwnedByOperation = getApplicationsOwnedByOperation;
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
         this.getUserInfoOperation = getUserInfoOperation;
@@ -546,6 +552,19 @@ final class AromaServiceBase implements AromaService.Iface
     }
 
     @Override
+    public GetApplicationsFollowedByResponse getApplicationsFollowedBy(GetApplicationsFollowedByRequest request) throws OperationFailedException,
+                                                                                                                        InvalidArgumentException,
+                                                                                                                        InvalidTokenException,
+                                                                                                                        TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to get Applications Followed By: {}", request);
+        
+        return getApplicationsFollowedByOperation.process(request);
+    }
+
+    @Override
     public GetApplicationsOwnedByResponse getApplicationsOwnedBy(GetApplicationsOwnedByRequest request) throws OperationFailedException,
                                                                                                 InvalidArgumentException,
                                                                                                 InvalidCredentialsException,
@@ -640,5 +659,6 @@ final class AromaServiceBase implements AromaService.Iface
             request.setEmail(request.email.toLowerCase());
         }
     }
+
 
 }

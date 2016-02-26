@@ -38,6 +38,10 @@ import tech.aroma.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.thrift.service.GetApplicationInfoResponse;
 import tech.aroma.thrift.service.GetApplicationMessagesRequest;
 import tech.aroma.thrift.service.GetApplicationMessagesResponse;
+import tech.aroma.thrift.service.GetApplicationsFollowedByRequest;
+import tech.aroma.thrift.service.GetApplicationsFollowedByResponse;
+import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
+import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
 import tech.aroma.thrift.service.GetBuzzRequest;
 import tech.aroma.thrift.service.GetBuzzResponse;
 import tech.aroma.thrift.service.GetDashboardRequest;
@@ -48,8 +52,6 @@ import tech.aroma.thrift.service.GetInboxRequest;
 import tech.aroma.thrift.service.GetInboxResponse;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetMyApplicationsRequest;
-import tech.aroma.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
@@ -158,7 +160,10 @@ public class AromaServiceBaseTest
     private ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
 
     @Mock
-    private ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse> getMyApplicationsOperation;
+    private ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation;
+
+    @Mock
+    private ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation;
 
     @Mock
     private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
@@ -206,7 +211,8 @@ public class AromaServiceBaseTest
                                         unfollowApplicationOperation,
                                         getActivityOperation,
                                         getBuzzOperation,
-                                        getMyApplicationsOperation,
+                                        getApplicationsFollowedByOperation,
+                                        getApplicationsOwnedByOperation,
                                         getMySavedChannelsOperation,
                                         getApplicationInfoOperation,
                                         getDashboardOperation,
@@ -233,7 +239,8 @@ public class AromaServiceBaseTest
                                unfollowApplicationOperation,
                                getActivityOperation,
                                getBuzzOperation,
-                               getMyApplicationsOperation,
+                               getApplicationsFollowedByOperation,
+                               getApplicationsOwnedByOperation,
                                getMySavedChannelsOperation,
                                getApplicationInfoOperation,
                                getDashboardOperation,
@@ -279,21 +286,56 @@ public class AromaServiceBaseTest
     }
 
     @Test
-    public void testGetMyApplications() throws Exception
+    public void testGetApplicationsFollowedBy() throws Exception
     {
-        GetMyApplicationsRequest request = pojos(GetMyApplicationsRequest.class).get();
-        GetMyApplicationsResponse expectedResponse = pojos(GetMyApplicationsResponse.class).get();
-        when(getMyApplicationsOperation.process(request)).thenReturn(expectedResponse);
+        GetApplicationsFollowedByRequest request = pojos(GetApplicationsFollowedByRequest.class).get();
+        GetApplicationsFollowedByResponse expectedResponse = pojos(GetApplicationsFollowedByResponse.class).get();
+        when(getApplicationsFollowedByOperation.process(request)).thenReturn(expectedResponse);
 
-        GetMyApplicationsResponse response = instance.getMyApplications(request);
+        GetApplicationsFollowedByResponse response = instance.getApplicationsFollowedBy(request);
         assertThat(response, is(expectedResponse));
-        verify(getMyApplicationsOperation).process(request);
+        verify(getApplicationsFollowedByOperation).process(request);
 
         //Edge cases
-        assertThrows(() -> instance.getMyApplications(null))
+        assertThrows(() -> instance.getApplicationsFollowedBy(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testGetApplicationsFollowedByWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.getApplicationsFollowedBy(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        verifyZeroInteractions(getApplicationsFollowedByOperation);
+    }
+
+    @Test
+    public void testGetApplicationsOwnedBy() throws Exception
+    {
+        GetApplicationsOwnedByRequest request = pojos(GetApplicationsOwnedByRequest.class).get();
+        GetApplicationsOwnedByResponse expectedResponse = pojos(GetApplicationsOwnedByResponse.class).get();
+        when(getApplicationsOwnedByOperation.process(request)).thenReturn(expectedResponse);
+
+        GetApplicationsOwnedByResponse response = instance.getApplicationsOwnedBy(request);
+        assertThat(response, is(expectedResponse));
+        verify(getApplicationsOwnedByOperation).process(request);
+
+        //Edge cases
+        assertThrows(() -> instance.getApplicationsOwnedBy(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
 
+    @DontRepeat
+    @Test
+    public void testGetApplicationsOwnedByWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.getApplicationsOwnedBy(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        verifyZeroInteractions(getApplicationsOwnedByOperation);
+    }
+    
     @Test
     public void testGetApplicationInfo() throws Exception
     {
