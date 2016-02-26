@@ -40,6 +40,8 @@ import tech.aroma.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.thrift.service.GetApplicationInfoResponse;
 import tech.aroma.thrift.service.GetApplicationMessagesRequest;
 import tech.aroma.thrift.service.GetApplicationMessagesResponse;
+import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
+import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
 import tech.aroma.thrift.service.GetBuzzRequest;
 import tech.aroma.thrift.service.GetBuzzResponse;
 import tech.aroma.thrift.service.GetDashboardRequest;
@@ -50,8 +52,6 @@ import tech.aroma.thrift.service.GetInboxRequest;
 import tech.aroma.thrift.service.GetInboxResponse;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetMyApplicationsRequest;
-import tech.aroma.thrift.service.GetMyApplicationsResponse;
 import tech.aroma.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
@@ -179,7 +179,7 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse>>(){})
             .to(GetMySavedChannelsOperation.class);
         
-        bind(new TypeLiteral<ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse>>(){})
+        bind(new TypeLiteral<ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse>>(){})
             .to(GetApplicationsOwnedByOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetUserInfoRequest, GetUserInfoResponse>>(){})

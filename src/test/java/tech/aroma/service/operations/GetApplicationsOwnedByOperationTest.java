@@ -25,8 +25,8 @@ import sir.wellington.alchemy.collections.lists.Lists;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.service.GetMyApplicationsRequest;
-import tech.aroma.thrift.service.GetMyApplicationsResponse;
+import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
+import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
@@ -59,7 +59,7 @@ public class GetApplicationsOwnedByOperationTest
     private ApplicationRepository appRepo;
 
     @GeneratePojo
-    private GetMyApplicationsRequest request;
+    private GetApplicationsOwnedByRequest request;
 
     private GetApplicationsOwnedByOperation instance;
 
@@ -75,7 +75,7 @@ public class GetApplicationsOwnedByOperationTest
     @Before
     public void setUp() throws Exception
     {
-        request = pojos(GetMyApplicationsRequest.class).get();
+        request = pojos(GetApplicationsOwnedByRequest.class).get();
         instance = new GetApplicationsOwnedByOperation(appRepo);
 
         setupData();
@@ -105,7 +105,7 @@ public class GetApplicationsOwnedByOperationTest
     @Test
     public void testProcess() throws Exception
     {
-        GetMyApplicationsResponse response = instance.process(request);
+        GetApplicationsOwnedByResponse response = instance.process(request);
         assertThat(response, notNullValue());
 
         List<Application> sortedApps = apps.stream()
@@ -123,7 +123,7 @@ public class GetApplicationsOwnedByOperationTest
         when(appRepo.getApplicationsOwnedBy(userId))
             .thenReturn(Lists.emptyList());
 
-        GetMyApplicationsResponse response = instance.process(request);
+        GetApplicationsOwnedByResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.applications, is(empty()));
     }
@@ -161,7 +161,7 @@ public class GetApplicationsOwnedByOperationTest
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
 
-        GetMyApplicationsRequest emptyRequest = new GetMyApplicationsRequest();
+        GetApplicationsOwnedByRequest emptyRequest = new GetApplicationsOwnedByRequest();
         assertThrows(() -> instance.process(emptyRequest))
             .isInstanceOf(InvalidArgumentException.class);
 

@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.service.GetMyApplicationsRequest;
-import tech.aroma.thrift.service.GetMyApplicationsResponse;
+import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
+import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -40,7 +40,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.n
  *
  * @author SirWellington
  */
-final class GetApplicationsOwnedByOperation implements ThriftOperation<GetMyApplicationsRequest, GetMyApplicationsResponse>
+final class GetApplicationsOwnedByOperation implements ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse>
 {
     
     private final static Logger LOG = LoggerFactory.getLogger(GetApplicationsOwnedByOperation.class);
@@ -57,13 +57,13 @@ final class GetApplicationsOwnedByOperation implements ThriftOperation<GetMyAppl
     }
     
     @Override
-    public GetMyApplicationsResponse process(GetMyApplicationsRequest request) throws TException
+    public GetApplicationsOwnedByResponse process(GetApplicationsOwnedByRequest request) throws TException
     {
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
         
-        LOG.debug("Received request to GetMyApplications {}", request);
+        LOG.debug("Received request to GetApplicationsOwnedBy {}", request);
         
         String userId = request.token.userId;
         List<Application> apps = appRepo.getApplicationsOwnedBy(userId)
@@ -74,10 +74,10 @@ final class GetApplicationsOwnedByOperation implements ThriftOperation<GetMyAppl
         
         LOG.debug("Found {} applications owned by {}", apps.size(), userId);
         
-        return new GetMyApplicationsResponse(apps);
+        return new GetApplicationsOwnedByResponse(apps);
     }
     
-    private AlchemyAssertion<GetMyApplicationsRequest> good()
+    private AlchemyAssertion<GetApplicationsOwnedByRequest> good()
     {
         return request ->
         {
