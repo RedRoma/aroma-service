@@ -25,6 +25,7 @@ import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.OrganizationRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.User;
 import tech.aroma.thrift.service.GetBuzzRequest;
 import tech.aroma.thrift.service.GetBuzzResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -65,6 +66,9 @@ public class GetBuzzOperationTest
     
     @GenerateList(Application.class)
     private List<Application> recentApps;
+    
+    @GenerateList(User.class)
+    private List<User> recentUsers;
 
     @Before
     public void setUp() throws Exception
@@ -79,6 +83,8 @@ public class GetBuzzOperationTest
     {
         when(appRepo.getRecentlyCreated())
             .thenReturn(recentApps);
+        
+        when(userRepo.getRecentlyCreatedUsers()).thenReturn(recentUsers);
     }
     
     @DontRepeat
@@ -101,8 +107,10 @@ public class GetBuzzOperationTest
         GetBuzzResponse result = instance.process(request);
         assertThat(result, notNullValue());
         assertThat(result.freshApplications, is(recentApps));
+        assertThat(result.freshUsers, is(recentUsers));
         
         verify(appRepo).getRecentlyCreated();
+        verify(userRepo).getRecentlyCreatedUsers();
     }
 
 }

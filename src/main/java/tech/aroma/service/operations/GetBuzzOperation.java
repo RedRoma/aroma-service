@@ -28,6 +28,7 @@ import tech.aroma.data.OrganizationRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.service.AromaGenerators;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.User;
 import tech.aroma.thrift.events.GeneralEvent;
 import tech.aroma.thrift.events.HealthCheckFailed;
 import tech.aroma.thrift.service.GetBuzzRequest;
@@ -72,6 +73,7 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
         checkNotNull(request);
         
         List<Application> recentApps = appRepo.getRecentlyCreated();
+        List<User> recentUsers = userRepo.getRecentlyCreatedUsers();
         //Get recently created apps
         //Get the requester's orgs
         //Get recent users in those orgs
@@ -81,6 +83,7 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
         
         GetBuzzResponse response = one(buzz());
         response.setFreshApplications(recentApps);
+        response.setFreshUsers(recentUsers);
         
         LOG.debug("Returning Buzz: {}", response);
         
