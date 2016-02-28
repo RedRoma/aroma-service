@@ -31,6 +31,8 @@ import tech.aroma.thrift.service.GetApplicationsFollowedByResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.isNullOrEmpty;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
@@ -81,7 +83,10 @@ final class GetApplicationsFollowedByOperation implements ThriftOperation<GetApp
             .usingMessage("userID is invalid")
             .is(validUserId());
         
-        List<Application> apps = followerRepo.getApplicationsFollowedBy(userId);
+        List<Application> apps = followerRepo.getApplicationsFollowedBy(userId)
+            .stream()
+            .sorted(comparing(app -> app.name))
+            .collect(toList());
         
         LOG.debug("Found {} apps followed by [{]]", apps.size(), userId);
         

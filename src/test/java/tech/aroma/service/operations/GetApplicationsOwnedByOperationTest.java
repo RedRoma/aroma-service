@@ -68,6 +68,8 @@ public class GetApplicationsOwnedByOperationTest
 
     @GenerateList(Application.class)
     private List<Application> apps;
+    
+    private List<Application> sortedApps;
 
     @GenerateString(ALPHABETIC)
     private String badId;
@@ -86,6 +88,10 @@ public class GetApplicationsOwnedByOperationTest
     {
         request.token.userId = userId;
         apps.forEach((Application app) -> app.setIsFollowingIsSet(true));
+        
+        sortedApps = apps.stream()
+            .sorted((first, second) -> first.name.compareTo(second.name))
+            .collect(toList());
     }
 
     private void setupMocks() throws Exception
