@@ -68,7 +68,6 @@ final class GetApplicationsOwnedByOperation implements ThriftOperation<GetApplic
         String userId = request.token.userId;
         List<Application> apps = appRepo.getApplicationsOwnedBy(userId)
             .parallelStream()
-            .map(app -> app.setIsFollowing(true))
             .sorted(comparing(Application::getName))
             .collect(toList());
         
