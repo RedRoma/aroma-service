@@ -35,6 +35,8 @@ import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -67,6 +69,8 @@ public class GetApplicationsFollowedByOperationTest
 
     @GenerateList(Application.class)
     private List<Application> apps;
+    
+    private List<Application> sortedApps;
 
     @GeneratePojo
     private GetApplicationsFollowedByRequest request;
@@ -94,6 +98,10 @@ public class GetApplicationsFollowedByOperationTest
     {
         request.token.userId = userIdOfCaller;
         request.userId = userId;
+        
+        sortedApps = apps.stream()
+            .sorted(comparing(app -> app.name))
+            .collect(toList());
     }
 
     private void setupMocks() throws Exception
@@ -122,7 +130,7 @@ public class GetApplicationsFollowedByOperationTest
     {
         GetApplicationsFollowedByResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        assertThat(response.applications, is(apps));
+        assertThat(response.applications, is(sortedApps));
 
         verify(followerRepo).getApplicationsFollowedBy(userId);
         verify(followerRepo, never()).getApplicationsFollowedBy(userIdOfCaller);
@@ -135,7 +143,7 @@ public class GetApplicationsFollowedByOperationTest
 
         GetApplicationsFollowedByResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        assertThat(response.applications, is(apps));
+        assertThat(response.applications, is(sortedApps));
 
     }
 

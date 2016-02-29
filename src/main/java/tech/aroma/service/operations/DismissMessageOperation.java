@@ -51,7 +51,7 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
     DismissMessageOperation(InboxRepository inboxRepo)
     {
         checkThat(inboxRepo).is(notNull());
-        
+
         this.inboxRepo = inboxRepo;
     }
 
@@ -86,22 +86,22 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
         {
             checkThat(request)
                 .is(notNull());
-            
+
             checkThat(request.token)
                 .is(notNull());
-            
+
             checkThat(request.token.userId)
                 .usingMessage("token is missing userId")
                 .is(nonEmptyString())
                 .usingMessage("token userId must be a UUID")
                 .is(validUUID());
-            
-            if (!request.dismissAll)
+
+            if (request.isSetMessageId())
             {
                 checkThat(request.messageId)
                     .is(validMessageId());
             }
-            
+
             if(request.isSetMessageIds())
             {
                 for(String id : request.messageIds)
@@ -116,7 +116,7 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
     {
         long count = inboxRepo.countInboxForUser(userId);
         inboxRepo.deleteAllMessagesForUser(userId);
-        
+
         LOG.debug("Deleted {} messages from Inbox of User [{}]", count, userId);
         return count;
     }
