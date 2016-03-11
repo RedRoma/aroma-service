@@ -42,6 +42,8 @@ import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.AromaService;
+import tech.aroma.thrift.service.DeleteApplicationRequest;
+import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
 import tech.aroma.thrift.service.DeleteMessageResponse;
 import tech.aroma.thrift.service.DismissMessageRequest;
@@ -136,6 +138,20 @@ final class AuthenticationLayer implements AromaService.Iface
     public double getApiVersion() throws TException
     {
         return delegate.getApiVersion();
+    }
+    
+    @Override
+    public DeleteApplicationResponse deleteApplication(DeleteApplicationRequest request) throws OperationFailedException,
+                                                                                    InvalidArgumentException,
+                                                                                    InvalidTokenException,
+                                                                                    ApplicationDoesNotExistException,
+                                                                                    UnauthorizedException,
+                                                                                    TException
+    {
+        checkNotNull(request);
+        checkAndEnrichToken(request.token);
+
+        return delegate.deleteApplication(request);
     }
     
     @Override
