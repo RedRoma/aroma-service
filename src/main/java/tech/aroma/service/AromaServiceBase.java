@@ -35,6 +35,8 @@ import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.AromaService;
 import tech.aroma.thrift.service.AromaServiceConstants;
+import tech.aroma.thrift.service.DeleteApplicationRequest;
+import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
 import tech.aroma.thrift.service.DeleteMessageResponse;
 import tech.aroma.thrift.service.DismissMessageRequest;
@@ -112,6 +114,7 @@ final class AromaServiceBase implements AromaService.Iface
     private final static Logger LOG = LoggerFactory.getLogger(AromaServiceBase.class);
 
     //Action and Save Operations
+    private final ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation;
     private final ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation;
     private final ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation;
     private final ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
@@ -143,35 +146,37 @@ final class AromaServiceBase implements AromaService.Iface
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
     @Inject
-    AromaServiceBase(ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation,
-                      ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation,
-                      ThriftOperation<SignInRequest, SignInResponse> signInOperation,
-                      ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
-                      ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
-                      ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,
-                      ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation,
-                      ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
-                      ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation,
-                      ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation,
-                      ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
-                      ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
-                      ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
-                      ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
-                      ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation,
-                      ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
-                      ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
-                      ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation,
-                      ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation,
-                      ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
-                      ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
-                      ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
-                      ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
-                      ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation,
-                      ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
-                      ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
-                      ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
+    AromaServiceBase(ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation,
+                     ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation,
+                     ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation,
+                     ThriftOperation<SignInRequest, SignInResponse> signInOperation,
+                     ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
+                     ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
+                     ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,
+                     ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation,
+                     ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
+                     ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation,
+                     ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation,
+                     ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
+                     ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
+                     ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
+                     ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
+                     ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation,
+                     ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
+                     ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
+                     ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation,
+                     ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation,
+                     ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
+                     ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
+                     ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
+                     ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
+                     ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation,
+                     ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
+                     ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
+                     ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
     {
-        checkThat(deleteMessageOperation,
+        checkThat(deleteApplicationOperation,
+                  deleteMessageOperation,
                   dismissMessageOperation,
                   followApplicationOperation,
                   getActivityOperation,
@@ -200,6 +205,7 @@ final class AromaServiceBase implements AromaService.Iface
                   unfollowApplicationOperation)
             .are(notNull());
 
+        this.deleteApplicationOperation = deleteApplicationOperation;
         this.deleteMessageOperation = deleteMessageOperation;
         this.dismissMessageOperation = dismissMessageOperation;
         this.followApplicationOperation = followApplicationOperation;
@@ -239,13 +245,28 @@ final class AromaServiceBase implements AromaService.Iface
     {
         return AromaServiceConstants.API_VERSION;
     }
+ 
+    @Override
+    public DeleteApplicationResponse deleteApplication(DeleteApplicationRequest request) throws OperationFailedException,
+                                                                                                InvalidArgumentException,
+                                                                                                InvalidTokenException,
+                                                                                                ApplicationDoesNotExistException,
+                                                                                                UnauthorizedException, TException
+    {
+        checkNotNull(request);
+
+        LOG.info("Received request to delete application {}", request);
+
+        return deleteApplicationOperation.process(request);
+    }
    
     @Override
     public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) throws OperationFailedException,
                                                                                     InvalidArgumentException,
                                                                                     InvalidTokenException,
                                                                                     MessageDoesNotExistException,
-                                                                                    UnauthorizedException, TException
+                                                                                    UnauthorizedException, 
+                                                                                    TException
     {
         checkNotNull(request);
         
