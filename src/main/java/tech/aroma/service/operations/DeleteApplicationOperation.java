@@ -56,7 +56,10 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     private final UserRepository userRepo;
     
     @Inject
-    DeleteApplicationOperation(ApplicationRepository appRepo, FollowerRepository followerRepo, MediaRepository mediaRepo, UserRepository userRepo)
+    DeleteApplicationOperation(ApplicationRepository appRepo, 
+                               FollowerRepository followerRepo, 
+                               MediaRepository mediaRepo, 
+                               UserRepository userRepo)
     {
         checkThat(appRepo, followerRepo, mediaRepo, userRepo).is(notNull());
         
@@ -125,7 +128,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         
         deleteIcon(app, app.applicationId);
     }
-    
+  
     private void deleteIcon(Application app, String iconLink)
     {
         try
@@ -145,24 +148,24 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         {
             removeAllFollowersFor(app);
         }
-        catch(TException ex)
+        catch (TException ex)
         {
             LOG.error("Failed to remove all followers for Application {}", app, ex);
         }
     }
-    
+
     private void removeAllFollowersFor(Application app) throws TException
     {
         String appId = app.applicationId;
-        
+
         List<User> followers = followerRepo.getApplicationFollowers(appId);
-        
+
         followers.parallelStream()
             .map(User::getUserId)
             .forEach(userId -> this.deleteFollowing(userId, appId));
-        
+
     }
-    
+
     private void deleteFollowing(String userId, String applicationId)
     {
         try
@@ -174,5 +177,5 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
             LOG.warn("Failed to remove Following of App [{}] By User [{]]", applicationId, userId, ex);
         }
     }
-    
+
 }
