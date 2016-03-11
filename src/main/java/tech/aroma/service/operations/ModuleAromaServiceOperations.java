@@ -28,6 +28,8 @@ import tech.aroma.thrift.authentication.ApplicationToken;
 import tech.aroma.thrift.authentication.AuthenticationToken;
 import tech.aroma.thrift.authentication.UserToken;
 import tech.aroma.thrift.functions.TokenFunctions;
+import tech.aroma.thrift.service.DeleteApplicationRequest;
+import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
 import tech.aroma.thrift.service.DeleteMessageResponse;
 import tech.aroma.thrift.service.DismissMessageRequest;
@@ -101,6 +103,9 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         
         //ACTIONS AND SAVE OPERATIONS
         //=========================================
+        
+        bind(new TypeLiteral<ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse>>(){})
+            .to(DeleteApplicationOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<DeleteMessageRequest, DeleteMessageResponse>>(){})
             .to(DeleteMessageOperation.class);
