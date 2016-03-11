@@ -43,7 +43,10 @@ import tech.aroma.thrift.authentication.service.CreateTokenRequest;
 import tech.aroma.thrift.authentication.service.CreateTokenResponse;
 import tech.aroma.thrift.authentication.service.GetTokenInfoRequest;
 import tech.aroma.thrift.authentication.service.GetTokenInfoResponse;
+import tech.aroma.thrift.email.EmailMessage;
+import tech.aroma.thrift.email.EmailNewApplication;
 import tech.aroma.thrift.email.service.EmailService;
+import tech.aroma.thrift.email.service.SendEmailRequest;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.InvalidTokenException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
@@ -139,6 +142,7 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         appRepo.saveApplication(app);
         
         saveOwnersAsFollowers(app);
+        sendOutEmail(user, app, appToken, authTokenForUser);
         
         return new ProvisionApplicationResponse()
             .setApplicationInfo(app)
@@ -304,6 +308,32 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         catch (TException ex)
         {
             LOG.warn("Could not save Following Information between Owner [{}] and App [{}]", owner, app, ex);
+        }
+    }
+    
+    private void sendOutEmail(User user, Application app, ApplicationToken appToken, AuthenticationToken token)
+    {
+        EmailNewApplication newApplicationEmail = new EmailNewApplication()
+            .setApp(app)
+            .setCreator(user)
+            .setAppToken(appToken);
+        
+        EmailMessage message = new EmailMessage();
+        message.setNewApp(newApplicationEmail);
+        
+        SendEmailRequest request = new SendEmailRequest()
+            .setEmailAddress(user.email)
+            .setEmailMessage(message)
+            .setToken(token);
+        
+        try
+        {
+            emailService.sendEmail(request);
+            LOG.debug("Sent out Email for new App creation to {}", user.email);
+        }
+        catch (Exception ex)
+        {
+            LOG.error("Failed to send out Email to {}", user.email, ex);
         }
     }
 }

@@ -43,7 +43,9 @@ import tech.aroma.thrift.authentication.service.CreateTokenRequest;
 import tech.aroma.thrift.authentication.service.CreateTokenResponse;
 import tech.aroma.thrift.authentication.service.GetTokenInfoRequest;
 import tech.aroma.thrift.authentication.service.GetTokenInfoResponse;
+import tech.aroma.thrift.email.EmailNewApplication;
 import tech.aroma.thrift.email.service.EmailService;
+import tech.aroma.thrift.email.service.SendEmailRequest;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
@@ -125,6 +127,9 @@ public class ProvisionApplicationOperationTest
     @GenerateString
     private String userId;
     
+    @Captor
+    private ArgumentCaptor<SendEmailRequest> emailCaptor;
+    
     @Before
     public void setUp() throws TException
     {
@@ -194,6 +199,10 @@ public class ProvisionApplicationOperationTest
         verify(mediaRepo).saveMedia(savedApp.applicationIconMediaId, request.icon);
         
         verify(followerRepo).saveFollowing(user, savedApp);
+        
+        verify(emailService).sendEmail(emailCaptor.capture());
+        SendEmailRequest emailRequest = emailCaptor.getValue();
+        verifyEmailRequest(emailRequest, savedApp);
     }
     
     @Test
@@ -313,6 +322,18 @@ public class ProvisionApplicationOperationTest
         
         when(authenticationService.createToken(Mockito.any()))
             .thenReturn(new CreateTokenResponse(authToken));
+    }
+
+    private void verifyEmailRequest(SendEmailRequest emailRequest, Application savedApp)
+    {
+        assertThat(emailRequest, notNullValue());
+        assertThat(emailRequest.emailAddress, is(user.email));
+        assertThat(emailRequest.emailMessage.isSetNewApp(), is(true));
+        
+        EmailNewApplication newApp = emailRequest.emailMessage.getNewApp();
+        assertThat(newApp.app, is(savedApp));
+        assertThat(newApp.appToken, is(appToken));
+        assertThat(newApp.creator, is(user));
     }
 
 }
