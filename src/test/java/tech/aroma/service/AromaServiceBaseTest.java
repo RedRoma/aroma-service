@@ -26,6 +26,8 @@ import tech.aroma.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.AromaServiceConstants;
+import tech.aroma.thrift.service.DeleteApplicationRequest;
+import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
 import tech.aroma.thrift.service.DeleteMessageResponse;
 import tech.aroma.thrift.service.DismissMessageRequest;
@@ -106,6 +108,9 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
 public class AromaServiceBaseTest
 {
     //Action and Save Operations
+
+    @Mock
+    private ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation;
 
     @Mock
     private ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation;
@@ -194,7 +199,8 @@ public class AromaServiceBaseTest
     @Before
     public void setUp()
     {
-        instance = new AromaServiceBase(deleteMessageOperation,
+        instance = new AromaServiceBase(deleteApplicationOperation,
+                                        deleteMessageOperation,
                                         dismissMessageOperation,
                                         signInOperation,
                                         signUpOperation,
@@ -222,7 +228,8 @@ public class AromaServiceBaseTest
                                         getFullMessageOperation,
                                         getUserInfoOperation);
 
-        verifyZeroInteractions(deleteMessageOperation,
+        verifyZeroInteractions(deleteApplicationOperation,
+                               deleteMessageOperation,
                                dismissMessageOperation,
                                signInOperation,
                                signUpOperation,
@@ -798,6 +805,28 @@ public class AromaServiceBaseTest
     }
 
     @Test
+    public void testDeleteApplication() throws Exception
+    {
+        DeleteApplicationRequest request = one(pojos(DeleteApplicationRequest.class));
+        DeleteApplicationResponse expected = one(pojos(DeleteApplicationResponse.class));
+        when(deleteApplicationOperation.process(request)).thenReturn(expected);
+
+        DeleteApplicationResponse response = instance.deleteApplication(request);
+        assertThat(response, is(sameInstance(expected)));
+    }
+
+    @DontRepeat
+    @Test
+    public void testDeleteApplicationWhenThrows() throws Exception
+    {
+        when(deleteApplicationOperation.process(Mockito.any()))
+            .thenThrow(new OperationFailedException());
+
+        assertThrows(() -> instance.deleteApplication(new DeleteApplicationRequest()))
+            .isInstanceOf(OperationFailedException.class);
+    }
+    
+    @Test
     public void testDeleteMessage() throws Exception
     {
         DeleteMessageRequest request = one(pojos(DeleteMessageRequest.class));
@@ -886,4 +915,5 @@ public class AromaServiceBaseTest
             .isInstanceOf(OperationFailedException.class);
     }
 
+ 
 }

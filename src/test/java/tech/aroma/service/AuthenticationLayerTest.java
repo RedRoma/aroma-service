@@ -32,6 +32,8 @@ import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.InvalidTokenException;
 import tech.aroma.thrift.functions.TokenFunctions;
 import tech.aroma.thrift.service.AromaService;
+import tech.aroma.thrift.service.DeleteApplicationRequest;
+import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
 import tech.aroma.thrift.service.DeleteMessageResponse;
 import tech.aroma.thrift.service.DismissMessageRequest;
@@ -994,6 +996,45 @@ public class AuthenticationLayerTest
         verify(delegate).getUserInfo(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
         verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+    }
+
+    @Test
+    public void testDeleteApplication() throws Exception
+    {
+        DeleteApplicationRequest request = new DeleteApplicationRequest().setToken(userToken);
+        DeleteApplicationResponse expected = new DeleteApplicationResponse();
+        when(delegate.deleteApplication(request))
+            .thenReturn(expected);
+
+        DeleteApplicationResponse response = instance.deleteApplication(request);
+        assertThat(response, is(sameInstance(expected)));
+
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+        verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
+    }
+
+    @Test
+    public void testDeleteApplicationWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+
+        DeleteApplicationRequest request = new DeleteApplicationRequest().setToken(userToken);
+
+        assertThrows(() -> instance.deleteApplication(request))
+            .isInstanceOf(InvalidTokenException.class);
+
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testDeleteApplicationWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.deleteApplication(null))
+            .isInstanceOf(InvalidArgumentException.class);
+
+        DeleteApplicationRequest emptyRequest = new DeleteApplicationRequest();
+        assertThrows(() -> instance.deleteApplication(emptyRequest))
+            .isInstanceOf(InvalidTokenException.class);
     }
 
     @Test
