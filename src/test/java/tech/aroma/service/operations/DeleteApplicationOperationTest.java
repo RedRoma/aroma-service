@@ -16,26 +16,32 @@
 
 package tech.aroma.service.operations;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import sir.wellington.alchemy.collections.lists.Lists;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.User;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
+import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -58,6 +64,9 @@ public class DeleteApplicationOperationTest
     private ApplicationRepository appRepo;
     
     @Mock
+    private FollowerRepository followerRepo;
+    
+    @Mock
     private MediaRepository mediaRepo;
     
     @Mock
@@ -78,6 +87,9 @@ public class DeleteApplicationOperationTest
     @GeneratePojo
     private DeleteApplicationRequest request;
     
+    @GenerateList(User.class)
+    private List<User> followers;
+    
     private DeleteApplicationOperation instance;
     
     @Before
@@ -87,7 +99,7 @@ public class DeleteApplicationOperationTest
         setupData();
         setupMocks();
         
-        instance = new DeleteApplicationOperation(appRepo, mediaRepo, userRepo);
+        instance = new DeleteApplicationOperation(appRepo, followerRepo, mediaRepo, userRepo);
     }
 
     private void setupData() throws Exception
@@ -97,20 +109,24 @@ public class DeleteApplicationOperationTest
         
         request.applicationId = appId;
         request.token.userId = userId;
+        
     }
 
     private void setupMocks() throws Exception
     {
         when(appRepo.getById(appId)).thenReturn(app);
+        
+        when(followerRepo.getApplicationFollowers(appId)).thenReturn(followers);
     }
     
     @DontRepeat
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new DeleteApplicationOperation(null, mediaRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, null, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, mediaRepo, null));
+        assertThrows(() -> new DeleteApplicationOperation(null, followerRepo, mediaRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(appRepo, null, mediaRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, null, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, mediaRepo, null));
     }
 
     @Test
@@ -127,6 +143,14 @@ public class DeleteApplicationOperationTest
         
         verify(mediaRepo).deleteMedia(appId);
         verify(mediaRepo).deleteAllThumbnails(appId);
+        
+        
+        for (User follower : followers)
+        {
+            String followerId = follower.userId;
+            
+            verify(followerRepo).deleteFollowing(followerId, appId);
+        }
     }
     
     @Test
@@ -139,6 +163,17 @@ public class DeleteApplicationOperationTest
         
         verify(appRepo, never()).deleteApplication(appId);
         verifyZeroInteractions(mediaRepo);
+        verifyZeroInteractions(followerRepo);
+    }
+    
+    @Test
+    public void testWhenNoFollowers() throws Exception
+    {
+        when(followerRepo.getApplicationFollowers(appId)).thenReturn(Lists.emptyList());
+        
+        instance.process(request);
+        
+        verify(followerRepo, never()).deleteFollowing(anyString(), anyString());
     }
     
     @DontRepeat

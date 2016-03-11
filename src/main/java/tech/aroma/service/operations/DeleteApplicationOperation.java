@@ -17,14 +17,17 @@
 package tech.aroma.service.operations;
 
 import com.google.common.base.Strings;
+import java.util.List;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.User;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
@@ -48,15 +51,17 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     private final static Logger LOG = LoggerFactory.getLogger(DeleteApplicationOperation.class);
     
     private final ApplicationRepository appRepo;
+    private final FollowerRepository followerRepo;
     private final MediaRepository mediaRepo;
     private final UserRepository userRepo;
     
     @Inject
-    DeleteApplicationOperation(ApplicationRepository appRepo, MediaRepository mediaRepo, UserRepository userRepo)
+    DeleteApplicationOperation(ApplicationRepository appRepo, FollowerRepository followerRepo, MediaRepository mediaRepo, UserRepository userRepo)
     {
-        checkThat(appRepo, mediaRepo, userRepo).is(notNull());
+        checkThat(appRepo, followerRepo, mediaRepo, userRepo).is(notNull());
         
         this.appRepo = appRepo;
+        this.followerRepo = followerRepo;
         this.mediaRepo = mediaRepo;
         this.userRepo = userRepo;
     }
@@ -76,6 +81,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
             .is(ownerOfApp(app));
         
         tryToDeleteMediaFor(app);
+        tryToRemoveAllFollowersFor(app);
         
         appRepo.deleteApplication(app.applicationId);
         LOG.debug("Successfully Deleted Application {}", app);
@@ -130,6 +136,42 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         catch (TException ex)
         {
             LOG.info("Could not delete icon [{}] for application {}", iconLink, app, ex);
+        }
+    }
+
+    private void tryToRemoveAllFollowersFor(Application app)
+    {
+        try
+        {
+            removeAllFollowersFor(app);
+        }
+        catch(TException ex)
+        {
+            LOG.error("Failed to remove all followers for Application {}", app, ex);
+        }
+    }
+    
+    private void removeAllFollowersFor(Application app) throws TException
+    {
+        String appId = app.applicationId;
+        
+        List<User> followers = followerRepo.getApplicationFollowers(appId);
+        
+        followers.parallelStream()
+            .map(User::getUserId)
+            .forEach(userId -> this.deleteFollowing(userId, appId));
+        
+    }
+    
+    private void deleteFollowing(String userId, String applicationId)
+    {
+        try
+        {
+            followerRepo.deleteFollowing(userId, applicationId);
+        }
+        catch (TException ex)
+        {
+            LOG.warn("Failed to remove Following of App [{}] By User [{]]", applicationId, userId, ex);
         }
     }
     
