@@ -43,13 +43,13 @@ import tech.aroma.thrift.authentication.service.CreateTokenRequest;
 import tech.aroma.thrift.authentication.service.CreateTokenResponse;
 import tech.aroma.thrift.authentication.service.GetTokenInfoRequest;
 import tech.aroma.thrift.authentication.service.GetTokenInfoResponse;
+import tech.aroma.thrift.email.service.EmailService;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.AromaServiceConstants;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
-import tech.sirwellington.alchemy.test.junit.ExceptionOperation;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -95,6 +95,9 @@ public class ProvisionApplicationOperationTest
 
     @Mock
     private AuthenticationService.Iface authenticationService;
+    
+    @Mock
+    private EmailService.Iface emailService;
 
     @Mock
     private Function<AuthenticationToken, ApplicationToken> appTokenMapper;
@@ -130,15 +133,17 @@ public class ProvisionApplicationOperationTest
                                                      mediaRepo,
                                                      userRepo,
                                                      authenticationService,
+                                                     emailService,
                                                      appTokenMapper);
-        
+
         verifyZeroInteractions(appRepo,
                                followerRepo,
                                mediaRepo,
                                userRepo,
                                authenticationService,
+                               emailService,
                                appTokenMapper);
-        
+
         setupData();
         setupMocks();
     }
@@ -147,71 +152,13 @@ public class ProvisionApplicationOperationTest
     @Test
     public void testConstructor()
     {
-        ExceptionOperation badOp = () ->
-        {
-            new ProvisionApplicationOperation(null,
-                                              followerRepo,
-                                              mediaRepo,
-                                              userRepo,
-                                              authenticationService,
-                                              appTokenMapper);
-        };
-        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
-        
-        badOp = () ->
-        {
-            new ProvisionApplicationOperation(appRepo,
-                                              null,
-                                              mediaRepo,
-                                              userRepo,
-                                              authenticationService,
-                                              appTokenMapper);
-        };
-        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
-        
-        badOp = () ->
-        {
-            new ProvisionApplicationOperation(appRepo,
-                                              followerRepo,
-                                              null,
-                                              userRepo,
-                                              authenticationService,
-                                              appTokenMapper);
-        };
-        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
-        
-        badOp = () ->
-        {
-            new ProvisionApplicationOperation(appRepo,
-                                              followerRepo,
-                                              mediaRepo,
-                                              null,
-                                              authenticationService,
-                                              appTokenMapper);
-        };
-        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
-        
-        badOp = () ->
-        {
-            new ProvisionApplicationOperation(appRepo,
-                                              followerRepo,
-                                              mediaRepo,
-                                              userRepo,
-                                              null,
-                                              appTokenMapper);
-        };
-        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
-        
-        badOp = () ->
-        {
-            new ProvisionApplicationOperation(appRepo,
-                                              followerRepo,
-                                              mediaRepo,
-                                              userRepo,
-                                              authenticationService,
-                                              null);
-        };
-        assertThrows(badOp).isInstanceOf(IllegalArgumentException.class);
+        assertThrows(() -> new ProvisionApplicationOperation(null, followerRepo, mediaRepo, userRepo, authenticationService, emailService, appTokenMapper));
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, null, mediaRepo, userRepo, authenticationService, emailService, appTokenMapper));
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, followerRepo, null, userRepo, authenticationService, emailService, appTokenMapper));
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, followerRepo, mediaRepo, null, authenticationService, emailService, appTokenMapper));
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, followerRepo, mediaRepo, userRepo, null, emailService, appTokenMapper));
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, followerRepo, mediaRepo, userRepo, authenticationService, null, appTokenMapper));
+        assertThrows(() -> new ProvisionApplicationOperation(appRepo, followerRepo, mediaRepo, userRepo, authenticationService, emailService, null));
     }
 
     @Test

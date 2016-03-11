@@ -25,10 +25,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import tech.aroma.data.memory.ModuleMemoryDataRepositories;
-import tech.aroma.service.operations.ModuleAromaServiceOperations;
 import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
+import tech.aroma.thrift.email.service.EmailService;
 import tech.aroma.thrift.service.AromaService;
+import tech.aroma.thrift.services.NoOpEmailService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 
@@ -46,7 +47,6 @@ import static org.mockito.Mockito.mock;
 public class ModuleAromaServiceTest 
 {
     
-    private ModuleAromaServiceOperations operationsModule;
     private ModuleMemoryDataRepositories dataModule;
     private ModuleEncryptionMaterialsDev encryptionModule;
     private ModuleAromaService instance;
@@ -54,7 +54,6 @@ public class ModuleAromaServiceTest
     @Before
     public void setUp()
     {
-        operationsModule = new ModuleAromaServiceOperations();
         encryptionModule = new ModuleEncryptionMaterialsDev();
         dataModule = new ModuleMemoryDataRepositories();
         instance = new ModuleAromaService();
@@ -63,8 +62,7 @@ public class ModuleAromaServiceTest
     @Test
     public void testConfigure() throws TException
     {
-        Injector injector = Guice.createInjector(operationsModule,
-                                                 dataModule,
+        Injector injector = Guice.createInjector(dataModule,
                                                  encryptionModule,
                                                  instance,
                                                  restOfDependencies);
@@ -90,6 +88,9 @@ public class ModuleAromaServiceTest
         {
             bind(AuthenticationService.Iface.class)
                 .toInstance(mock(AuthenticationService.Iface.class));
+            
+            bind(EmailService.Iface.class)
+                .toInstance(NoOpEmailService.newInstance());
         }
         
     };

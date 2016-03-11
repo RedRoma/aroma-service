@@ -20,7 +20,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provides;
 import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +30,7 @@ import tech.aroma.thrift.authentication.ApplicationToken;
 import tech.aroma.thrift.authentication.AuthenticationToken;
 import tech.aroma.thrift.authentication.UserToken;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
+import tech.aroma.thrift.email.service.EmailService;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
@@ -50,18 +50,18 @@ public class ModuleAromaServiceOperationsTest
     private ModuleMemoryDataRepositories dataModule;
     private ModuleAromaServiceOperations instance;
     
-    private final Module mockModule = new AbstractModule()
+    private final Module mockDependencies = new AbstractModule()
     {
         @Override
         protected void configure()
         {
+            bind(AuthenticationService.Iface.class)
+                .toInstance(mock(AuthenticationService.Iface.class));
+            
+            bind(EmailService.Iface.class)
+                .toInstance(mock(EmailService.Iface.class));
         }
         
-        @Provides
-        AuthenticationService.Iface provideAuth()
-        {
-            return mock(AuthenticationService.Iface.class);
-        }
     };
     
     
@@ -76,7 +76,7 @@ public class ModuleAromaServiceOperationsTest
     @Test
     public void testConfigure()
     {
-        Injector injector = Guice.createInjector(dataModule, encryptionMaterials, mockModule, instance);
+        Injector injector = Guice.createInjector(dataModule, encryptionMaterials, mockDependencies, instance);
         
     }
 

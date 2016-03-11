@@ -25,6 +25,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.service.operations.ModuleAromaServiceOperations;
 import tech.aroma.thrift.service.AromaService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 
@@ -43,6 +44,7 @@ public class ModuleAromaService extends AbstractModule
         bind(ExecutorService.class).toInstance(Executors.newWorkStealingPool(15));
 
         install(new ServiceModule());
+        install(new ModuleAromaServiceOperations());
     }
 
     @Singleton

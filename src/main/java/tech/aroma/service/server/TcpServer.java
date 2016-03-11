@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import tech.aroma.data.cassandra.ModuleCassandraDataRepositories;
 import tech.aroma.data.cassandra.ModuleCassandraDevCluster;
 import tech.aroma.service.ModuleAromaService;
-import tech.aroma.service.operations.ModuleAromaServiceOperations;
 import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
 import tech.aroma.thrift.email.service.EmailService;
@@ -57,8 +56,7 @@ public final class TcpServer
     
     public static void main(String[] args) throws TTransportException, SocketException
     {
-        Injector injector = Guice.createInjector(new ModuleAromaServiceOperations(),
-                                                 new ModuleAromaService(),
+        Injector injector = Guice.createInjector(new ModuleAromaService(),
                                                  new ModuleCassandraDataRepositories(),
                                                  new ModuleCassandraDevCluster(),
                                                  new ModuleEncryptionMaterialsDev(),

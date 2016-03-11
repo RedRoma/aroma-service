@@ -43,6 +43,7 @@ import tech.aroma.thrift.authentication.service.CreateTokenRequest;
 import tech.aroma.thrift.authentication.service.CreateTokenResponse;
 import tech.aroma.thrift.authentication.service.GetTokenInfoRequest;
 import tech.aroma.thrift.authentication.service.GetTokenInfoResponse;
+import tech.aroma.thrift.email.service.EmailService;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.InvalidTokenException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
@@ -75,6 +76,7 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
     private final MediaRepository mediaRepo;
     private final UserRepository userRepo;
     private final AuthenticationService.Iface authenticationService;
+    private final EmailService.Iface emailService;
     private final Function<AuthenticationToken, ApplicationToken> appTokenMapper;
 
     @Inject
@@ -83,6 +85,7 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
                                   MediaRepository mediaRepo,
                                   UserRepository userRepo,
                                   AuthenticationService.Iface authenticationService,
+                                  EmailService.Iface emailService,
                                   Function<AuthenticationToken, ApplicationToken> appTokenMapper)
     {
         checkThat(appRepo,
@@ -90,6 +93,7 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
                   mediaRepo, 
                   userRepo,
                   authenticationService, 
+                  emailService,
                   appTokenMapper)
             .are(notNull());
 
@@ -98,6 +102,7 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         this.mediaRepo = mediaRepo;
         this.userRepo = userRepo;
         this.authenticationService = authenticationService;
+        this.emailService = emailService;
         this.appTokenMapper = appTokenMapper;
     }
 
