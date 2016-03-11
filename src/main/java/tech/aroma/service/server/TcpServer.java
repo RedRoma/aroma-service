@@ -34,9 +34,11 @@ import tech.aroma.service.ModuleAromaService;
 import tech.aroma.service.operations.ModuleAromaServiceOperations;
 import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
+import tech.aroma.thrift.email.service.EmailService;
 import tech.aroma.thrift.service.AromaService;
 import tech.aroma.thrift.service.AromaServiceConstants;
 import tech.aroma.thrift.services.Clients;
+import tech.aroma.thrift.services.NoOpEmailService;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -89,7 +91,7 @@ public final class TcpServer
         @Override
         protected void configure()
         {
-
+            bind(EmailService.Iface.class).toInstance(NoOpEmailService.newInstance());
         }
 
         @Singleton
