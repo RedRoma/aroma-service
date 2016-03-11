@@ -24,6 +24,8 @@ import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -34,9 +36,12 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 
@@ -44,7 +49,7 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class DeleteApplicationOperationTest
 {
@@ -60,6 +65,9 @@ public class DeleteApplicationOperationTest
 
     @GenerateString(UUID)
     private String appId;
+    
+    @GenerateString(ALPHABETIC)
+    private String badId;
     
     @GenerateString(UUID)
     private String userId;
@@ -119,6 +127,48 @@ public class DeleteApplicationOperationTest
         
         verify(mediaRepo).deleteMedia(appId);
         verify(mediaRepo).deleteAllThumbnails(appId);
+    }
+    
+    @Test
+    public void testWhenNotAuthorized() throws Exception
+    {
+        app.owners.remove(userId);
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(UnauthorizedException.class);
+        
+        verify(appRepo, never()).deleteApplication(appId);
+        verifyZeroInteractions(mediaRepo);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testWithBadArguments() throws Exception
+    {
+        //Missing Request
+        assertThrows(() -> instance.process(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        //Empty Request
+        assertThrows(() -> instance.process(new DeleteApplicationRequest()))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        //Request with bad ID
+        DeleteApplicationRequest requestWithBadId = new DeleteApplicationRequest(request).setApplicationId(badId);
+        assertThrows(() -> instance.process(requestWithBadId))
+            .isInstanceOf(InvalidArgumentException.class);
+            
+        //Request with bad User ID
+        DeleteApplicationRequest requestWithBadUserId = new DeleteApplicationRequest(request);
+        requestWithBadUserId.token.setUserId(badId);
+        assertThrows(() -> instance.process(requestWithBadUserId))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        //Request missing Token
+        DeleteApplicationRequest requestMissingToken = new DeleteApplicationRequest(request);
+        requestMissingToken.unsetToken();
+        assertThrows(() -> instance.process(requestMissingToken))
+            .isInstanceOf(InvalidArgumentException.class);
     }
 
 }
