@@ -138,7 +138,7 @@ final class AuthenticationLayer implements AromaService.Iface
         return delegate.getApiVersion();
     }
     
-       @Override
+    @Override
     public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) throws OperationFailedException,
                                                                                     InvalidArgumentException,
                                                                                     InvalidTokenException,
@@ -148,7 +148,7 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.deleteMessage(request);
     }
 
