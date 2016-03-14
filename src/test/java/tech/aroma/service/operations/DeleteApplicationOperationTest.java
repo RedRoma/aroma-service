@@ -25,6 +25,7 @@ import sir.wellington.alchemy.collections.lists.Lists;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
+import tech.aroma.data.MessageRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
@@ -70,6 +71,9 @@ public class DeleteApplicationOperationTest
     private MediaRepository mediaRepo;
     
     @Mock
+    private MessageRepository messageRepo;
+    
+    @Mock
     private UserRepository userRepo;
 
     @GenerateString(UUID)
@@ -99,7 +103,17 @@ public class DeleteApplicationOperationTest
         setupData();
         setupMocks();
         
-        instance = new DeleteApplicationOperation(appRepo, followerRepo, mediaRepo, userRepo);
+        instance = new DeleteApplicationOperation(appRepo,
+                                                  followerRepo,
+                                                  mediaRepo,
+                                                  messageRepo,
+                                                  userRepo);
+        
+        verifyZeroInteractions(appRepo,
+                               followerRepo,
+                               mediaRepo,
+                               messageRepo,
+                               userRepo);
     }
 
     private void setupData() throws Exception
@@ -123,10 +137,11 @@ public class DeleteApplicationOperationTest
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new DeleteApplicationOperation(null, followerRepo, mediaRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, null, mediaRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, null, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, mediaRepo, null));
+        assertThrows(() -> new DeleteApplicationOperation(null, followerRepo, mediaRepo, messageRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(appRepo, null, mediaRepo, messageRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, null, messageRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, mediaRepo, null, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, mediaRepo, messageRepo, null));
     }
 
     @Test
@@ -144,6 +159,7 @@ public class DeleteApplicationOperationTest
         verify(mediaRepo).deleteMedia(appId);
         verify(mediaRepo).deleteAllThumbnails(appId);
         
+        verify(messageRepo).deleteAllMessages(appId);
         
         for (User follower : followers)
         {
@@ -162,8 +178,7 @@ public class DeleteApplicationOperationTest
             .isInstanceOf(UnauthorizedException.class);
         
         verify(appRepo, never()).deleteApplication(appId);
-        verifyZeroInteractions(mediaRepo);
-        verifyZeroInteractions(followerRepo);
+        verifyZeroInteractions(followerRepo, mediaRepo, messageRepo);
     }
     
     @Test

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
+import tech.aroma.data.MessageRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
@@ -32,6 +33,7 @@ import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
+import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -45,6 +47,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertio
  *
  * @author SirWellington
  */
+@Internal
 final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse>
 {
 
@@ -53,19 +56,22 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     private final ApplicationRepository appRepo;
     private final FollowerRepository followerRepo;
     private final MediaRepository mediaRepo;
+    private final MessageRepository messageRepo;
     private final UserRepository userRepo;
     
     @Inject
     DeleteApplicationOperation(ApplicationRepository appRepo, 
-                               FollowerRepository followerRepo, 
-                               MediaRepository mediaRepo, 
+                               FollowerRepository followerRepo,
+                               MediaRepository mediaRepo,
+                               MessageRepository messageRepo,
                                UserRepository userRepo)
     {
-        checkThat(appRepo, followerRepo, mediaRepo, userRepo).is(notNull());
+        checkThat(appRepo, followerRepo, mediaRepo, messageRepo, userRepo).is(notNull());
         
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
         this.mediaRepo = mediaRepo;
+        this.messageRepo = messageRepo;
         this.userRepo = userRepo;
     }
     
@@ -85,6 +91,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         
         tryToDeleteMediaFor(app);
         tryToRemoveAllFollowersFor(app);
+        tryToDeleteAllMessagesFor(app);
         
         appRepo.deleteApplication(app.applicationId);
         LOG.debug("Successfully Deleted Application {}", app);
@@ -175,6 +182,18 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         catch (TException ex)
         {
             LOG.warn("Failed to remove Following of App [{}] By User [{]]", applicationId, userId, ex);
+        }
+    }
+
+    private void tryToDeleteAllMessagesFor(Application app)
+    {
+        try
+        {
+            messageRepo.deleteAllMessages(app.applicationId);
+        }
+        catch (TException ex)
+        {
+            LOG.warn("Failed to delete all Messages for {}", app, ex);
         }
     }
 
