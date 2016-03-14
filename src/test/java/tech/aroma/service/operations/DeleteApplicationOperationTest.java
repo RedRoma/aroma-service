@@ -37,6 +37,7 @@ import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
+import tech.sirwellington.alchemy.annotations.testing.TimeSensitive;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
@@ -163,6 +164,7 @@ public class DeleteApplicationOperationTest
         assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, null));
     }
 
+    @TimeSensitive
     @Test
     public void testProcess() throws Exception
     {
@@ -264,7 +266,7 @@ public class DeleteApplicationOperationTest
         checkThat(event.eventId).is(validUUID());
         assertThat(event.applicationId, is(appId));
         assertThat(event.application, is(app));
-        checkThat(event.timestamp).is(epochNowWithinDelta(1000));
+        checkThat(event.timestamp).is(epochNowWithinDelta(5_000));
     }
 
 }
