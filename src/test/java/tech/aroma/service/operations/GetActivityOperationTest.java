@@ -16,20 +16,34 @@
 
 package tech.aroma.service.operations;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import tech.aroma.data.ActivityRepository;
+import tech.aroma.data.UserRepository;
+import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.Event;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.service.GetActivityRequest;
 import tech.aroma.thrift.service.GetActivityResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
+import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+import static tech.aroma.thrift.generators.EventGenerators.events;
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
+import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
  *
@@ -40,22 +54,100 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThr
 public class GetActivityOperationTest 
 {
 
+    @Mock
+    private ActivityRepository activityRepo;
+    
+    @Mock
+    private UserRepository userRepo;
+    
     @GeneratePojo
     private GetActivityRequest request;
+    
+    private List<Event> events;
+    
+    @GenerateString(UUID)
+    private String userId;
+    
+    @GeneratePojo
+    private User user;
+    
+    @GenerateString(ALPHABETIC)
+    private String badId;
     
     private GetActivityOperation instance;
     
     @Before
-    public void setUp()
+    public void setUp() throws Exception
     {
-        instance = new GetActivityOperation();
+        instance = new GetActivityOperation(activityRepo, userRepo);
+        
+        setupData();
+        setupMocks();
+    }
+    
+    private void setupData()
+    {
+        events = listOf(events());
+        user.userId = userId;
+        
+        request.token.userId = userId;
+    }
+    
+    private void setupMocks() throws Exception
+    {
+        User expected = new User().setUserId(userId);
+        when(activityRepo.getAllEventsFor(expected))
+            .thenReturn(events);
     }
 
+    
+    @DontRepeat
+    @Test
+    public void testConstructor()
+    {
+        assertThrows(() -> new GetActivityOperation(null, userRepo));
+        assertThrows(() -> new GetActivityOperation(activityRepo, null));
+    }
+    
     @Test
     public void testProcess() throws Exception
     {
         GetActivityResponse response = instance.process(request);
+        
         assertThat(response, notNullValue());
+        assertThat(response.events, is(events));
+        
+    }
+    
+    @Test
+    public void testWhenActivityRepoFails() throws Exception
+    {
+        when(activityRepo.getAllEventsFor(Mockito.any(User.class)))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(OperationFailedException.class);
+    }
+    
+    @Test
+    public void testWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.process(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.process(new GetActivityRequest()))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        GetActivityRequest requestMissingToken = new GetActivityRequest(request);
+        requestMissingToken.unsetToken();
+        
+        assertThrows(() -> instance.process(requestMissingToken))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        GetActivityRequest requestWithBadId = new GetActivityRequest(request);
+        requestWithBadId.token.setUserId(badId);
+        assertThrows(() -> instance.process(requestWithBadId))
+            .isInstanceOf(InvalidArgumentException.class);
         
     }
     

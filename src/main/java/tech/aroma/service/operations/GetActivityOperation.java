@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package tech.aroma.service.operations;
 
-
 import java.util.List;
-import java.util.stream.Collectors;
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.service.AromaAssertions;
+import tech.aroma.data.ActivityRepository;
+import tech.aroma.data.UserRepository;
+import tech.aroma.thrift.User;
 import tech.aroma.thrift.events.Event;
+import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetActivityRequest;
 import tech.aroma.thrift.service.GetActivityResponse;
+import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.thrift.generators.EventGenerators.events;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
-import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
-import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
+import static tech.aroma.data.assertions.RequestAssertions.validUserId;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
  *
@@ -39,23 +41,54 @@ import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
  */
 final class GetActivityOperation implements ThriftOperation<GetActivityRequest, GetActivityResponse>
 {
+
     private final static Logger LOG = LoggerFactory.getLogger(GetActivityOperation.class);
+
+    private final ActivityRepository activityRepo;
+    private final UserRepository userRepo;
+
+    @Inject
+    GetActivityOperation(ActivityRepository activityRepo, UserRepository userRepo)
+    {
+        checkThat(activityRepo, userRepo)
+            .are(notNull());
+        
+        this.activityRepo = activityRepo;
+        this.userRepo = userRepo;
+    }
 
     @Override
     public GetActivityResponse process(GetActivityRequest request) throws TException
     {
-        AromaAssertions.checkNotNull(request);
+        checkThat(request)
+            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+            .is(good());
+
+        String userId = request.token.userId;
+        User user = new User().setUserId(userId);
         
-        int numberOfEvents = one(integers(0, 100));
-        List<Event> events = listOf(events(), numberOfEvents).stream()
-            .sorted((a, b) -> Long.compare(a.getTimestamp(), b.getTimestamp()))
-            .collect(Collectors.toList());
+        List<Event> events = activityRepo.getAllEventsFor(user);
         
-        LOG.debug("Sending {} events", numberOfEvents);
+        LOG.debug("Found {} events for User {}", events.size(), user);
         
-        return new GetActivityResponse()
-            .setEvents(events);
+        return new GetActivityResponse(events);
     }
-    
+
+    private AlchemyAssertion<GetActivityRequest> good()
+    {
+        return request ->
+        {
+            checkThat(request)
+                .usingMessage("request is null")
+                .is(notNull());
+            
+            checkThat(request.token)
+                .usingMessage("request missing token")
+                .is(notNull());
+            
+            checkThat(request.token.userId)
+                .is(validUserId());
+        };
+    }
 
 }
