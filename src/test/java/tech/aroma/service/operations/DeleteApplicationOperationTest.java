@@ -20,6 +20,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import sir.wellington.alchemy.collections.lists.Lists;
 import tech.aroma.data.ActivityRepository;
@@ -30,6 +32,7 @@ import tech.aroma.data.MessageRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.Event;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
@@ -41,13 +44,19 @@ import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
+import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -99,6 +108,9 @@ public class DeleteApplicationOperationTest
     private List<User> followers;
     
     private DeleteApplicationOperation instance;
+    
+    @Captor
+    private ArgumentCaptor<Event> captor;
     
     @Before
     public void setUp() throws Exception
@@ -174,6 +186,24 @@ public class DeleteApplicationOperationTest
             
             verify(followerRepo).deleteFollowing(followerId, appId);
         }
+        
+        
+        for(User follower : followers)
+        {
+            verify(activityRepo).saveEvent(captor.capture(), eq(follower));
+            
+            Event event = captor.getValue();
+            checkEvent(event);
+        }            
+        
+        for (String ownerId : app.owners)
+        {
+            User owner = new User().setUserId(ownerId);
+            
+            verify(activityRepo).saveEvent(captor.capture(), eq(owner));
+            Event event = captor.getValue();
+            checkEvent(event);
+        }
     }
     
     @Test
@@ -226,6 +256,15 @@ public class DeleteApplicationOperationTest
         requestMissingToken.unsetToken();
         assertThrows(() -> instance.process(requestMissingToken))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    private void checkEvent(Event event)
+    {
+        checkThat(event).is(notNull());
+        checkThat(event.eventId).is(validUUID());
+        assertThat(event.applicationId, is(appId));
+        assertThat(event.application, is(app));
+        checkThat(event.timestamp).is(epochNowWithinDelta(1000));
     }
 
 }
