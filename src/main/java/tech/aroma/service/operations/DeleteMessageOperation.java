@@ -19,6 +19,7 @@ package tech.aroma.service.operations;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,7 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
     private final MessageRepository messageRepo;
     private final UserRepository userRepo;
 
+    @Inject
     DeleteMessageOperation(ActivityRepository activityRepo,
                            ApplicationRepository appRepo,
                            FollowerRepository followerRepo,
