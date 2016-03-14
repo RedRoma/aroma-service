@@ -16,15 +16,24 @@
 
 package tech.aroma.service.operations;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sir.wellington.alchemy.collections.lists.Lists;
 import sir.wellington.alchemy.collections.sets.Sets;
+import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MessageRepository;
+import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.ApplicationMessagesDeleted;
+import tech.aroma.thrift.events.Event;
+import tech.aroma.thrift.events.EventType;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteMessageRequest;
@@ -32,12 +41,17 @@ import tech.aroma.thrift.service.DeleteMessageResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static java.lang.String.format;
+import static java.time.Instant.now;
+import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validMessageId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
 /**
  *
@@ -47,20 +61,29 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteMessageOperation.class);
-
+    
+    private final ActivityRepository activityRepo;
     private final ApplicationRepository appRepo;
+    private final FollowerRepository followerRepo;
     private final MessageRepository messageRepo;
+    private final UserRepository userRepo;
 
-    @Inject
-    DeleteMessageOperation(ApplicationRepository appRepo, MessageRepository messageRepo)
+    DeleteMessageOperation(ActivityRepository activityRepo,
+                           ApplicationRepository appRepo,
+                           FollowerRepository followerRepo,
+                           MessageRepository messageRepo,
+                           UserRepository userRepo)
     {
-        checkThat(appRepo, messageRepo)
+        checkThat(activityRepo, appRepo, followerRepo, messageRepo, userRepo)
             .are(notNull());
-
+        
+        this.activityRepo = activityRepo;
         this.appRepo = appRepo;
+        this.followerRepo = followerRepo;
         this.messageRepo = messageRepo;
+        this.userRepo = userRepo;
     }
-
+    
     @Override
     public DeleteMessageResponse process(DeleteMessageRequest request) throws TException
     {
@@ -81,6 +104,7 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
         if (request.deleteAll)
         {
             count = deleteAllMessages(appId);
+            saveActivityThatAppMessagesDeletedBy(userId, app, count);
         }
         else
         {
@@ -169,6 +193,85 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
         {
             //Ignoring this is not good long-term behavior
             LOG.error("Could not delete message with ID [{}] for App [{}]", messageId, appId, ex);
+        }
+    }
+
+    private void saveActivityThatAppMessagesDeletedBy(String userId, Application app, int count) throws TException
+    {
+        User userDeleting = userRepo.getUser(userId);
+        
+        Event event = createEventRememberingAppMessagesDeleted(userDeleting, app, count);
+        
+        getUsersToNotifyFor(app)
+            .parallelStream()
+            .forEach(user -> this.tryToSaveEvent(event, user));
+    }
+    
+    private Event createEventRememberingAppMessagesDeleted(User actor, Application app, int totalMessagesDeleted)
+    {
+        ApplicationMessagesDeleted messagesDeleted = new ApplicationMessagesDeleted()
+            .setMessage(format("%d messages deleted for App %s", totalMessagesDeleted, app.name))
+            .setTotalMessagesDeleted(totalMessagesDeleted);
+            
+        EventType eventType = createEventTypeFor(messagesDeleted);
+        
+        Event event = new Event()
+            .setActor(actor)
+            .setUserIdOfActor(actor.userId)
+            .setApplication(app)
+            .setApplicationId(app.applicationId)
+            .setTimestamp(now().toEpochMilli())
+            .setEventId(one(uuids))
+        .setEventType(eventType);
+        
+        return event;
+    }
+    
+ 
+
+    private EventType createEventTypeFor(ApplicationMessagesDeleted messagesDeleted)
+    {
+        EventType eventType = new EventType();
+        eventType.setApplicationMessageDeleted(messagesDeleted);
+        return eventType;
+    }
+    
+    private List<User> getUsersToNotifyFor(Application app) throws TException
+    {
+        String appId = app.applicationId;
+
+        List<User> owners = app.owners.stream()
+            .map(this::toUser)
+            .filter(Objects::nonNull)
+            .collect(toList());
+
+        List<User> followers = followerRepo.getApplicationFollowers(appId);
+
+        return Lists.combine(owners, followers);
+    }
+
+    private User toUser(String userId)
+    {
+        try
+        {
+            return userRepo.getUser(userId);
+        }
+        catch (Exception ex)
+        {
+            LOG.warn("Failed to load User with ID [{}]", userId, ex);
+            return null;
+        }
+    }
+
+    private void tryToSaveEvent(Event event, User forUser)
+    {
+        try
+        {
+            activityRepo.saveEvent(event, forUser);
+        }
+        catch (Exception ex)
+        {
+            LOG.error("Failed to save Event {} for User {}", event, forUser, ex);
         }
     }
 
