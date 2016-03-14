@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
@@ -53,6 +54,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteApplicationOperation.class);
     
+    private final ActivityRepository activityRepo;
     private final ApplicationRepository appRepo;
     private final FollowerRepository followerRepo;
     private final MediaRepository mediaRepo;
@@ -60,14 +62,17 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     private final UserRepository userRepo;
     
     @Inject
-    DeleteApplicationOperation(ApplicationRepository appRepo, 
+    DeleteApplicationOperation(ActivityRepository activityRepo,
+                               ApplicationRepository appRepo, 
                                FollowerRepository followerRepo,
                                MediaRepository mediaRepo,
                                MessageRepository messageRepo,
                                UserRepository userRepo)
     {
-        checkThat(appRepo, followerRepo, mediaRepo, messageRepo, userRepo).is(notNull());
+        checkThat(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo)
+            .are(notNull());
         
+        this.activityRepo = activityRepo;
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
         this.mediaRepo = mediaRepo;
