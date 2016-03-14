@@ -28,16 +28,22 @@ import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.ApplicationFollowed;
+import tech.aroma.thrift.events.Event;
+import tech.aroma.thrift.events.EventType;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.FollowApplicationRequest;
 import tech.aroma.thrift.service.FollowApplicationResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static java.time.Instant.now;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
 /**
  *
@@ -81,7 +87,7 @@ final class FollowApplicationOperation implements ThriftOperation<FollowApplicat
         User user = userRepo.getUser(userId);
         
         followRepo.saveFollowing(user, app);
-        
+        notifyOwnersOfNewFollower(user, app);
         LOG.debug("Following of App {} by User {} successfully saved", app, user);
         
         return new FollowApplicationResponse();
@@ -109,6 +115,51 @@ final class FollowApplicationOperation implements ThriftOperation<FollowApplicat
                 .usingMessage("userId in token must be a UUID")
                 .is(validUUID());
         };
+    }
+
+    private void notifyOwnersOfNewFollower(User follower, Application app)
+    {
+        Event event = createEventToNotifyOwners(follower, app);
+
+        app.owners.stream()
+            .map(id -> new User().setUserId(id))
+            .forEach(owner -> this.tryToNotify(owner, event));
+    }
+
+    private Event createEventToNotifyOwners(User follower, Application app)
+    {
+        EventType eventType = createEventTypeFor(follower, app);
+
+        return new Event()
+            .setApplication(app)
+            .setApplicationId(app.applicationId)
+            .setActor(follower)
+            .setUserIdOfActor(follower.userId)
+            .setTimestamp(now().toEpochMilli())
+            .setEventId(one(uuids))
+            .setEventType(eventType);
+    }
+
+    private void tryToNotify(User user, Event event)
+    {
+        try
+        {
+            activityRepo.saveEvent(event, user);
+        }
+        catch (Exception ex)
+        {
+            LOG.error("Failed to notify User [{}] of Event [{}]", user, event, ex);
+        }
+    }
+
+    private EventType createEventTypeFor(User follower, Application app)
+    {
+        ApplicationFollowed appFollowed = new ApplicationFollowed()
+            .setMessage(follower.firstName + " has followed " + app.name);
+
+        EventType eventType = new EventType();
+        eventType.setApplicationFollowed(appFollowed);
+        return eventType;
     }
 
 }

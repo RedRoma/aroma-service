@@ -20,6 +20,8 @@ import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
@@ -27,6 +29,7 @@ import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.Event;
 import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
@@ -40,10 +43,14 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
@@ -86,6 +93,9 @@ public class FollowApplicationOperationTest
     @GenerateString(UUID)
     private String userId;
     
+    @Captor
+    private ArgumentCaptor<Event> captor;
+    
     @Before
     public void setUp() throws Exception
     {
@@ -113,6 +123,16 @@ public class FollowApplicationOperationTest
         assertThat(response, notNullValue());
         
         verify(followRepo).saveFollowing(user, app);
+        
+        for (String ownerId : app.owners)
+        {
+            User owner = new User().setUserId(ownerId);
+            
+            verify(activityRepo).saveEvent(captor.capture(), eq(owner));
+            
+            Event event = captor.getValue();
+            checkEvent(event);
+        }
     }
     
     @Test
@@ -190,6 +210,16 @@ public class FollowApplicationOperationTest
         app.applicationId = appId;
         
         user.userId = userId;
+    }
+
+    private void checkEvent(Event event)
+    {
+        assertThat(event, notNullValue());
+        checkThat(event.eventId).is(validUUID());
+        checkThat(event.actor).is(equalTo(user));
+        checkThat(event.userIdOfActor).is(equalTo(userId));
+        checkThat(event.application).is(equalTo(app));
+        checkThat(event.applicationId).is(equalTo(appId));
     }
 
 }
