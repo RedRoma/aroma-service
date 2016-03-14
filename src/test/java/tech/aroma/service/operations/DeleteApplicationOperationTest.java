@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import sir.wellington.alchemy.collections.lists.Lists;
+import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
@@ -61,6 +62,9 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 public class DeleteApplicationOperationTest
 {
 
+    @Mock
+    private ActivityRepository activityRepo;
+    
     @Mock
     private ApplicationRepository appRepo;
     
@@ -103,13 +107,15 @@ public class DeleteApplicationOperationTest
         setupData();
         setupMocks();
         
-        instance = new DeleteApplicationOperation(appRepo,
+        instance = new DeleteApplicationOperation(activityRepo,
+                                                  appRepo,
                                                   followerRepo,
                                                   mediaRepo,
                                                   messageRepo,
                                                   userRepo);
-        
-        verifyZeroInteractions(appRepo,
+
+        verifyZeroInteractions(activityRepo,
+                               appRepo,
                                followerRepo,
                                mediaRepo,
                                messageRepo,
@@ -137,11 +143,12 @@ public class DeleteApplicationOperationTest
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new DeleteApplicationOperation(null, followerRepo, mediaRepo, messageRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, null, mediaRepo, messageRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, null, messageRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, mediaRepo, null, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(appRepo, followerRepo, mediaRepo, messageRepo, null));
+        assertThrows(() -> new DeleteApplicationOperation(null, appRepo, followerRepo, mediaRepo, messageRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, null, followerRepo, mediaRepo, messageRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, null, mediaRepo, messageRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, null, messageRepo, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, null, userRepo));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, null));
     }
 
     @Test
