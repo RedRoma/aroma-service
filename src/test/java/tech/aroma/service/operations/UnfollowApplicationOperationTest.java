@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.thrift.authentication.UserToken;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -46,6 +47,8 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 @RunWith(AlchemyTestRunner.class)
 public class UnfollowApplicationOperationTest
 {
+    @Mock
+    ActivityRepository activityRepo;
     
     @Mock
     private FollowerRepository followerRepo;
@@ -67,7 +70,7 @@ public class UnfollowApplicationOperationTest
     @Before
     public void setUp() throws Exception
     {
-        instance = new UnfollowApplicationOperation(followerRepo);
+        instance = new UnfollowApplicationOperation(activityRepo, followerRepo);
 
         setupData();
         setupMocks();
@@ -89,7 +92,10 @@ public class UnfollowApplicationOperationTest
     @Test
     public void testConstructor() throws Exception
     {
-        assertThrows(() -> new UnfollowApplicationOperation(null))
+        assertThrows(() -> new UnfollowApplicationOperation(null, followerRepo))
+            .isInstanceOf(IllegalArgumentException.class);
+        
+        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, null))
             .isInstanceOf(IllegalArgumentException.class);
     }
 

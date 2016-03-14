@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
@@ -40,14 +41,17 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(UnfollowApplicationOperation.class);
+    
+    private final ActivityRepository activityRepo;
     private final FollowerRepository followerRepo;
 
     @Inject
-    UnfollowApplicationOperation(FollowerRepository followerRepo)
+    UnfollowApplicationOperation(ActivityRepository activityRepo, FollowerRepository followerRepo)
     {
-        checkThat(followerRepo)
-            .is(notNull());
+        checkThat(activityRepo, followerRepo)
+            .are(notNull());
         
+        this.activityRepo = activityRepo;
         this.followerRepo = followerRepo;
     }
 
