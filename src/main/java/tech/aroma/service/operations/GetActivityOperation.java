@@ -28,7 +28,7 @@ import tech.aroma.thrift.service.GetActivityRequest;
 import tech.aroma.thrift.service.GetActivityResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.service.AromaGenerators.events;
+import static tech.aroma.thrift.generators.EventGenerators.events;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
