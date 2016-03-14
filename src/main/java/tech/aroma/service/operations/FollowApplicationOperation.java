@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.UserRepository;
@@ -46,16 +47,21 @@ final class FollowApplicationOperation implements ThriftOperation<FollowApplicat
 {
     private final static Logger LOG = LoggerFactory.getLogger(FollowApplicationOperation.class);
     
+    private final ActivityRepository activityRepo;
     private final ApplicationRepository appRepo;
     private final FollowerRepository followRepo;
     private final UserRepository userRepo;
 
     @Inject
-    FollowApplicationOperation(ApplicationRepository appRepo, FollowerRepository followRepo, UserRepository userRepo)
+    FollowApplicationOperation(ActivityRepository activityRepo,
+                               ApplicationRepository appRepo, 
+                               FollowerRepository followRepo, 
+                               UserRepository userRepo)
     {
-        checkThat(appRepo, followRepo, userRepo)
+        checkThat(activityRepo, appRepo, followRepo, userRepo)
             .are(notNull());
         
+        this.activityRepo = activityRepo;
         this.appRepo = appRepo;
         this.followRepo = followRepo;
         this.userRepo = userRepo;

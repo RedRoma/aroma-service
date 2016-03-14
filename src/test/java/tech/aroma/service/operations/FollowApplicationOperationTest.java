@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.UserRepository;
@@ -51,11 +52,14 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class FollowApplicationOperationTest
 {
 
+    @Mock
+    private ActivityRepository activityRepo;
+    
     @Mock
     private ApplicationRepository appRepo;
 
@@ -85,11 +89,21 @@ public class FollowApplicationOperationTest
     @Before
     public void setUp() throws Exception
     {
-        instance = new FollowApplicationOperation(appRepo, followRepo, userRepo);
-        verifyZeroInteractions(appRepo, followRepo, userRepo);
+        instance = new FollowApplicationOperation(activityRepo, appRepo, followRepo, userRepo);
+        verifyZeroInteractions(activityRepo, appRepo, followRepo, userRepo);
         
         setupData();
         setupMocks();
+    }
+    
+    @DontRepeat
+    @Test
+    public void testConstructor()
+    {
+        assertThrows(() -> new FollowApplicationOperation(null, appRepo, followRepo, userRepo));
+        assertThrows(() -> new FollowApplicationOperation(activityRepo, null, followRepo, userRepo));
+        assertThrows(() -> new FollowApplicationOperation(activityRepo, appRepo, null, userRepo));
+        assertThrows(() -> new FollowApplicationOperation(activityRepo, appRepo, followRepo, null));
     }
 
     @Test
