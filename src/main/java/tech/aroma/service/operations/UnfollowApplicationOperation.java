@@ -20,18 +20,28 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ActivityRepository;
+import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
+import tech.aroma.thrift.Application;
+import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.ApplicationUnfollowed;
+import tech.aroma.thrift.events.Event;
+import tech.aroma.thrift.events.EventType;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static java.time.Instant.now;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
 /**
  *
@@ -41,17 +51,21 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(UnfollowApplicationOperation.class);
-    
+
     private final ActivityRepository activityRepo;
+    private final ApplicationRepository appRepo;
     private final FollowerRepository followerRepo;
 
     @Inject
-    UnfollowApplicationOperation(ActivityRepository activityRepo, FollowerRepository followerRepo)
+    UnfollowApplicationOperation(ActivityRepository activityRepo,
+                                 ApplicationRepository appRepo,
+                                 FollowerRepository followerRepo)
     {
-        checkThat(activityRepo, followerRepo)
+        checkThat(activityRepo, appRepo, followerRepo)
             .are(notNull());
-        
+
         this.activityRepo = activityRepo;
+        this.appRepo = appRepo;
         this.followerRepo = followerRepo;
     }
 
@@ -66,6 +80,11 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
         String appId = request.applicationId;
         
         followerRepo.deleteFollowing(userId, appId);
+        
+        User user = new User().setUserId(userId);
+        Application app = appRepo.getById(appId);
+        
+        sendNotificationThatAppUnfollowedBy(user, app);
 
         return new UnfollowApplicationResponse();
     }
@@ -89,5 +108,51 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
                 .is(validApplicationId());
         };
     }
+
+    private void sendNotificationThatAppUnfollowedBy(User user, Application app)
+    {
+        Event event = createAppUnfollowedEvent(user, app);
+        
+        Sets.nullToEmpty(app.owners)
+            .stream()
+            .map(id -> new User().setUserId(id))
+            .forEach(owner -> this.tryToSaveEvent(owner, event));
+    }
+
+    private Event createAppUnfollowedEvent(User user, Application app)
+    {
+        EventType eventType = createEventType();
+        
+        return new Event()
+            .setEventId(one(uuids))
+            .setActor(user)
+            .setUserIdOfActor(user.userId)
+            .setApplication(app)
+            .setApplicationId(app.applicationId)
+            .setTimestamp(now().toEpochMilli())
+            .setEventType(eventType);
+    }
+
+    private EventType createEventType()
+    {
+        ApplicationUnfollowed appUnfollowed = new ApplicationUnfollowed();
+        
+        EventType eventType = new EventType();
+        eventType.setApplicationUnfollowed(appUnfollowed);
+        return eventType;
+    }
+    
+    private void tryToSaveEvent(User owner, Event event)
+    {
+        try
+        {
+            activityRepo.saveEvent(event, owner);
+        }
+        catch (TException ex)
+        {
+            LOG.error("Failed to save Event {} for user {}", event, owner, ex);
+        }
+    }
+
 
 }

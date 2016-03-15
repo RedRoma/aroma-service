@@ -19,10 +19,16 @@ package tech.aroma.service.operations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import tech.aroma.data.ActivityRepository;
+import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
+import tech.aroma.thrift.Application;
+import tech.aroma.thrift.User;
 import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.events.Event;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
@@ -34,7 +40,13 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
+import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -48,7 +60,10 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 public class UnfollowApplicationOperationTest
 {
     @Mock
-    ActivityRepository activityRepo;
+    private ActivityRepository activityRepo;
+    
+    @Mock
+    private ApplicationRepository appRepo;
     
     @Mock
     private FollowerRepository followerRepo;
@@ -61,16 +76,24 @@ public class UnfollowApplicationOperationTest
 
     @GenerateString(UUID)
     private String userId;
+    
+    private User user;
 
     @GenerateString(ALPHABETIC)
     private String badId;
 
+    @GeneratePojo
+    private Application app;
+    
     private UnfollowApplicationOperation instance;
+    
+    @Captor
+    private ArgumentCaptor<Event> captor;
 
     @Before
     public void setUp() throws Exception
     {
-        instance = new UnfollowApplicationOperation(activityRepo, followerRepo);
+        instance = new UnfollowApplicationOperation(activityRepo, appRepo, followerRepo);
 
         setupData();
         setupMocks();
@@ -81,22 +104,23 @@ public class UnfollowApplicationOperationTest
         request.token.setUserId(userId);
         request.setApplicationId(appId);
 
+        app.applicationId = appId;
+        
+        user = new User().setUserId(userId);
     }
 
     private void setupMocks() throws Exception
     {
-
+        when(appRepo.getById(appId)).thenReturn(app);
     }
 
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
     {
-        assertThrows(() -> new UnfollowApplicationOperation(null, followerRepo))
-            .isInstanceOf(IllegalArgumentException.class);
-        
-        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, null))
-            .isInstanceOf(IllegalArgumentException.class);
+        assertThrows(() -> new UnfollowApplicationOperation(null, appRepo, followerRepo));
+        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, null, followerRepo));
+        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, appRepo, null));
     }
 
     @Test
@@ -106,6 +130,16 @@ public class UnfollowApplicationOperationTest
         assertThat(response, notNullValue());
         
         verify(followerRepo).deleteFollowing(userId, appId);
+        
+        for (String ownerId : app.owners)
+        {
+            User owner = new User().setUserId(ownerId);
+            
+            verify(activityRepo).saveEvent(captor.capture(), eq(owner));
+            
+            Event event = captor.getValue();
+            checkEvent(event);
+        }
     }
 
     @Test
@@ -133,6 +167,17 @@ public class UnfollowApplicationOperationTest
             .setToken(badToken);
         assertThrows(() -> instance.process(requestWithBadToken))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    private void checkEvent(Event event)
+    {
+        assertThat(event, notNullValue());
+        checkThat(event.eventId).is(validUUID());
+        checkThat(event.actor).is(equalTo(user));
+        checkThat(event.userIdOfActor).is(equalTo(userId));
+        checkThat(event.application).is(equalTo(app));
+        checkThat(event.applicationId).is(equalTo(appId));
+        checkThat(event.timestamp).is(epochNowWithinDelta(5_000));
     }
 
 }
