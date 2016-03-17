@@ -25,11 +25,14 @@ import org.mockito.Mock;
 import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
+import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
 import tech.aroma.thrift.authentication.UserToken;
 import tech.aroma.thrift.events.Event;
+import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -42,6 +45,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
@@ -67,6 +71,9 @@ public class UnfollowApplicationOperationTest
     
     @Mock
     private FollowerRepository followerRepo;
+    
+    @Mock
+    private UserRepository userRepo;
 
     @GeneratePojo
     private UnfollowApplicationRequest request;
@@ -77,6 +84,7 @@ public class UnfollowApplicationOperationTest
     @GenerateString(UUID)
     private String userId;
     
+    @GeneratePojo
     private User user;
 
     @GenerateString(ALPHABETIC)
@@ -93,7 +101,7 @@ public class UnfollowApplicationOperationTest
     @Before
     public void setUp() throws Exception
     {
-        instance = new UnfollowApplicationOperation(activityRepo, appRepo, followerRepo);
+        instance = new UnfollowApplicationOperation(activityRepo, appRepo, followerRepo, userRepo);
 
         setupData();
         setupMocks();
@@ -106,21 +114,23 @@ public class UnfollowApplicationOperationTest
 
         app.applicationId = appId;
         
-        user = new User().setUserId(userId);
+        user.userId = userId;
     }
 
     private void setupMocks() throws Exception
     {
         when(appRepo.getById(appId)).thenReturn(app);
+        when(userRepo.getUser(userId)).thenReturn(user);
     }
 
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
     {
-        assertThrows(() -> new UnfollowApplicationOperation(null, appRepo, followerRepo));
-        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, null, followerRepo));
-        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, appRepo, null));
+        assertThrows(() -> new UnfollowApplicationOperation(null, appRepo, followerRepo, userRepo));
+        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, null, followerRepo, userRepo));
+        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, appRepo, null, userRepo));
+        assertThrows(() -> new UnfollowApplicationOperation(activityRepo, appRepo, followerRepo, null));
     }
 
     @Test
@@ -167,6 +177,30 @@ public class UnfollowApplicationOperationTest
             .setToken(badToken);
         assertThrows(() -> instance.process(requestWithBadToken))
             .isInstanceOf(InvalidArgumentException.class);
+    }
+    
+    @Test
+    public void testWhenUserDoesNotExist() throws Exception
+    {
+        when(userRepo.getUser(userId))
+            .thenThrow(UserDoesNotExistException.class);
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(UserDoesNotExistException.class);
+        verifyZeroInteractions(followerRepo, activityRepo);
+        
+    }
+    
+    @Test
+    public void testWhenApplicationDoesNotExist() throws Exception
+    {
+        when(appRepo.getById(appId))
+            .thenThrow(new ApplicationDoesNotExistException());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(ApplicationDoesNotExistException.class);
+            
+        verifyZeroInteractions(followerRepo, activityRepo);
     }
 
     private void checkEvent(Event event)

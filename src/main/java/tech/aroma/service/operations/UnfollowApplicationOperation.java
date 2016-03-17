@@ -24,6 +24,7 @@ import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
+import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
 import tech.aroma.thrift.events.ApplicationUnfollowed;
@@ -55,18 +56,21 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
     private final ActivityRepository activityRepo;
     private final ApplicationRepository appRepo;
     private final FollowerRepository followerRepo;
+    private final UserRepository userRepo;
 
     @Inject
     UnfollowApplicationOperation(ActivityRepository activityRepo,
                                  ApplicationRepository appRepo,
-                                 FollowerRepository followerRepo)
+                                 FollowerRepository followerRepo,
+                                 UserRepository userRepo)
     {
-        checkThat(activityRepo, appRepo, followerRepo)
+        checkThat(activityRepo, appRepo, followerRepo, userRepo)
             .are(notNull());
 
         this.activityRepo = activityRepo;
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
+        this.userRepo = userRepo;
     }
 
     @Override
@@ -79,10 +83,10 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
         String userId = request.token.userId;
         String appId = request.applicationId;
         
-        followerRepo.deleteFollowing(userId, appId);
-        
-        User user = new User().setUserId(userId);
+        User user = userRepo.getUser(userId);
         Application app = appRepo.getById(appId);
+
+        followerRepo.deleteFollowing(userId, appId);
         
         sendNotificationThatAppUnfollowedBy(user, app);
 
