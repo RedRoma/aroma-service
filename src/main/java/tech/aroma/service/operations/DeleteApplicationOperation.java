@@ -83,16 +83,16 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
                                MediaRepository mediaRepo,
                                MessageRepository messageRepo,
                                UserRepository userRepo,
-                               AuthenticationService.Iface authenticationService, 
+                               AuthenticationService.Iface authenticationService,
                                Function<UserToken, AuthenticationToken> tokenMapper)
     {
-        checkThat(activityRepo, 
-                  appRepo, 
+        checkThat(activityRepo,
+                  appRepo,
                   followerRepo,
-                  mediaRepo, 
-                  messageRepo, 
+                  mediaRepo,
+                  messageRepo,
                   userRepo,
-                  authenticationService, 
+                  authenticationService,
                   tokenMapper)
             .are(notNull());
 
@@ -121,12 +121,9 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
             .is(anOwnerOfApp(app));
 
         User user = userRepo.getUser(userId);
-        
+
         deleteAllTokensBelongingToApp(app, request.token);
-        List<User> followers = tryToRemoveAllFollowersFor(app);
-        tryToDeleteAllMessagesFor(app);
-        tryToDeleteMediaFor(app);
-        tryToSendNotificationThatAppWasDeletedBy(user, app, followers);
+        deleteAllDataAssociatedWithApp(app, user);
 
         appRepo.deleteApplication(app.applicationId);
         LOG.debug("Successfully Deleted Application {}", app);
@@ -158,7 +155,15 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
                 .is(elementInCollection(app.owners));
         };
     }
-    
+
+    private void deleteAllDataAssociatedWithApp(Application app, User userDeleting)
+    {
+        List<User> followers = tryToRemoveAllFollowersFor(app);
+        tryToDeleteAllMessagesFor(app);
+        tryToDeleteMediaFor(app);
+        tryToSendNotificationThatAppWasDeletedBy(userDeleting, app, followers);
+    }
+
     private void tryToDeleteMediaFor(Application app)
     {
         String iconLink = app.applicationIconMediaId;
@@ -303,13 +308,13 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     private void deleteAllTokensBelongingToApp(Application app, UserToken usingToken) throws TException
     {
         AuthenticationToken token = tokenMapper.apply(usingToken);
-        
+
         InvalidateTokenRequest request = new InvalidateTokenRequest()
             .setToken(token)
             .setBelongingTo(app.applicationId);
-        
+
         LOG.debug("Making request to invalidate all tokens belonging to: {}", app);
-        
+
         try
         {
             authenticationService.invalidateToken(request);
