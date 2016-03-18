@@ -102,10 +102,12 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
             .throwing(UnauthorizedException.class)
             .is(ownerOfApp(app));
 
-        tryToDeleteMediaFor(app);
+        User user = userRepo.getUser(userId);
+        
         List<User> followers = tryToRemoveAllFollowersFor(app);
         tryToDeleteAllMessagesFor(app);
-        trySendNotificationThatAppWasDeletedBy(userId, app, followers);
+        tryToDeleteMediaFor(app);
+        tryToSendNotificationThatAppWasDeletedBy(user, app, followers);
 
         appRepo.deleteApplication(app.applicationId);
         LOG.debug("Successfully Deleted Application {}", app);
@@ -213,21 +215,21 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         }
     }
 
-    private void trySendNotificationThatAppWasDeletedBy(String userId, Application app, List<User> followers)
+    private void tryToSendNotificationThatAppWasDeletedBy(User user, Application app, List<User> followers)
     {
         try
         {
-            sendNotificationThatAppWasDeletedBy(userId, app, followers);
+            sendNotificationThatAppWasDeletedBy(user, app, followers);
         }
         catch (Exception ex)
         {
-            LOG.warn("Failed to send notification that App {} was deleted by {}", app, userId, ex);
+            LOG.warn("Failed to send notification that App {} was deleted by {}", app, user, ex);
         }
     }
 
-    private void sendNotificationThatAppWasDeletedBy(String userId, Application app, List<User> followers) throws TException
+    private void sendNotificationThatAppWasDeletedBy(User personDeleting, Application app, List<User> followers) throws TException
     {
-        Event event = createEventThatAppWasDeletedBy(userId, app);
+        Event event = createEventThatAppWasDeletedBy(personDeleting, app);
 
         List<User> usersToNotify = getOwners(app);
         usersToNotify.addAll(followers);
@@ -243,7 +245,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
             .collect(toList());
     }
 
-    private Event createEventThatAppWasDeletedBy(String userId, Application app)
+    private Event createEventThatAppWasDeletedBy(User actor, Application app)
     {
         EventType eventType = createAppDeleted(app);
 
@@ -251,7 +253,8 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
             .setEventId(one(uuids))
             .setApplication(app)
             .setApplicationId(app.applicationId)
-            .setUserIdOfActor(userId)
+            .setUserIdOfActor(actor.userId)
+            .setActor(actor)
             .setTimestamp(now().toEpochMilli())
             .setEventType(eventType);
     }

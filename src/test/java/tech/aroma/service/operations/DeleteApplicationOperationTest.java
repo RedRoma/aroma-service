@@ -35,6 +35,7 @@ import tech.aroma.thrift.User;
 import tech.aroma.thrift.events.Event;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
+import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.sirwellington.alchemy.annotations.testing.TimeSensitive;
@@ -55,6 +56,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
 import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
@@ -103,6 +105,9 @@ public class DeleteApplicationOperationTest
     private Application app;
     
     @GeneratePojo
+    private User user;
+    
+    @GeneratePojo
     private DeleteApplicationRequest request;
     
     @GenerateList(User.class)
@@ -143,13 +148,15 @@ public class DeleteApplicationOperationTest
         request.applicationId = appId;
         request.token.userId = userId;
         
+        user.userId = userId;
+        
     }
 
     private void setupMocks() throws Exception
     {
         when(appRepo.getById(appId)).thenReturn(app);
-        
         when(followerRepo.getApplicationFollowers(appId)).thenReturn(followers);
+        when(userRepo.getUser(userId)).thenReturn(user);
     }
     
     @DontRepeat
@@ -230,6 +237,20 @@ public class DeleteApplicationOperationTest
         verify(followerRepo, never()).deleteFollowing(anyString(), anyString());
     }
     
+    @Test
+    public void testWhenUserDoesNotExist() throws Exception
+    {
+        when(userRepo.getUser(userId))
+            .thenThrow(new UserDoesNotExistException());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(UserDoesNotExistException.class);
+        
+        verifyZeroInteractions(activityRepo, messageRepo, mediaRepo);
+        
+        verify(appRepo, never()).deleteApplication(appId);
+    }
+    
     @DontRepeat
     @Test
     public void testWithBadArguments() throws Exception
@@ -267,6 +288,8 @@ public class DeleteApplicationOperationTest
         assertThat(event.applicationId, is(appId));
         assertThat(event.application, is(app));
         checkThat(event.timestamp).is(epochNowWithinDelta(5_000));
+        checkThat(event.userIdOfActor).is(equalTo(userId));
+        checkThat(event.actor).is(equalTo(user));
     }
 
 }
