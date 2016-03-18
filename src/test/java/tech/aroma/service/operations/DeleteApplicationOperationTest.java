@@ -17,12 +17,14 @@
 package tech.aroma.service.operations;
 
 import java.util.List;
+import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import sir.wellington.alchemy.collections.lists.Lists;
 import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
@@ -32,8 +34,14 @@ import tech.aroma.data.MessageRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
+import tech.aroma.thrift.authentication.AuthenticationToken;
+import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.authentication.service.AuthenticationService;
+import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
+import tech.aroma.thrift.authentication.service.InvalidateTokenResponse;
 import tech.aroma.thrift.events.Event;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
@@ -81,6 +89,12 @@ public class DeleteApplicationOperationTest
     private ApplicationRepository appRepo;
     
     @Mock
+    private AuthenticationService.Iface authenticationService;
+    
+    @Mock
+    private Function<UserToken, AuthenticationToken> tokenMapper;
+    
+    @Mock
     private FollowerRepository followerRepo;
     
     @Mock
@@ -99,10 +113,19 @@ public class DeleteApplicationOperationTest
     private String badId;
     
     @GenerateString(UUID)
+    private String tokenId;
+    
+    @GenerateString(UUID)
     private String userId;
     
     @GeneratePojo
     private Application app;
+    
+    @GeneratePojo
+    private AuthenticationToken authToken;
+    
+    @GeneratePojo
+    private UserToken userToken;
     
     @GeneratePojo
     private User user;
@@ -130,14 +153,18 @@ public class DeleteApplicationOperationTest
                                                   followerRepo,
                                                   mediaRepo,
                                                   messageRepo,
-                                                  userRepo);
+                                                  userRepo,
+                                                  authenticationService,
+                                                  tokenMapper);
 
         verifyZeroInteractions(activityRepo,
                                appRepo,
                                followerRepo,
                                mediaRepo,
                                messageRepo,
-                               userRepo);
+                               userRepo,
+                               authenticationService,
+                               tokenMapper);
     }
 
     private void setupData() throws Exception
@@ -145,8 +172,13 @@ public class DeleteApplicationOperationTest
         app.applicationId = appId;
         app.owners.add(userId);
         
+        authToken.tokenId = tokenId;
+        
+        userToken.userId = userId;
+        userToken.tokenId = tokenId;
+        
         request.applicationId = appId;
-        request.token.userId = userId;
+        request.token = userToken;
         
         user.userId = userId;
         
@@ -157,18 +189,25 @@ public class DeleteApplicationOperationTest
         when(appRepo.getById(appId)).thenReturn(app);
         when(followerRepo.getApplicationFollowers(appId)).thenReturn(followers);
         when(userRepo.getUser(userId)).thenReturn(user);
+        
+        when(authenticationService.invalidateToken(Mockito.any()))
+            .thenReturn(new InvalidateTokenResponse());
+        
+        when(tokenMapper.apply(userToken)).thenReturn(authToken);
     }
     
     @DontRepeat
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new DeleteApplicationOperation(null, appRepo, followerRepo, mediaRepo, messageRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, null, followerRepo, mediaRepo, messageRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, null, mediaRepo, messageRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, null, messageRepo, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, null, userRepo));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, null));
+        assertThrows(() -> new DeleteApplicationOperation(null, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, null, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, null, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, null, messageRepo, userRepo, authenticationService, tokenMapper));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, null, userRepo, authenticationService, tokenMapper));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, null, authenticationService, tokenMapper));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, null, tokenMapper));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, null));
     }
 
     @TimeSensitive
@@ -213,6 +252,12 @@ public class DeleteApplicationOperationTest
             Event event = captor.getValue();
             checkEvent(event);
         }
+        
+        InvalidateTokenRequest expectedRequest = new InvalidateTokenRequest()
+            .setToken(authToken)
+            .setBelongingTo(appId);
+        
+        verify(authenticationService).invalidateToken(expectedRequest);
     }
     
     @Test
@@ -250,6 +295,22 @@ public class DeleteApplicationOperationTest
         
         verify(appRepo, never()).deleteApplication(appId);
     }
+    
+    @Test
+    public void testWhenAuthenticationServiceCallFails() throws Exception
+    {
+        
+        when(authenticationService.invalidateToken(Mockito.any()))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(OperationFailedException.class);
+        
+        verifyZeroInteractions(activityRepo, mediaRepo, messageRepo);
+        
+        verify(appRepo, never()).deleteApplication(appId);
+        verify(followerRepo, never()).deleteFollowing(anyString(), eq(appId));
+    }        
     
     @DontRepeat
     @Test

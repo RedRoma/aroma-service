@@ -18,6 +18,7 @@ package tech.aroma.service.operations;
 
 import com.google.common.base.Strings;
 import java.util.List;
+import java.util.function.Function;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -31,6 +32,10 @@ import tech.aroma.data.MessageRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
+import tech.aroma.thrift.authentication.AuthenticationToken;
+import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.authentication.service.AuthenticationService;
+import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
 import tech.aroma.thrift.events.ApplicationDeleted;
 import tech.aroma.thrift.events.Event;
 import tech.aroma.thrift.events.EventType;
@@ -64,10 +69,12 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
 
     private final ActivityRepository activityRepo;
     private final ApplicationRepository appRepo;
+    private final AuthenticationService.Iface authenticationService;
     private final FollowerRepository followerRepo;
     private final MediaRepository mediaRepo;
     private final MessageRepository messageRepo;
     private final UserRepository userRepo;
+    private final Function<UserToken, AuthenticationToken> tokenMapper;
 
     @Inject
     DeleteApplicationOperation(ActivityRepository activityRepo,
@@ -75,16 +82,27 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
                                FollowerRepository followerRepo,
                                MediaRepository mediaRepo,
                                MessageRepository messageRepo,
-                               UserRepository userRepo)
+                               UserRepository userRepo,
+                               AuthenticationService.Iface authenticationService, 
+                               Function<UserToken, AuthenticationToken> tokenMapper)
     {
-        checkThat(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo)
+        checkThat(activityRepo, 
+                  appRepo, 
+                  followerRepo,
+                  mediaRepo, 
+                  messageRepo, 
+                  userRepo,
+                  authenticationService, 
+                  tokenMapper)
             .are(notNull());
 
         this.activityRepo = activityRepo;
         this.appRepo = appRepo;
+        this.authenticationService = authenticationService;
         this.followerRepo = followerRepo;
         this.mediaRepo = mediaRepo;
         this.messageRepo = messageRepo;
+        this.tokenMapper = tokenMapper;
         this.userRepo = userRepo;
     }
 
@@ -104,6 +122,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
 
         User user = userRepo.getUser(userId);
         
+        deleteAllTokensBelongingToApp(app, request.token);
         List<User> followers = tryToRemoveAllFollowersFor(app);
         tryToDeleteAllMessagesFor(app);
         tryToDeleteMediaFor(app);
@@ -279,6 +298,27 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         EventType eventType = new EventType();
         eventType.setApplicationDeleted(appDeleted);
         return eventType;
+    }
+
+    private void deleteAllTokensBelongingToApp(Application app, UserToken usingToken) throws TException
+    {
+        AuthenticationToken token = tokenMapper.apply(usingToken);
+        
+        InvalidateTokenRequest request = new InvalidateTokenRequest()
+            .setToken(token)
+            .setBelongingTo(app.applicationId);
+        
+        LOG.debug("Making request to invalidate all tokens belonging to: {}", app);
+        
+        try
+        {
+            authenticationService.invalidateToken(request);
+        }
+        catch (TException ex)
+        {
+            LOG.error("Failed to invalidate tokens belonging to {}", app, ex);
+            throw ex;
+        }
     }
 
 }
