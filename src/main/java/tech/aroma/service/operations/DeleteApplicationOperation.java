@@ -118,7 +118,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
 
         checkThat(userId)
             .throwing(UnauthorizedException.class)
-            .is(ownerOfApp(app));
+            .is(anOwnerOfApp(app));
 
         User user = userRepo.getUser(userId);
         
@@ -149,7 +149,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         };
     }
 
-    private AlchemyAssertion<String> ownerOfApp(Application app)
+    private AlchemyAssertion<String> anOwnerOfApp(Application app)
     {
         return userId ->
         {
