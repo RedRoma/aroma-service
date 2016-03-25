@@ -25,6 +25,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import tech.aroma.data.CredentialRepository;
+import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.service.operations.encryption.OverTheWireDecryptor;
@@ -43,7 +44,6 @@ import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
-import tech.sirwellington.alchemy.test.junit.ExceptionOperation;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -80,6 +80,9 @@ public class SignUpOperationTest
 {
     @Mock
     private CredentialRepository credentialRepo;
+    
+    @Mock
+    private MediaRepository mediaRepo;
     
     @Mock
     private UserRepository userRepo;
@@ -132,7 +135,7 @@ public class SignUpOperationTest
     @Before
     public void setUp() throws TException
     {
-        instance = new SignUpOperation(authenticationService, credentialRepo, userRepo, tokenMapper, decryptor, encryptor);
+        instance = new SignUpOperation(authenticationService, credentialRepo, mediaRepo, userRepo, tokenMapper, decryptor, encryptor);
         
         verifyZeroInteractions(authenticationService, credentialRepo, userRepo, tokenMapper, decryptor, encryptor);
         
@@ -144,41 +147,13 @@ public class SignUpOperationTest
     @Test
     public void testConstrutor() throws Exception
     {
-        ExceptionOperation op = () ->
-        {
-            new SignUpOperation(null, credentialRepo, userRepo, tokenMapper, decryptor, encryptor);
-        };
-        assertThrows(op).isInstanceOf(IllegalArgumentException.class);
-        
-        op = () ->
-        {
-            new SignUpOperation(authenticationService, null, userRepo, tokenMapper, decryptor, encryptor);
-        };
-        assertThrows(op).isInstanceOf(IllegalArgumentException.class);
-        
-        op = () ->
-        {
-            new SignUpOperation(authenticationService, credentialRepo, null, tokenMapper, decryptor, encryptor);
-        };
-        assertThrows(op).isInstanceOf(IllegalArgumentException.class);
-        
-        op = () ->
-        {
-            new SignUpOperation(authenticationService, credentialRepo, userRepo, null, decryptor, encryptor);
-        };
-        assertThrows(op).isInstanceOf(IllegalArgumentException.class);
-        
-        op = () ->
-        {
-            new SignUpOperation(authenticationService, credentialRepo, userRepo, tokenMapper, null, encryptor);
-        };
-        assertThrows(op).isInstanceOf(IllegalArgumentException.class);
-        
-        op = () ->
-        {
-            new SignUpOperation(authenticationService, credentialRepo, userRepo, tokenMapper, decryptor, null);
-        };
-        assertThrows(op).isInstanceOf(IllegalArgumentException.class);
+        assertThrows(() -> new SignUpOperation(null, credentialRepo, mediaRepo, userRepo, tokenMapper, decryptor, encryptor));
+        assertThrows(() -> new SignUpOperation(authenticationService, null, mediaRepo, userRepo, tokenMapper, decryptor, encryptor));
+        assertThrows(() -> new SignUpOperation(authenticationService, credentialRepo, null, userRepo, tokenMapper, decryptor, encryptor));
+        assertThrows(() -> new SignUpOperation(authenticationService, credentialRepo, mediaRepo, null, tokenMapper, decryptor, encryptor));
+        assertThrows(() -> new SignUpOperation(authenticationService, credentialRepo, mediaRepo, userRepo, null, decryptor, encryptor));
+        assertThrows(() -> new SignUpOperation(authenticationService, credentialRepo, mediaRepo, userRepo, tokenMapper, null, encryptor));
+        assertThrows(() -> new SignUpOperation(authenticationService, credentialRepo, mediaRepo, userRepo, tokenMapper, decryptor, null));
     }
 
     @Test

@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.CredentialRepository;
+import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.service.operations.encryption.OverTheWireDecryptor;
@@ -68,6 +69,7 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     private final AuthenticationService.Iface authenticationService;
 
     private final CredentialRepository credentialsRepo;
+    private final MediaRepository mediaRepo;
     private final UserRepository userRepo;
     
     private final Function<AuthenticationToken, UserToken> tokenMapper;
@@ -78,16 +80,18 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
     @Inject
     SignUpOperation(AuthenticationService.Iface authenticationService,
                     CredentialRepository credentialsRepo,
+                    MediaRepository mediaRepo,
                     UserRepository userRepo,
                     Function<AuthenticationToken, UserToken> tokenMapper,
                     OverTheWireDecryptor decryptor,
                     AromaPasswordEncryptor passwordEncryptor)
     {
-        checkThat(authenticationService, credentialsRepo, userRepo, tokenMapper, decryptor, passwordEncryptor)
+        checkThat(authenticationService, credentialsRepo, mediaRepo, userRepo, tokenMapper, decryptor, passwordEncryptor)
             .are(notNull());
         
         this.authenticationService = authenticationService;
         this.credentialsRepo = credentialsRepo;
+        this.mediaRepo = mediaRepo;
         this.userRepo = userRepo;
         this.tokenMapper = tokenMapper;
         this.decryptor = decryptor;
@@ -113,8 +117,14 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         
         tryToSaveCredentialsFor(userId, request);
         
+        
         User user = createUserFrom(request);
         user.userId = userId;
+        
+        if (request.isSetProfileImage())
+        {
+            tryToSaveProfileImage(request, user);
+        }
         
         //Store in Repository
         userRepo.saveUser(user);
@@ -325,5 +335,10 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
         
         credentialsRepo.saveEncryptedPassword(userId, digestedPassword);
         LOG.debug("Password successfully stored");
+    }
+
+    private void tryToSaveProfileImage(SignUpRequest request, User user)
+    {
+        
     }
 }
