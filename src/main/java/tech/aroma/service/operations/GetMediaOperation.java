@@ -32,6 +32,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThan;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
 
@@ -79,6 +80,13 @@ final class GetMediaOperation implements ThriftOperation<GetMediaRequest, GetMed
                 .is(nonEmptyString())
                 .usingMessage("mediaID must be a valid UUID")
                 .is(validUUID());
+            
+            if(request.isSetDesiredThumbnailSize())
+            {
+                checkThat(request.desiredThumbnailSize.width, request.desiredThumbnailSize.height)
+                    .usingMessage("Thumbnail dimensions are off")
+                    .are(greaterThan(0));
+            }
         };
     }
 

@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.data.MediaRepository;
+import tech.aroma.thrift.Dimension;
 import tech.aroma.thrift.Image;
 import tech.aroma.thrift.exceptions.DoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -38,6 +39,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.NumberGenerators.negativeIntegers;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -130,4 +133,17 @@ public class GetMediaOperationTest
             .isInstanceOf(InvalidArgumentException.class);
     }
 
+    
+    @Test
+    public void testWithBadThumbnailRequest() throws Exception
+    {
+        Dimension dimension = new Dimension();
+        dimension.setHeight(one(negativeIntegers()))
+            .setWidth(one(negativeIntegers()));
+        
+        request.setDesiredThumbnailSize(dimension);
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
 }
