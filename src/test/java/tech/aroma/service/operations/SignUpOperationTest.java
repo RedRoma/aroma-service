@@ -29,6 +29,7 @@ import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.service.operations.encryption.OverTheWireDecryptor;
+import tech.aroma.thrift.Image;
 import tech.aroma.thrift.User;
 import tech.aroma.thrift.authentication.AuthenticationToken;
 import tech.aroma.thrift.authentication.Credentials;
@@ -181,6 +182,24 @@ public class SignUpOperationTest
         assertThat(requestMade, notNullValue());
         assertThat(requestMade.ownerId, is(savedUser.userId));
         assertThat(requestMade.desiredTokenType, is(TokenType.USER));
+        
+        verify(mediaRepo).saveMedia(savedUser.userId, request.profileImage);
+    }
+    
+    @Test
+    public void testWhenMediaRepoFails() throws Exception
+    {
+        doThrow(new OperationFailedException())
+            .when(mediaRepo)
+            .saveMedia(anyString(), any(Image.class));
+        
+        SignUpResponse response = instance.process(request);
+
+        verify(userRepo).saveUser(userCaptor.capture());
+        User savedUser = userCaptor.getValue();
+        
+        verify(credentialRepo).saveEncryptedPassword(savedUser.userId, digestedPassword);
+        assertThat(response.userToken, is(userToken));
     }
     
     @Test

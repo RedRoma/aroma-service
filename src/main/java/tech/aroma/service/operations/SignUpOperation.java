@@ -29,6 +29,7 @@ import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.service.operations.encryption.OverTheWireDecryptor;
+import tech.aroma.thrift.Image;
 import tech.aroma.thrift.User;
 import tech.aroma.thrift.authentication.AuthenticationToken;
 import tech.aroma.thrift.authentication.TokenType;
@@ -339,6 +340,16 @@ final class SignUpOperation implements ThriftOperation<SignUpRequest, SignUpResp
 
     private void tryToSaveProfileImage(SignUpRequest request, User user)
     {
+        Image profileImage = request.profileImage;
         
+        try
+        {
+            mediaRepo.saveMedia(user.userId, profileImage);
+            user.profileImageLink = user.userId;
+        }
+        catch (Exception ex)
+        {
+            LOG.error("Failed to save User Profile Image: {}", user, ex);
+        }
     }
 }
