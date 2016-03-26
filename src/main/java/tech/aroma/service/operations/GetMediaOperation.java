@@ -23,7 +23,10 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.data.MediaRepository;
+import tech.aroma.service.operations.thumbnails.ThumbnailCreator;
+import tech.aroma.thrift.Dimension;
 import tech.aroma.thrift.Image;
+import tech.aroma.thrift.exceptions.DoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
@@ -45,13 +48,16 @@ final class GetMediaOperation implements ThriftOperation<GetMediaRequest, GetMed
     private final static Logger LOG = LoggerFactory.getLogger(GetMediaOperation.class);
     
     private final MediaRepository mediaRepo;
+    private final ThumbnailCreator thumbnailCreator;
 
     @Inject
-    GetMediaOperation(MediaRepository mediaRepo)
+    GetMediaOperation(MediaRepository mediaRepo, ThumbnailCreator thumbnailCreator)
     {
-        checkThat(mediaRepo).is(notNull());
+        checkThat(mediaRepo, thumbnailCreator)
+            .are(notNull());
         
         this.mediaRepo = mediaRepo;
+        this.thumbnailCreator = thumbnailCreator;
     }
 
     @Override
@@ -62,9 +68,40 @@ final class GetMediaOperation implements ThriftOperation<GetMediaRequest, GetMed
             .is(good());
         
         String mediaId = request.mediaId;
+      
+        if (request.isSetDesiredThumbnailSize() &&
+            mediaRepo.containsThumbnail(mediaId, request.desiredThumbnailSize))
+        {
+            Image thumbnail = getThumbnail(mediaId, request.desiredThumbnailSize);
+
+            if (thumbnail != null)
+            {
+                return new GetMediaResponse(thumbnail);
+            }
+        }
+
         Image image = mediaRepo.getMedia(mediaId);
         
-        return new GetMediaResponse(image);
+        if (!request.isSetDesiredThumbnailSize())
+        {
+            return new GetMediaResponse(image);
+        }
+        
+        Dimension thumbnailDimension = request.desiredThumbnailSize;
+        
+        Image thumbnail = tryToCreateThumbnailForImageOfSize(image, thumbnailDimension);
+        
+        if (thumbnail != null)
+        {
+            tryToSaveThumbnail(mediaId, thumbnail, thumbnailDimension);
+            return new GetMediaResponse(thumbnail);
+        }
+        else
+        {
+            LOG.warn("Could not successfully produce a thumbnail, so returning full image");
+            return new GetMediaResponse(image);
+        }
+        
     }
 
     private AlchemyAssertion<GetMediaRequest> good()
@@ -88,6 +125,49 @@ final class GetMediaOperation implements ThriftOperation<GetMediaRequest, GetMed
                     .are(greaterThan(0));
             }
         };
+    }
+
+    private Image getThumbnail(String mediaId, Dimension dimension) throws TException
+    {
+        try
+        {
+            return mediaRepo.getThumbnail(mediaId, dimension);
+        }
+        catch(DoesNotExistException ex)
+        {
+            return null;
+        }
+        catch(TException ex)
+        {
+            throw ex;
+        }
+        
+    }
+    
+    private Image tryToCreateThumbnailForImageOfSize(Image image, Dimension thumbnailSize) throws TException
+    {
+        
+        try        
+        {
+            return thumbnailCreator.createThumbnail(image, thumbnailSize);
+        }
+        catch (TException ex)
+        {
+            LOG.warn("Could not generate a thumbnail for {} of size {}. Returning normail image.", image, thumbnailSize, ex);
+            return null;
+        }
+    }
+
+    private void tryToSaveThumbnail(String mediaId, Image thumbnail, Dimension thumbnailDimension)
+    {
+        try
+        {
+            mediaRepo.saveThumbnail(mediaId, thumbnailDimension, thumbnail);
+        }
+        catch (TException ex)
+        {
+            LOG.error("Failed to save Thumbnail for {} of size {}", mediaId, thumbnailDimension, ex);
+        }
     }
 
 }
