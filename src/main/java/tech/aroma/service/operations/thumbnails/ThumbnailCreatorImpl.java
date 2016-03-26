@@ -48,7 +48,7 @@ final class ThumbnailCreatorImpl implements ThumbnailCreator
     @Override
     public Image createThumbnail(Image originalImage, Dimension desiredSize) throws TException
     {
-
+        
         checkThat(originalImage, desiredSize)
             .throwing(InvalidArgumentException.class)
             .usingMessage("missing arguments")
