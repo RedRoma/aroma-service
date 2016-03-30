@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sir.wellington.alchemy.collections.lists.Lists;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.InboxRepository;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -30,7 +29,6 @@ import tech.aroma.thrift.service.DismissMessageResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static tech.aroma.data.assertions.RequestAssertions.isNullOrEmpty;
 import static tech.aroma.data.assertions.RequestAssertions.validMessageId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
@@ -104,10 +102,9 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
 
             if(request.isSetMessageIds())
             {
-                for(String id : request.messageIds)
-                {
-                    checkThat(id).is(validMessageId());
-                }
+                request.messageIds
+                    .parallelStream()
+                    .forEach(id -> checkThat(id).is(validMessageId()));
             }
         };
     }
@@ -123,16 +120,8 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
 
     private Set<String> getAllMessageIdsFrom(DismissMessageRequest request)
     {
-        Set<String> result = Sets.create();
-        if (!isNullOrEmpty(request.messageId))
-        {
-            result.add(request.messageId);
-        }
-
-        if (!Lists.isEmpty(request.messageIds))
-        {
-            result.addAll(request.messageIds);
-        }
+        Set<String> result = Sets.copyOf(request.messageIds);
+        result.add(request.messageId);
 
         return result;
     }
