@@ -74,7 +74,7 @@ final class GetInboxOperation implements ThriftOperation<GetInboxRequest, GetInb
         int limit = request.limit == 0 ? 2000 : request.limit;
 
         List<Message> messages = inboxRepo.getMessagesForUser(userId)
-            .stream()
+            .parallelStream()
             .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
             .limit(limit)
             .collect(toList());
