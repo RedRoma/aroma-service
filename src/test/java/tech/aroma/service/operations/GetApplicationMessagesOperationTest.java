@@ -28,6 +28,7 @@ import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MessageRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.Message;
+import tech.aroma.thrift.exceptions.DoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.service.GetApplicationMessagesRequest;
@@ -42,6 +43,7 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -86,6 +88,8 @@ public class GetApplicationMessagesOperationTest
     @GenerateList(Message.class)
     private List<Message> messages;
 
+    private List<Message> sortedMessages;
+    
     @Before
     public void setUp() throws Exception
     {
@@ -101,15 +105,21 @@ public class GetApplicationMessagesOperationTest
 
         request.applicationId = appId;
         request.token.userId = userId;
+        
+        app.owners.add(userId);
+        
+        sortedMessages = messages.stream()
+            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
+            .limit(request.limit)
+            .collect(toList());
     }
 
     private void setupMocks() throws Exception
     {
+        when(appRepo.getById(appId)).thenReturn(app);
+        
         when(messageRepo.getByApplication(appId))
             .thenReturn(messages);
-        
-        when(followerRepo.followingExists(userId, appId))
-            .thenReturn(true);
     }
 
     @DontRepeat
@@ -126,11 +136,6 @@ public class GetApplicationMessagesOperationTest
     {
         GetApplicationMessagesResponse response = instance.process(request);
         assertThat(response, notNullValue());
-
-        List<Message> sortedMessages = messages.stream()
-            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
-            .limit(request.limit)
-            .collect(toList());
 
         assertThat(response.messages, is(sortedMessages));
     }
@@ -159,18 +164,44 @@ public class GetApplicationMessagesOperationTest
     }
     
     @Test
-    public void testWhenUserIsNotAFollower() throws Exception
+    public void testWhenUserIsAnOwnerButNotAFollower() throws Exception
     {
         when(followerRepo.followingExists(userId, appId))
             .thenReturn(false);
         
         GetApplicationMessagesResponse response = instance.process(request);
-        assertThat(Lists.isEmpty(response.messages), is(true));
+        assertThat(response.messages, is(sortedMessages));
+    }
+    
+    @Test
+    public void testWhenUserIsNotAnOwnerButIsAFollower() throws Exception
+    {
+        app.owners.remove(userId);
+        
+        when(followerRepo.followingExists(userId, appId)).thenReturn(true);
+        
+        GetApplicationMessagesResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        assertThat(response.messages, not(empty()));
+        assertThat(response.messages, is(sortedMessages));
+    }
+    
+    @DontRepeat
+    @Test
+    public void testWhenAppRepoFails() throws Exception
+    {
+        when(appRepo.getById(appId))
+            .thenThrow(new DoesNotExistException());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(DoesNotExistException.class);
     }
     
     @Test
     public void testWhenFollowerRepoFails() throws Exception
     {
+        app.owners.remove(userId);
+        
         when(followerRepo.followingExists(userId, appId))
             .thenThrow(new OperationFailedException());
         

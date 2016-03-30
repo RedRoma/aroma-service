@@ -18,13 +18,16 @@ package tech.aroma.service.operations;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MessageRepository;
+import tech.aroma.thrift.Application;
 import tech.aroma.thrift.Message;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetApplicationMessagesRequest;
@@ -75,7 +78,7 @@ final class GetApplicationMessagesOperation implements ThriftOperation<GetApplic
         String userId = request.token.userId;
         String appId = request.applicationId;
         
-        if (!isFollower(userId, appId))
+        if (notAFollowerOrOwner(userId, appId))
         {
             return new GetApplicationMessagesResponse();
         }
@@ -115,9 +118,28 @@ final class GetApplicationMessagesOperation implements ThriftOperation<GetApplic
         };
     }
 
+    private boolean notAFollowerOrOwner(String userId, String appId) throws TException
+    {
+        return !isOwnerOrFollower(userId, appId);
+    }
+
+    private boolean isOwnerOrFollower(String userId, String appId) throws TException
+    {
+        return isOwner(userId, appId) || isFollower(userId, appId);
+    }
+
     private boolean isFollower(String userId, String appId) throws TException
     {
         return followerRepo.followingExists(userId, appId);
+    }
+
+    private boolean isOwner(String userId, String appId) throws TException
+    {
+        Application app = appRepo.getById(appId);
+
+        return Sets.nullToEmpty(app.owners)
+            .stream()
+            .anyMatch(id -> Objects.equals(id, userId));
     }
 
 }
