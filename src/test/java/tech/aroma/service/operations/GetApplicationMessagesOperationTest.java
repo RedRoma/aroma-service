@@ -24,8 +24,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import sir.wellington.alchemy.collections.lists.Lists;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MessageRepository;
-import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.Message;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -55,7 +55,7 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class GetApplicationMessagesOperationTest
 {
@@ -64,10 +64,10 @@ public class GetApplicationMessagesOperationTest
     private ApplicationRepository appRepo;
 
     @Mock
-    private MessageRepository messageRepo;
-
+    private FollowerRepository followerRepo;
+    
     @Mock
-    private UserRepository userRepo;
+    private MessageRepository messageRepo;
 
     private GetApplicationMessagesOperation instance;
 
@@ -77,6 +77,9 @@ public class GetApplicationMessagesOperationTest
     @GenerateString(UUID)
     private String appId;
 
+    @GenerateString(UUID)
+    private String userId;
+    
     @GeneratePojo
     private Application app;
 
@@ -90,21 +93,34 @@ public class GetApplicationMessagesOperationTest
         setupData();
         setupMocks();
 
-        instance = new GetApplicationMessagesOperation(appRepo, messageRepo, userRepo);
+        instance = new GetApplicationMessagesOperation(appRepo, followerRepo, messageRepo);
     }
 
     private void setupData() throws Exception
     {
 
         request.applicationId = appId;
+        request.token.userId = userId;
     }
 
     private void setupMocks() throws Exception
     {
         when(messageRepo.getByApplication(appId))
             .thenReturn(messages);
+        
+        when(followerRepo.followingExists(userId, appId))
+            .thenReturn(true);
     }
 
+    @DontRepeat
+    @Test
+    public void testConstructor() throws Exception
+    {
+        assertThrows(() -> new GetApplicationMessagesOperation(null, followerRepo, messageRepo));
+        assertThrows(() -> new GetApplicationMessagesOperation(appRepo, null, messageRepo));
+        assertThrows(() -> new GetApplicationMessagesOperation(appRepo, followerRepo, null));
+    }
+    
     @Test
     public void testProcess() throws Exception
     {
@@ -136,6 +152,26 @@ public class GetApplicationMessagesOperationTest
     public void testWhenMessageRepoFails() throws Exception
     {
         when(messageRepo.getByApplication(appId))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(OperationFailedException.class);
+    }
+    
+    @Test
+    public void testWhenUserIsNotAFollower() throws Exception
+    {
+        when(followerRepo.followingExists(userId, appId))
+            .thenReturn(false);
+        
+        GetApplicationMessagesResponse response = instance.process(request);
+        assertThat(Lists.isEmpty(response.messages), is(true));
+    }
+    
+    @Test
+    public void testWhenFollowerRepoFails() throws Exception
+    {
+        when(followerRepo.followingExists(userId, appId))
             .thenThrow(new OperationFailedException());
         
         assertThrows(() -> instance.process(request))

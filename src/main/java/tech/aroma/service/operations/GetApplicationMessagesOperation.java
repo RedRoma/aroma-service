@@ -23,8 +23,8 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MessageRepository;
-import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Message;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetApplicationMessagesRequest;
@@ -48,18 +48,18 @@ final class GetApplicationMessagesOperation implements ThriftOperation<GetApplic
     private final static Logger LOG = LoggerFactory.getLogger(GetApplicationMessagesOperation.class);
 
     private final ApplicationRepository appRepo;
+    private final FollowerRepository followerRepo;
     private final MessageRepository messageRepo;
-    private final UserRepository userRepo;
 
     @Inject
-    GetApplicationMessagesOperation(ApplicationRepository appRepo, MessageRepository messageRepo, UserRepository userRepo)
+    GetApplicationMessagesOperation(ApplicationRepository appRepo, FollowerRepository followerRepo, MessageRepository messageRepo)
     {
-        checkThat(appRepo, messageRepo, userRepo)
+        checkThat(appRepo, followerRepo, messageRepo)
             .are(notNull());
         
         this.appRepo = appRepo;
+        this.followerRepo = followerRepo;
         this.messageRepo = messageRepo;
-        this.userRepo = userRepo;
     }
 
 
@@ -71,8 +71,15 @@ final class GetApplicationMessagesOperation implements ThriftOperation<GetApplic
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
-
+            
+        String userId = request.token.userId;
         String appId = request.applicationId;
+        
+        if (!isFollower(userId, appId))
+        {
+            return new GetApplicationMessagesResponse();
+        }
+        
         int limit = request.limit == 0 ? 2000 : request.limit;
 
         List<Message> messages = messageRepo.getByApplication(appId)
@@ -106,6 +113,11 @@ final class GetApplicationMessagesOperation implements ThriftOperation<GetApplic
                 .usingMessage("applicationId is invalid")
                 .is(validApplicationId());
         };
+    }
+
+    private boolean isFollower(String userId, String appId) throws TException
+    {
+        return followerRepo.followingExists(userId, appId);
     }
 
 }
