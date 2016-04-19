@@ -27,6 +27,7 @@ import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.Image;
+import tech.aroma.thrift.ProgrammingLanguage;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.when;
 import static tech.aroma.thrift.generators.ApplicationGenerators.applications;
 import static tech.aroma.thrift.generators.ImageGenerators.appIcons;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.EnumGenerators.enumValueOf;
 import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
@@ -169,6 +171,19 @@ public class UpdateApplicationOperationTest
 
         verify(appRepo).saveApplication(newApp);
         assertThat(savedApp, is(newApp));
+    }
+    
+    @Test
+    public void testWhenLanguageChanges() throws Exception
+    {
+        ProgrammingLanguage newLanguage = enumValueOf(ProgrammingLanguage.class).get();
+        newApp.setProgrammingLanguage(newLanguage);
+        
+        UpdateApplicationResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        
+        verify(appRepo).saveApplication(newApp);
+        
     }
 
     @Test
