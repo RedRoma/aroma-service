@@ -136,18 +136,18 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         String appId = application.applicationId;
 
         return userId ->
+        {
+            if (Sets.isEmpty(application.owners))
             {
-                if (Sets.isEmpty(application.owners))
-                {
-                    throw new FailedAssertionException(format("Application with ID [%s] has no Owners", appId));
-                }
-
-                if (!application.owners.contains(userId))
-                {
-                    throw new FailedAssertionException(format("User [%s] is not an Owner of Application with ID [%s]", userId,
-                                                              appId));
-                }
-            };
+                throw new FailedAssertionException(format("Application with ID [%s] has no Owners", appId));
+            }
+            
+            if (!application.owners.contains(userId))
+            {
+                throw new FailedAssertionException(format("User [%s] is not an Owner of Application with ID [%s]", userId,
+                                                                                                                       appId));
+            }
+        };
     }
 
     private AlchemyAssertion<String> existingUser()
@@ -190,6 +190,24 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         return data != null && data.length > 0;
     }
 
+    private String saveNewAppIcon(UpdateApplicationRequest request) throws TException
+    {
+        String newId = UUID.randomUUID().toString();
+        Image newIcon = request.updatedApplication.icon;
+
+        try
+        {
+            mediaRepo.saveMedia(newId, newIcon);
+        }
+        catch (TException ex)
+        {
+            LOG.warn("Failed to save App's new Icon: {}", request.updatedApplication, ex);
+            throw ex;
+        }
+
+        return newId;
+    }
+
     private void deleteOldIcon(Application app)
     {
         String existingIconId = app.applicationIconMediaId;
@@ -205,24 +223,6 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         {
             LOG.warn("Failed to delete old Application Icon: {} for App {}", existingIconId, app, ex);
         }
-    }
-
-    private String saveNewAppIcon(UpdateApplicationRequest request) throws TException
-    {
-        String newId = UUID.randomUUID().toString();
-        Image newIcon = request.updatedApplication.icon;
-
-        try
-        {
-            mediaRepo.saveMedia(newId, newIcon);
-        }
-        catch (TException ex)
-        {
-            LOG.warn("Failed to save App's new Icon: {}", request.updatedApplication, ex);
-            throw ex;
-        }
-        
-        return newId;
     }
 
     private void setNewIconIdToApp(String newIconId, Application updatedApplication)
