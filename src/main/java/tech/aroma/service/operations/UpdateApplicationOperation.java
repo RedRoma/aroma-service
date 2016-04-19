@@ -16,14 +16,17 @@
 
 package tech.aroma.service.operations;
 
+import java.util.UUID;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.Image;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
@@ -49,15 +52,17 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
     private final static Logger LOG = LoggerFactory.getLogger(UpdateApplicationOperation.class);
 
     private final ApplicationRepository appRepo;
+    private final MediaRepository mediaRepo;
     private final UserRepository userRepo;
 
     @Inject
-    UpdateApplicationOperation(ApplicationRepository appRepo, UserRepository userRepo)
+    UpdateApplicationOperation(ApplicationRepository appRepo, MediaRepository mediaRepo, UserRepository userRepo)
     {
-        checkThat(appRepo, userRepo)
+        checkThat(appRepo, mediaRepo, userRepo)
             .are(notNull());
 
         this.appRepo = appRepo;
+        this.mediaRepo = mediaRepo;
         this.userRepo = userRepo;
     }
 
@@ -76,6 +81,13 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         checkThat(request.token.userId)
             .throwing(UnauthorizedException.class)
             .is(ownerOf(latestApp));
+        
+        if (hasIcon(request))
+        {
+            String newIconId = saveNewAppIcon(request);
+            deleteOldIcon(latestApp);
+            setNewIconIdToApp(newIconId, request.updatedApplication);
+        }
 
         appRepo.saveApplication(request.updatedApplication);
 
@@ -111,6 +123,8 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
             for (String ownerId : request.updatedApplication.owners)
             {
                 checkThat(ownerId)
+                    .usingMessage("Owner ID is Invalid: " + ownerId)
+                    .is(validUserId())
                     .usingMessage("Application Owner Does not exist: " + ownerId)
                     .is(existingUser());
             }
@@ -154,5 +168,67 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
             }
         };
     }
+
+
+    private boolean hasIcon(UpdateApplicationRequest request)
+    {
+        Application app = request.updatedApplication;
+
+        if (app == null)
+        {
+            return false;
+        }
+
+        Image icon = app.icon;
+        if (icon == null)
+        {
+            return false;
+        }
+
+        byte[] data = icon.getData();
+
+        return data != null && data.length > 0;
+    }
+
+    private void deleteOldIcon(Application app)
+    {
+        String existingIconId = app.applicationIconMediaId;
+
+        try
+        {
+            if (mediaRepo.containsMedia(existingIconId))
+            {
+                mediaRepo.deleteMedia(existingIconId);
+            }
+        }
+        catch (TException ex)
+        {
+            LOG.warn("Failed to delete old Application Icon: {} for App {}", existingIconId, app, ex);
+        }
+    }
+
+    private String saveNewAppIcon(UpdateApplicationRequest request) throws TException
+    {
+        String newId = UUID.randomUUID().toString();
+        Image newIcon = request.updatedApplication.icon;
+
+        try
+        {
+            mediaRepo.saveMedia(newId, newIcon);
+        }
+        catch (TException ex)
+        {
+            LOG.warn("Failed to save App's new Icon: {}", request.updatedApplication, ex);
+            throw ex;
+        }
+        
+        return newId;
+    }
+
+    private void setNewIconIdToApp(String newIconId, Application updatedApplication)
+    {
+        updatedApplication.setApplicationIconMediaId(newIconId);
+    }
+
 
 }

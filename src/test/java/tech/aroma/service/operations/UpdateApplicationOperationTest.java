@@ -23,8 +23,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.MediaRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.Image;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
@@ -41,6 +43,10 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.aroma.thrift.generators.ApplicationGenerators.applications;
+import static tech.aroma.thrift.generators.ImageGenerators.appIcons;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -56,6 +62,10 @@ public class UpdateApplicationOperationTest
 
     @Mock
     private ApplicationRepository appRepo;
+
+    @Mock
+    private MediaRepository mediaRepo;
+
     @Mock
     private UserRepository userRepo;
 
@@ -70,8 +80,9 @@ public class UpdateApplicationOperationTest
     @GenerateString(UUID)
     private String userId;
 
-    @GeneratePojo
-    private Application app;
+    private Application oldApp;
+
+    private Application newApp;
 
     @GenerateString(ALPHABETIC)
     private String badId;
@@ -82,8 +93,8 @@ public class UpdateApplicationOperationTest
     @Before
     public void setUp() throws Exception
     {
-        instance = new UpdateApplicationOperation(appRepo, userRepo);
-        verifyZeroInteractions(appRepo, userRepo);
+        instance = new UpdateApplicationOperation(appRepo, mediaRepo, userRepo);
+        verifyZeroInteractions(appRepo, mediaRepo, userRepo);
 
         setupData();
         setupMocks();
@@ -91,11 +102,16 @@ public class UpdateApplicationOperationTest
 
     private void setupData() throws Exception
     {
-        app.applicationId = appId;
-        app.unsetOrganizationId();
-        app.owners.add(userId);
+        oldApp = one(applications());
 
-        request.updatedApplication = app;
+        appId = oldApp.applicationId;
+        oldApp.unsetOrganizationId();
+        oldApp.owners.add(userId);
+        oldApp.unsetIcon();
+
+        newApp = new Application(oldApp);
+
+        request.updatedApplication = newApp;
         request.token.userId = userId;
     }
 
@@ -104,23 +120,90 @@ public class UpdateApplicationOperationTest
         when(appRepo.containsApplication(appId))
             .thenReturn(true);
 
-        when(appRepo.getById(appId)).thenReturn(app);
-        
-        for (String ownerId : app.owners)
+        when(appRepo.getById(appId)).thenReturn(oldApp);
+
+        for (String ownerId : oldApp.owners)
         {
             when(userRepo.containsUser(ownerId)).thenReturn(true);
         }
+
+        when(mediaRepo.containsMedia(oldApp.applicationIconMediaId))
+            .thenReturn(false);
     }
 
     @DontRepeat
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new UpdateApplicationOperation(null, userRepo))
+        assertThrows(() -> new UpdateApplicationOperation(null, null, userRepo))
             .isInstanceOf(IllegalArgumentException.class);
 
-        assertThrows(() -> new UpdateApplicationOperation(appRepo, null))
+        assertThrows(() -> new UpdateApplicationOperation(appRepo, null, userRepo))
             .isInstanceOf(IllegalArgumentException.class);
+
+        assertThrows(() -> new UpdateApplicationOperation(appRepo, mediaRepo, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testProcess() throws Exception
+    {
+
+        UpdateApplicationResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+
+        verify(appRepo).saveApplication(captor.capture());
+
+        Application savedApp = captor.getValue();
+        assertThat(savedApp, notNullValue());
+        assertThat(savedApp, is(newApp));
+    }
+    
+    @Test
+    public void testWhenDescriptionChanges() throws Exception
+    {
+        String newDescription = one(alphabeticString());
+        newApp.setApplicationDescription(newDescription);
+        
+         Application savedApp = instance.process(request).getApplication();
+        
+        verify(appRepo).saveApplication(newApp);
+        assertThat(savedApp, is(newApp));
+    }
+
+    @Test
+    public void testWhenNotAuthorized() throws Exception
+    {
+        oldApp.owners.remove(userId);
+
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(UnauthorizedException.class);
+    }
+    
+    @Test
+    public void testWhenNoOwnersIncluded() throws Exception
+    {
+        newApp.owners.clear();
+        
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+    
+    @Test
+    public void testWhenUpdatingAppIcon() throws Exception
+    {
+        Image newIcon = one(appIcons());
+        newApp.setIcon(newIcon);
+        
+        UpdateApplicationResponse response = instance.process(request);
+        
+        verify(appRepo).saveApplication(captor.capture());
+        
+        Application savedApp = captor.getValue();
+        assertThat(savedApp, is(newApp));
+        
+        String newIconId = savedApp.applicationIconMediaId;
+        verify(mediaRepo).saveMedia(newIconId, newIcon);
     }
 
     @DontRepeat
@@ -145,28 +228,5 @@ public class UpdateApplicationOperationTest
         assertThrows(() -> instance.process(requestMissingApp))
             .isInstanceOf(InvalidArgumentException.class);
 
-    }
-
-    @Test
-    public void testProcess() throws Exception
-    {
-        
-        UpdateApplicationResponse response = instance.process(request);
-        assertThat(response, notNullValue());
-        
-        verify(appRepo).saveApplication(captor.capture());
-        
-        Application savedApp = captor.getValue();
-        assertThat(savedApp, notNullValue());
-        assertThat(savedApp, is(app));
-    }
-
-    @Test
-    public void testWhenNotAuthorized() throws Exception
-    {
-        app.owners.remove(userId);
-        
-        assertThrows(() -> instance.process(request))
-            .isInstanceOf(UnauthorizedException.class);
     }
 }
