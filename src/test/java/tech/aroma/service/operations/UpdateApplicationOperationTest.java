@@ -158,15 +158,15 @@ public class UpdateApplicationOperationTest
         assertThat(savedApp, notNullValue());
         assertThat(savedApp, is(newApp));
     }
-    
+
     @Test
     public void testWhenDescriptionChanges() throws Exception
     {
         String newDescription = one(alphabeticString());
         newApp.setApplicationDescription(newDescription);
-        
-         Application savedApp = instance.process(request).getApplication();
-        
+
+        Application savedApp = instance.process(request).getApplication();
+
         verify(appRepo).saveApplication(newApp);
         assertThat(savedApp, is(newApp));
     }
@@ -179,31 +179,31 @@ public class UpdateApplicationOperationTest
         assertThrows(() -> instance.process(request))
             .isInstanceOf(UnauthorizedException.class);
     }
-    
+
+    @Test
+    public void testWhenAppIconChanges() throws Exception
+    {
+        Image newIcon = one(appIcons());
+        newApp.setIcon(newIcon);
+
+        UpdateApplicationResponse response = instance.process(request);
+
+        verify(appRepo).saveApplication(captor.capture());
+
+        Application savedApp = captor.getValue();
+        assertThat(savedApp, is(newApp));
+
+        String newIconId = savedApp.applicationIconMediaId;
+        verify(mediaRepo).saveMedia(newIconId, newIcon);
+    }
+
     @Test
     public void testWhenNoOwnersIncluded() throws Exception
     {
         newApp.owners.clear();
-        
+
         assertThrows(() -> instance.process(request))
             .isInstanceOf(InvalidArgumentException.class);
-    }
-    
-    @Test
-    public void testWhenUpdatingAppIcon() throws Exception
-    {
-        Image newIcon = one(appIcons());
-        newApp.setIcon(newIcon);
-        
-        UpdateApplicationResponse response = instance.process(request);
-        
-        verify(appRepo).saveApplication(captor.capture());
-        
-        Application savedApp = captor.getValue();
-        assertThat(savedApp, is(newApp));
-        
-        String newIconId = savedApp.applicationIconMediaId;
-        verify(mediaRepo).saveMedia(newIconId, newIcon);
     }
 
     @DontRepeat
