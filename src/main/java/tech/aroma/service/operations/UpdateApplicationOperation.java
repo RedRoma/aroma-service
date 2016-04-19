@@ -228,6 +228,7 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
     private void setNewIconIdToApp(String newIconId, Application updatedApplication)
     {
         updatedApplication.setApplicationIconMediaId(newIconId);
+        updatedApplication.unsetIcon();
     }
 
 
