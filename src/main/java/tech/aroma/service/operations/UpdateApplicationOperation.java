@@ -85,36 +85,36 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
     private AlchemyAssertion<UpdateApplicationRequest> good()
     {
         return request ->
+        {
+            checkThat(request)
+                .usingMessage("request is null")
+                .is(notNull());
+            
+            checkThat(request.token)
+                .usingMessage("request missing token")
+                .is(notNull());
+            
+            checkThat(request.token.userId)
+                .is(validUserId());
+            
+            checkThat(request.updatedApplication)
+                .usingMessage("request missing updated application")
+                .is(notNull());
+            
+            checkThat(request.updatedApplication)
+                .is(validApplication());
+            
+            checkThat(request.updatedApplication.owners)
+                .usingMessage("Application must have at least 1 owner")
+                .is(nonEmptySet());
+            
+            for (String ownerId : request.updatedApplication.owners)
             {
-                checkThat(request)
-                    .usingMessage("request is null")
-                    .is(notNull());
-
-                checkThat(request.token)
-                    .usingMessage("request missing token")
-                    .is(notNull());
-
-                checkThat(request.token.userId)
-                    .is(validUserId());
-
-                checkThat(request.updatedApplication)
-                    .usingMessage("request missing updated application")
-                    .is(notNull());
-
-                checkThat(request.updatedApplication)
-                    .is(validApplication());
-                
-                checkThat(request.updatedApplication.owners)
-                    .usingMessage("Application must have at least 1 owner")
-                    .is(nonEmptySet());
-                
-                for (String ownerId : request.updatedApplication.owners)
-                {
-                    checkThat(ownerId)
-                        .usingMessage("Application Owner Does not exist: " + ownerId)
-                        .is(existingUser());
-                }
-            };
+                checkThat(ownerId)
+                    .usingMessage("Application Owner Does not exist: " + ownerId)
+                    .is(existingUser());
+            }
+        };
     }
 
     private AlchemyAssertion<String> ownerOf(Application application)
