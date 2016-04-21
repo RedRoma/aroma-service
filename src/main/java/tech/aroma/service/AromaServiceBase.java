@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.thrift.AromaConstants;
 import tech.aroma.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.thrift.exceptions.ApplicationAlreadyRegisteredException;
 import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
@@ -34,7 +35,6 @@ import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.AromaService;
-import tech.aroma.thrift.service.AromaServiceConstants;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
@@ -65,6 +65,8 @@ import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
 import tech.aroma.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.thrift.service.GetReactionsRequest;
+import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
@@ -91,6 +93,8 @@ import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
+import tech.aroma.thrift.service.UpdateReactionsRequest;
+import tech.aroma.thrift.service.UpdateReactionsResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
@@ -129,8 +133,9 @@ final class AromaServiceBase implements AromaService.Iface
     private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
     private final ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
     private final ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
+    private final ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation;
     private final ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
-    
+
     //Query and GET Operations
     private final ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
     private final ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
@@ -144,6 +149,7 @@ final class AromaServiceBase implements AromaService.Iface
     private final ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation;
     private final ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
+    private final ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation;
 
     @Inject
     AromaServiceBase(ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation,
@@ -161,6 +167,7 @@ final class AromaServiceBase implements AromaService.Iface
                      ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
                      ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
                      ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
+                     ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation,
                      ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation,
                      ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
                      ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
@@ -173,6 +180,7 @@ final class AromaServiceBase implements AromaService.Iface
                      ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation,
                      ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
                      ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
+                     ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation,
                      ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
     {
         checkThat(deleteApplicationOperation,
@@ -190,6 +198,7 @@ final class AromaServiceBase implements AromaService.Iface
                   getApplicationsFollowedByOperation,
                   getApplicationsOwnedByOperation,
                   getMySavedChannelsOperation,
+                  getReactionsOperation,
                   getUserInfoOperation,
                   provisionApplicationOperation,
                   regenerateApplicationTokenOperation,
@@ -202,6 +211,7 @@ final class AromaServiceBase implements AromaService.Iface
                   snoozeChannelOperation,
                   signInOperation,
                   updateApplicationOperation,
+                  updateReactionsOperation,
                   unfollowApplicationOperation)
             .are(notNull());
 
@@ -220,6 +230,7 @@ final class AromaServiceBase implements AromaService.Iface
         this.signUpOperation = signUpOperation;
         this.snoozeChannelOperation = snoozeChannelOperation;
         this.updateApplicationOperation = updateApplicationOperation;
+        this.updateReactionsOperation = updateReactionsOperation;
         this.unfollowApplicationOperation = unfollowApplicationOperation;
         
         this.getActivityOperation = getActivityOperation;
@@ -233,6 +244,7 @@ final class AromaServiceBase implements AromaService.Iface
         this.getApplicationsFollowedByOperation = getApplicationsFollowedByOperation;
         this.getApplicationsOwnedByOperation = getApplicationsOwnedByOperation;
         this.getMySavedChannelsOperation = getMySavedChannelsOperation;
+        this.getReactionsOperation = getReactionsOperation;
         this.getUserInfoOperation = getUserInfoOperation;
     }
     
@@ -243,7 +255,7 @@ final class AromaServiceBase implements AromaService.Iface
     @Override
     public double getApiVersion() throws TException
     {
-        return AromaServiceConstants.API_VERSION;
+        return AromaConstants.API_VERSION;
     }
  
     @Override
@@ -656,6 +668,33 @@ final class AromaServiceBase implements AromaService.Iface
         
         return getUserInfoOperation.process(request);
     }
+
+    @Override
+    public UpdateReactionsResponse updateReactions(UpdateReactionsRequest request) throws OperationFailedException,
+                                                                                          InvalidArgumentException,
+                                                                                          InvalidTokenException,
+                                                                                          ApplicationDoesNotExistException,
+                                                                                          UnauthorizedException, TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to update Reactions: {}", request);
+        
+        return updateReactionsOperation.process(request);
+    }
+
+    @Override
+    public GetReactionsResponse getReactions(GetReactionsRequest request) throws OperationFailedException,
+                                                                                 InvalidArgumentException, InvalidTokenException,
+                                                                                 ApplicationDoesNotExistException,
+                                                                                 UnauthorizedException, TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to get Reactions: {}", request);
+        
+        return getReactionsOperation.process(request);
+    }
     
     private void ensureEmailIsLowerCased(SignInRequest request)
     {
@@ -680,6 +719,7 @@ final class AromaServiceBase implements AromaService.Iface
             request.setEmail(request.email.toLowerCase());
         }
     }
+
 
 
 }

@@ -21,11 +21,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import tech.aroma.thrift.AromaConstants;
+import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.exceptions.DoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
-import tech.aroma.thrift.service.AromaServiceConstants;
+import tech.aroma.thrift.generators.TokenGenerators;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
@@ -56,6 +59,8 @@ import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
 import tech.aroma.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.thrift.service.GetReactionsRequest;
+import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
@@ -82,6 +87,8 @@ import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
+import tech.aroma.thrift.service.UpdateReactionsRequest;
+import tech.aroma.thrift.service.UpdateReactionsResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
@@ -95,7 +102,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
@@ -155,6 +164,9 @@ public class AromaServiceBaseTest
     private ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
     
     @Mock
+    private ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation;
+    
+    @Mock
     private ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
 
     //Query and GET Operations
@@ -192,12 +204,17 @@ public class AromaServiceBaseTest
     private ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
 
     @Mock
+    private ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation;
+    
+    @Mock
     private ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
 
     private AromaServiceBase instance;
+    
+    private UserToken token;
 
     @Before
-    public void setUp()
+    public void setUp() throws Exception
     {
         instance = new AromaServiceBase(deleteApplicationOperation,
                                         deleteMessageOperation,
@@ -214,6 +231,7 @@ public class AromaServiceBaseTest
                                         removeSavedChannelOperation,
                                         snoozeChannelOperation,
                                         updateApplicationOperation,
+                                        updateReactionsOperation,
                                         unfollowApplicationOperation,
                                         getActivityOperation,
                                         getBuzzOperation,
@@ -226,6 +244,7 @@ public class AromaServiceBaseTest
                                         getMediaOperation,
                                         getApplicationMessagesOperation,
                                         getFullMessageOperation,
+                                        getReactionsOperation,
                                         getUserInfoOperation);
 
         verifyZeroInteractions(deleteApplicationOperation,
@@ -243,6 +262,7 @@ public class AromaServiceBaseTest
                                removeSavedChannelOperation,
                                snoozeChannelOperation,
                                updateApplicationOperation,
+                               updateReactionsOperation,
                                unfollowApplicationOperation,
                                getActivityOperation,
                                getBuzzOperation,
@@ -255,10 +275,18 @@ public class AromaServiceBaseTest
                                getMediaOperation,
                                getApplicationMessagesOperation,
                                getFullMessageOperation,
+                               getReactionsOperation,
                                getUserInfoOperation);
 
+        
+        setupData();
     }
 
+    private void setupData() throws Exception
+    {
+        token = one(TokenGenerators.userTokens());
+    }
+    
     @Test
     public void testGetDashboard() throws Exception
     {
@@ -627,7 +655,7 @@ public class AromaServiceBaseTest
     public void testGetApiVersion() throws Exception
     {
         double apiVersion = instance.getApiVersion();
-        assertThat(apiVersion, is(AromaServiceConstants.API_VERSION));
+        assertThat(apiVersion, is(AromaConstants.API_VERSION));
     }
 
     @Test
@@ -912,6 +940,65 @@ public class AromaServiceBaseTest
             .thenThrow(new OperationFailedException());
         
         assertThrows(() -> instance.unfollowApplication(new UnfollowApplicationRequest()))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+    @Test
+    public void testUpdateReactions() throws Exception
+    {
+        UpdateReactionsRequest request = new UpdateReactionsRequest().setToken(token);
+        UpdateReactionsResponse expected = new UpdateReactionsResponse().setReactions(listOf(reactions(), 3));
+        when(updateReactionsOperation.process(request)).thenReturn(expected);
+        
+        UpdateReactionsResponse response = instance.updateReactions(request);
+        assertThat(response, is(expected));
+    }
+
+    @Test
+    public void testUpdateReactionsWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.updateReactions(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testUpdateReactionsWhenFails() throws Exception
+    {
+        UpdateReactionsRequest request = new UpdateReactionsRequest().setToken(token);
+        
+        when(updateReactionsOperation.process(request))
+            .thenThrow(new DoesNotExistException());
+        
+        assertThrows(() -> instance.updateReactions(request))
+            .isInstanceOf(DoesNotExistException.class);
+    }
+
+    @Test
+    public void testGetReactions() throws Exception
+    {
+        GetReactionsRequest request = new GetReactionsRequest(token);
+        GetReactionsResponse expected = new GetReactionsResponse(listOf(reactions(), 4));
+        when(getReactionsOperation.process(request)).thenReturn(expected);
+        
+        GetReactionsResponse response = instance.getReactions(request);
+        assertThat(response, is(expected));
+    }
+
+    @Test
+    public void testGetReactionsWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.getReactions(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testGetReactionsWhenFails() throws Exception
+    {
+        GetReactionsRequest request = new GetReactionsRequest().setToken(token);
+        when(getReactionsOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.getReactions(request))
             .isInstanceOf(OperationFailedException.class);
     }
 
