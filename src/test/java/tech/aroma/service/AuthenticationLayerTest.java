@@ -62,6 +62,8 @@ import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
 import tech.aroma.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.thrift.service.GetReactionsRequest;
+import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
@@ -88,6 +90,8 @@ import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
+import tech.aroma.thrift.service.UpdateReactionsRequest;
+import tech.aroma.thrift.service.UpdateReactionsResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -100,6 +104,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
+import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 
@@ -1189,6 +1195,84 @@ public class AuthenticationLayerTest
             .isInstanceOf(InvalidTokenException.class);
         
         verifyZeroInteractions(delegate);
+    }
+    
+    
+    @Test
+    public void testUpdateReactions() throws Exception
+    {
+        UpdateReactionsRequest request = new UpdateReactionsRequest().setToken(userToken)
+        .setReactions(listOf(reactions(), 4));
+        
+        UpdateReactionsResponse expected = new UpdateReactionsResponse()
+            .setReactions(listOf(reactions(), 10));
+        
+        when(delegate.updateReactions(request)).thenReturn(expected);
+        
+        UpdateReactionsResponse response = instance.updateReactions(request);
+        assertThat(response, is(expected));
+        
+        verify(delegate).updateReactions(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+    }
+    
+    @Test
+    public void testUpdateReactionsWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+        
+        UpdateReactionsRequest request = new UpdateReactionsRequest().setToken(userToken);
+        
+        assertThrows(() -> instance.updateReactions(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testUpdateReactionsWithBadRequest() throws Exception
+    {
+        assertThrows(() -> instance.updateReactions(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.updateReactions(new UpdateReactionsRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+
+    @Test
+    public void testGetReactions() throws Exception
+    {
+        GetReactionsRequest request = new GetReactionsRequest().setToken(userToken);
+        GetReactionsResponse expected = new GetReactionsResponse().setReactions(listOf(reactions(), 2));
+        when(delegate.getReactions(request)).thenReturn(expected);
+
+        GetReactionsResponse response = instance.getReactions(request);
+        assertThat(response, is(expected));
+
+        verify(delegate).getReactions(request);
+        verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
+    }
+
+    @Test
+    public void testGetReactionsWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+
+        GetReactionsRequest request = new GetReactionsRequest().setToken(userToken);
+
+        assertThrows(() -> instance.getReactions(request))
+            .isInstanceOf(InvalidTokenException.class);
+
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testGetReactionsWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.getReactions(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.getReactions(new GetReactionsRequest()))
+            .isInstanceOf(InvalidTokenException.class);
     }
 
     private void setupWithBadToken() throws TException

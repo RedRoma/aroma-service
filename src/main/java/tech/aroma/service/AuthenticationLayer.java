@@ -72,6 +72,8 @@ import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
 import tech.aroma.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.thrift.service.GetReactionsRequest;
+import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
@@ -98,6 +100,8 @@ import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
+import tech.aroma.thrift.service.UpdateReactionsRequest;
+import tech.aroma.thrift.service.UpdateReactionsResponse;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 
@@ -515,6 +519,31 @@ final class AuthenticationLayer implements AromaService.Iface
     }
     
     
+        @Override
+    public UpdateReactionsResponse updateReactions(UpdateReactionsRequest request) throws OperationFailedException,
+                                                                                          InvalidArgumentException,
+                                                                                          InvalidTokenException,
+                                                                                          ApplicationDoesNotExistException,
+                                                                                          UnauthorizedException, TException
+    {
+        checkNotNull(request);
+        checkAndEnrichToken(request.token);
+        
+        return delegate.updateReactions(request);
+    }
+
+    @Override
+    public GetReactionsResponse getReactions(GetReactionsRequest request) throws OperationFailedException,
+                                                                                 InvalidArgumentException, InvalidTokenException,
+                                                                                 ApplicationDoesNotExistException,
+                                                                                 UnauthorizedException, TException
+    {
+        checkNotNull(request);
+        checkAndEnrichToken(request.token);
+        
+        return delegate.getReactions(request);
+    }
+    
     private void checkAndEnrichToken(UserToken token) throws InvalidTokenException, TException
     {
         checkTokenIsValid(token);
@@ -610,6 +639,8 @@ final class AuthenticationLayer implements AromaService.Iface
             throw new OperationFailedException("Could not query Authentication Service for Token: " + ex.getMessage());
         }
     }
+
+
 
 
 }
