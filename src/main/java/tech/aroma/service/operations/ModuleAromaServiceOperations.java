@@ -58,6 +58,8 @@ import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
 import tech.aroma.thrift.service.GetMySavedChannelsRequest;
 import tech.aroma.thrift.service.GetMySavedChannelsResponse;
+import tech.aroma.thrift.service.GetReactionsRequest;
+import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
@@ -84,6 +86,8 @@ import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
+import tech.aroma.thrift.service.UpdateReactionsRequest;
+import tech.aroma.thrift.service.UpdateReactionsResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 /**
@@ -155,6 +159,11 @@ public final class ModuleAromaServiceOperations extends AbstractModule
             .to(UpdateApplicationOperation.class);
         
         
+        bind(new TypeLiteral<ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse>>(){})
+            .to(UpdateReactionsOperation.class);
+        
+        
+        
         //QUERY OPERATIONS
         //=========================================
         
@@ -192,6 +201,9 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         
         bind(new TypeLiteral<ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse>>(){})
             .to(GetApplicationsOwnedByOperation.class);
+        
+        bind(new TypeLiteral<ThriftOperation<GetReactionsRequest, GetReactionsResponse>>(){})
+            .to(GetReactionsOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<GetUserInfoRequest, GetUserInfoResponse>>(){})
             .to(GetUserInfoOperation.class);
