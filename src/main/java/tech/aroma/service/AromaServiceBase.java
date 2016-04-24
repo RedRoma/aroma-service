@@ -674,7 +674,8 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                           InvalidArgumentException,
                                                                                           InvalidTokenException,
                                                                                           ApplicationDoesNotExistException,
-                                                                                          UnauthorizedException, TException
+                                                                                          UnauthorizedException, 
+                                                                                          TException
     {
         checkNotNull(request);
         
@@ -685,9 +686,11 @@ final class AromaServiceBase implements AromaService.Iface
 
     @Override
     public GetReactionsResponse getReactions(GetReactionsRequest request) throws OperationFailedException,
-                                                                                 InvalidArgumentException, InvalidTokenException,
+                                                                                 InvalidArgumentException,
+                                                                                 InvalidTokenException,
                                                                                  ApplicationDoesNotExistException,
-                                                                                 UnauthorizedException, TException
+                                                                                 UnauthorizedException, 
+                                                                                 TException
     {
         checkNotNull(request);
         
