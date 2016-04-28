@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Aroma Tech.
+ * Copyright 2016 RedRoma.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class GetInboxOperationTest
 
     @GenerateList(Message.class)
     private List<Message> messages;
-    
+
     @GenerateString(UUID)
     private String userId;
 
@@ -86,26 +86,26 @@ public class GetInboxOperationTest
     {
         GetInboxResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         List<Message> sortedMessages = messages.stream()
             .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
             .limit(request.limit)
             .collect(toList());
-        
+
         assertThat(response.messages, is(sortedMessages));
     }
-    
+
     @DontRepeat
     @Test
     public void testWhenNoMessages() throws Exception
     {
         when(inboxRepo.getMessagesForUser(userId))
             .thenReturn(Lists.emptyList());
-        
+
         GetInboxResponse response = instance.process(request);
         assertThat(response.messages, is(empty()));
     }
-    
+
 
     @DontRepeat
     @Test
