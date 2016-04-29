@@ -23,8 +23,11 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sir.wellington.alchemy.collections.lists.Lists;
+import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.ReactionRepository;
 import tech.aroma.data.UserRepository;
+import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.reactions.Reaction;
@@ -49,15 +52,17 @@ final class GetReactionsOperation implements ThriftOperation<GetReactionsRequest
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetReactionsOperation.class);
 
+    private final ApplicationRepository appRepo;
     private final ReactionRepository reactionsRepo;
     private final UserRepository userRepo;
 
     @Inject
-    GetReactionsOperation(ReactionRepository reactionsRepo, UserRepository userRepo)
+    GetReactionsOperation(ApplicationRepository appRepo, ReactionRepository reactionsRepo, UserRepository userRepo)
     {
-        checkThat(reactionsRepo, userRepo)
+        checkThat(appRepo, reactionsRepo, userRepo)
             .are(notNull());
         
+        this.appRepo = appRepo;
         this.reactionsRepo = reactionsRepo;
         this.userRepo = userRepo;
     }
@@ -80,12 +85,22 @@ final class GetReactionsOperation implements ThriftOperation<GetReactionsRequest
         if (request.isSetForAppId())
         {
             String appId = request.forAppId;
+            Application app = appRepo.getById(appId);
             
-            reactions = reactionsRepo.getReactionsForApplication(appId)
-                .stream()
-                .collect(toList());
+            if (!app.owners.contains(userId))
+            {
+                reactions = Lists.emptyList();
+                LOG.debug("User {} is not an App Owner for {}. Has no right to see reactions.", userId, appId);
+            }
+            else
+            {
+                reactions = reactionsRepo.getReactionsForApplication(appId)
+                    .stream()
+                    .collect(toList());
+                
+                LOG.debug("Found {} reactions stored for app {}", reactions.size(), appId);
+            }
             
-            LOG.debug("Found {} reactions stored for app {}", reactions.size(), appId);
         }
         else        
         {

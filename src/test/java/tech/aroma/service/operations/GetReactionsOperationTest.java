@@ -21,8 +21,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.ReactionRepository;
 import tech.aroma.data.UserRepository;
+import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
@@ -35,14 +37,18 @@ import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.aroma.thrift.generators.ApplicationGenerators.applications;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
@@ -56,6 +62,9 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 @RunWith(AlchemyTestRunner.class)
 public class GetReactionsOperationTest 
 {
+    
+    @Mock
+    private ApplicationRepository appRepo;
     
     @Mock
     private ReactionRepository reactionsRepo;
@@ -78,6 +87,8 @@ public class GetReactionsOperationTest
     
     @GeneratePojo
     private GetReactionsRequest request;
+    
+    private Application app;
 
     @Before
     public void setUp() throws Exception
@@ -86,27 +97,36 @@ public class GetReactionsOperationTest
         setupData();
         setupMocks();
         
-        instance = new GetReactionsOperation(reactionsRepo, userRepo);
+        instance = new GetReactionsOperation(appRepo, reactionsRepo, userRepo);
+        verifyZeroInteractions(appRepo, reactionsRepo, userRepo);
     }
     
     @DontRepeat
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new GetReactionsOperation(null, userRepo));
-        assertThrows(() -> new GetReactionsOperation(reactionsRepo, null));
+        assertThrows(() -> new GetReactionsOperation(null, reactionsRepo, userRepo));
+        assertThrows(() -> new GetReactionsOperation(appRepo, null, userRepo));
+        assertThrows(() -> new GetReactionsOperation(appRepo, reactionsRepo, null));
     }
 
 
     private void setupData() throws Exception
     {
+        app = one(applications());
+        app.owners.add(userId);
+        
         reactions = listOf(reactions(), 10);
+        
         request.token.userId = userId;
         request.unsetForAppId();
+        
     }
 
     private void setupMocks() throws Exception
     {
+        when(appRepo.getById(appId)).thenReturn(app);
+        
         when(userRepo.containsUser(userId)).thenReturn(true);
         
         when(reactionsRepo.getReactionsForUser(userId))
@@ -137,6 +157,19 @@ public class GetReactionsOperationTest
         
         verify(reactionsRepo).getReactionsForApplication(appId);
         verify(reactionsRepo, never()).getReactionsForUser(anyString());
+    }
+    
+    @Test
+    public void testProcessForAppWhenNotAnOwner() throws Exception
+    {
+        app.owners.remove(userId);
+        request.forAppId = appId;
+        
+        GetReactionsResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        assertThat(response.reactions, is(empty()));
+        
+        verifyZeroInteractions(reactionsRepo);
     }
     
     @Test
@@ -186,6 +219,11 @@ public class GetReactionsOperationTest
         
         assertThrows(() -> instance.process(request))
             .isInstanceOf(OperationFailedException.class);
+    }
+
+    @Test
+    public void testProcess() throws Exception
+    {
     }
 
 }
