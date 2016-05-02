@@ -108,6 +108,12 @@ public class GetApplicationsFollowedByOperationTest
     {
         when(followerRepo.getApplicationsFollowedBy(userId)).thenReturn(apps);
         when(followerRepo.getApplicationsFollowedBy(userIdOfCaller)).thenReturn(apps);
+        
+        for (Application app : apps)
+        {
+            when(appRepo.getById(app.applicationId))
+                .thenReturn(app);
+        }
     }
 
     @DontRepeat

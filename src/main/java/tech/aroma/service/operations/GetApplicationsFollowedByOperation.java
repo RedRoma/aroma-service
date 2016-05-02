@@ -17,6 +17,7 @@
 package tech.aroma.service.operations;
 
 import java.util.List;
+import java.util.Objects;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -84,7 +85,9 @@ final class GetApplicationsFollowedByOperation implements ThriftOperation<GetApp
             .is(validUserId());
         
         List<Application> apps = followerRepo.getApplicationsFollowedBy(userId)
-            .stream()
+            .parallelStream()
+            .map(this::getFullInfo)
+            .filter(Objects::nonNull)
             .sorted(comparing(app -> app.name))
             .collect(toList());
         
@@ -116,5 +119,17 @@ final class GetApplicationsFollowedByOperation implements ThriftOperation<GetApp
             }
         };
     }
-    
+  
+    private Application getFullInfo(Application app)
+    {
+        try
+        {
+            return appRepo.getById(app.applicationId);
+        }
+        catch (TException ex)
+        {
+            LOG.error("Failed to get Application Info for [{}]", app, ex);
+            return app;
+        }
+    }
 }
