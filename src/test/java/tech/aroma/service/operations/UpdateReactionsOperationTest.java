@@ -20,11 +20,16 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
+import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.ReactionRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.Application;
+import tech.aroma.thrift.User;
+import tech.aroma.thrift.events.Event;
 import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
@@ -39,16 +44,25 @@ import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
+import static tech.aroma.thrift.generators.UserGenerators.users;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
+import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
@@ -63,6 +77,9 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 public class UpdateReactionsOperationTest
 {
 
+    @Mock
+    private ActivityRepository activityRepo;
+    
     @Mock
     private ApplicationRepository appRepo;
 
@@ -83,11 +100,15 @@ public class UpdateReactionsOperationTest
     @GenerateString(UUID)
     private String appId;
 
-    @GenerateString(UUID)
     private String userId;
+    private User user;
 
     @GenerateString(ALPHABETIC)
     private String badId;
+    
+    
+    @Captor
+    private ArgumentCaptor<Event> eventCaptor;
 
     private UpdateReactionsOperation instance;
 
@@ -98,12 +119,15 @@ public class UpdateReactionsOperationTest
         setupData();
         setupMocks();
 
-        instance = new UpdateReactionsOperation(appRepo, reactionsRepo, userRepo);
+        instance = new UpdateReactionsOperation(activityRepo, appRepo, reactionsRepo, userRepo);
     }
 
     private void setupData() throws Exception
     {
         reactions = listOf(reactions(), 10);
+        
+        user = one(users());
+        userId = user.userId;
         
         request.token.userId = userId;
         request.unsetForAppId();
@@ -117,16 +141,17 @@ public class UpdateReactionsOperationTest
     {
         when(appRepo.getById(appId)).thenReturn(app);
         when(userRepo.containsUser(userId)).thenReturn(true);
-        
+        when(userRepo.getUser(userId)).thenReturn(user);
     }
 
     @DontRepeat
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new UpdateReactionsOperation(null, reactionsRepo, userRepo));
-        assertThrows(() -> new UpdateReactionsOperation(appRepo, null, userRepo));
-        assertThrows(() -> new UpdateReactionsOperation(appRepo, reactionsRepo, null));
+        assertThrows(() -> new UpdateReactionsOperation(null, appRepo, reactionsRepo, userRepo));
+        assertThrows(() -> new UpdateReactionsOperation(activityRepo, null, reactionsRepo, userRepo));
+        assertThrows(() -> new UpdateReactionsOperation(activityRepo, appRepo, null, userRepo));
+        assertThrows(() -> new UpdateReactionsOperation(activityRepo, appRepo, reactionsRepo, null));
     }
 
     @Test
@@ -137,7 +162,7 @@ public class UpdateReactionsOperationTest
         
         verify(reactionsRepo).saveReactionsForUser(userId, reactions);
         verify(reactionsRepo, never()).saveReactionsForApplication(anyString(), any());
-        verifyZeroInteractions(appRepo);
+        verifyZeroInteractions(activityRepo, appRepo);
     }
 
     @Test
@@ -149,6 +174,31 @@ public class UpdateReactionsOperationTest
         
         verify(reactionsRepo).saveReactionsForApplication(appId, reactions);
         verify(reactionsRepo, never()).saveReactionsForUser(anyString(), any());
+        
+        List<User> owners = app.owners
+            .stream()
+            .map(id -> new User().setUserId(id))
+            .collect(toList());
+
+        verify(activityRepo).saveEvents(eventCaptor.capture(), eq(owners));
+        
+        Event event = eventCaptor.getValue();
+        checkEvent(event);
+    }
+    
+    @Test
+    public void testWhenActivityRepoFails() throws Exception
+    {
+        doThrow(new OperationFailedException())
+            .when(activityRepo)
+            .saveEvents(any(), any());
+
+        request.forAppId = appId;
+        
+        UpdateReactionsResponse response = instance.process(request);
+        assertThat(response.reactions, is(reactions));
+        
+        verify(reactionsRepo).saveReactionsForApplication(appId, reactions);
     }
     
     @Test
@@ -234,6 +284,17 @@ public class UpdateReactionsOperationTest
             .isInstanceOf(UnauthorizedException.class);
         
         verifyZeroInteractions(reactionsRepo);
+    }
+
+    private void checkEvent(Event event)
+    {
+        checkThat(event).is(notNull());
+        checkThat(event.eventId).is(validUUID());
+        checkThat(event.actor).is(equalTo(user));
+        checkThat(event.userIdOfActor).is(equalTo(userId));
+        checkThat(event.application).is(equalTo(app));
+        checkThat(event.applicationId).is(equalTo(appId));
+        checkThat(event.timestamp).is(epochNowWithinDelta(4000L));
     }
 
 }
