@@ -57,6 +57,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
 import static tech.aroma.thrift.generators.UserGenerators.users;
+import static tech.aroma.thrift.reactions.ReactionsConstants.MAXIMUM_REACTIONS;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
@@ -64,6 +65,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.v
 import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
+import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -295,6 +297,16 @@ public class UpdateReactionsOperationTest
         checkThat(event.application).is(equalTo(app));
         checkThat(event.applicationId).is(equalTo(appId));
         checkThat(event.timestamp).is(epochNowWithinDelta(4000L));
+    }
+
+    @Test
+    public void testProcessWhenReactionsExceedLimit() throws Exception
+    {
+        int numberOfReactions = one(integers(MAXIMUM_REACTIONS + 1, MAXIMUM_REACTIONS * 2));
+        request.reactions = listOf(reactions(), numberOfReactions);
+
+        assertThrows(() -> instance.process(request))
+            .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

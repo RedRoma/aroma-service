@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sir.wellington.alchemy.collections.lists.Lists;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
@@ -48,9 +49,11 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
+import static tech.aroma.thrift.reactions.ReactionsConstants.MAXIMUM_REACTIONS;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
+import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.lessThanOrEqualTo;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
@@ -134,6 +137,13 @@ final class UpdateReactionsOperation implements ThriftOperation<UpdateReactionsR
             {
                 checkThat(request.forAppId)
                     .is(validApplicationId());
+            }
+            
+            if (!Lists.isEmpty(request.reactions))
+            {
+                checkThat(request.reactions.size())
+                    .usingMessage(format("Cannot Save more than %d Reactions", MAXIMUM_REACTIONS))
+                    .is(lessThanOrEqualTo(MAXIMUM_REACTIONS));
             }
         };
     }
