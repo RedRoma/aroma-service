@@ -17,6 +17,7 @@
 package tech.aroma.service.operations;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import sir.wellington.alchemy.collections.lists.Lists;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
@@ -138,7 +140,7 @@ public class DeleteApplicationOperationTest
     @GenerateList(User.class)
     private List<User> followers;
     
-    private List<String> superUsers;
+    private Set<String> superUsers;
     
     private DeleteApplicationOperation instance;
     
@@ -187,7 +189,7 @@ public class DeleteApplicationOperationTest
         
         user.userId = userId;
         
-        superUsers = Lists.create();
+        superUsers = Sets.create();
         
     }
 

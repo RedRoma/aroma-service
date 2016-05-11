@@ -78,7 +78,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     private final MessageRepository messageRepo;
     private final UserRepository userRepo;
     private final Function<UserToken, AuthenticationToken> tokenMapper;
-    private final List<String> superUsers;
+    private final Set<String> superUsers;
 
     @Inject
     DeleteApplicationOperation(ActivityRepository activityRepo,
@@ -89,7 +89,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
                                UserRepository userRepo,
                                AuthenticationService.Iface authenticationService,
                                Function<UserToken, AuthenticationToken> tokenMapper,
-                               @SuperUsers List<String> superUsers)
+                               @SuperUsers Set<String> superUsers)
     {
         checkThat(activityRepo,
                   appRepo,
