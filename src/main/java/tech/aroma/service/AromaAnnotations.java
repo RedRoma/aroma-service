@@ -32,6 +32,19 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * Special annotations that are used to mark special Guice dependencies
+ * are defined here.
+ * <p>
+ * These Binding annotations allow the system to qualify specific dependencies.
+ * For example, 
+ * 
+ * <pre>
+ * {@code 
+ * 
+ *  SomeObject(@PowerUsers List<String> powerUsers, @BlackListedUsers List<String> blacklisted)
+ * }
+ * </pre>
+ * 
  * @author SirWellington
  */
 @Internal
