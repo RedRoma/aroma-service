@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import decorice.DecoratorModule;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Singleton;
@@ -28,6 +29,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.lists.Lists;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.service.operations.ModuleAromaServiceOperations;
 import tech.aroma.thrift.service.AromaService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
@@ -81,9 +83,9 @@ public class ModuleAromaService extends AbstractModule
     
     @Provides
     @AromaAnnotations.SuperUsers
-    List<String> provideSuperUsers()
+    Set<String> provideSuperUsers()
     {
-        return Lists.emptyList();
+        return Sets.emptySet();
     }
 
 }

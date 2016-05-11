@@ -21,6 +21,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import java.util.List;
+import java.util.Set;
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +37,6 @@ import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -107,7 +107,7 @@ public class ModuleAromaServiceTest
     @Test
     public void testProvideSuperUsers()
     {
-        List<String> result = instance.provideSuperUsers();
+        Set<String> result = instance.provideSuperUsers();
         assertThat(result, notNullValue());
     }
 
