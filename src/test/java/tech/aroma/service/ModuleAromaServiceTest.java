@@ -20,12 +20,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import java.util.List;
+import com.google.inject.Provides;
 import java.util.Set;
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.memory.ModuleMemoryDataRepositories;
 import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
@@ -95,20 +96,12 @@ public class ModuleAromaServiceTest
                 .toInstance(NoOpEmailService.newInstance());
         }
         
+        @Provides
+        @AromaAnnotations.SuperUsers
+        Set<String> provideSuperUsers()
+        {
+            return Sets.emptySet();
+        }
     };
-
-    @Test
-    public void testProvideBlackListedUsers()
-    {
-        List<String> result = instance.provideBlackListedUsers();
-        assertThat(result, notNullValue());
-    }
-
-    @Test
-    public void testProvideSuperUsers()
-    {
-        Set<String> result = instance.provideSuperUsers();
-        assertThat(result, notNullValue());
-    }
 
 }

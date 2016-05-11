@@ -21,6 +21,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import java.net.SocketException;
+import java.util.Set;
 import javax.inject.Singleton;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TThreadPoolServer;
@@ -28,8 +29,10 @@ import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.cassandra.ModuleCassandraDataRepositories;
 import tech.aroma.data.cassandra.ModuleCassandraDevCluster;
+import tech.aroma.service.AromaAnnotations;
 import tech.aroma.service.ModuleAromaService;
 import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
@@ -107,6 +110,12 @@ public final class TcpServer
             }
         }
    
+        @Provides
+        @AromaAnnotations.SuperUsers
+        Set<String> provideSuperUsers()
+        {
+            return Sets.emptySet();
+        }
     }
     
 }
