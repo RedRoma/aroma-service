@@ -21,7 +21,3 @@ The Open Source version of the Aroma Service is fully functional, with the follo
 
 ## No Payments
 There are no payment collection systems built into the Service.
-
-## No Authentication
-There is no authentication system provided, although the interface is defined.
-This is because we assume that you will host your own instance behind your firewall.
