@@ -21,6 +21,8 @@ package tech.aroma.service;
 import com.google.inject.BindingAnnotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Set;
+import tech.aroma.thrift.User;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.access.NonInstantiable;
 
@@ -30,19 +32,19 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- *
  * @author SirWellington
  */
 @Internal
 @NonInstantiable
 public interface AromaAnnotations 
 {
+    /**
+     * Defines a set of users that have Super-Power abilities within Aroma.
+     * These are typically defined as a {@linkplain Set set} of {@linkplain User#userId User IDs}.
+     */
     @BindingAnnotation
     @Target({ PARAMETER, FIELD, METHOD })
     @Retention(RUNTIME)
-    /**
-     * Defines a set of users that have Super-Power abilities within Aroma.
-     */
     public @interface PowerUsers
     {
         
