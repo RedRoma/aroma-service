@@ -38,6 +38,7 @@ import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteMessageRequest;
 import tech.aroma.thrift.service.DeleteMessageResponse;
+import tech.sirwellington.alchemy.annotations.testing.TimeSensitive;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateInteger;
@@ -72,6 +73,7 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  *
  * @author SirWellington
  */
+@TimeSensitive
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class DeleteMessageOperationTest
@@ -313,7 +315,7 @@ public class DeleteMessageOperationTest
     private void checkEvent(Event event)
     {
         assertThat(event, notNullValue());
-        checkThat(event.timestamp).is(epochNowWithinDelta(1000));
+        checkThat(event.timestamp).is(epochNowWithinDelta(10_000));
         assertThat(event.applicationId, is(appId));
         assertThat(event.application, is(app));
         assertThat(event.actor, is(user));
