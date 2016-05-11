@@ -81,6 +81,7 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  *
  * @author SirWellington
  */
+@TimeSensitive
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
 public class DeleteApplicationOperationTest
@@ -331,7 +332,7 @@ public class DeleteApplicationOperationTest
         checkThat(event.eventId).is(validUUID());
         assertThat(event.applicationId, is(appId));
         assertThat(event.application, is(app));
-        checkThat(event.timestamp).is(epochNowWithinDelta(5_000));
+        checkThat(event.timestamp).is(epochNowWithinDelta(8_000));
         checkThat(event.userIdOfActor).is(equalTo(userId));
         checkThat(event.actor).is(equalTo(user));
     }
