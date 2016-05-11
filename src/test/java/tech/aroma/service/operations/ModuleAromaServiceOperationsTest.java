@@ -20,11 +20,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.Provides;
+import java.util.Set;
 import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.memory.ModuleMemoryDataRepositories;
+import tech.aroma.service.AromaAnnotations;
 import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
 import tech.aroma.thrift.authentication.ApplicationToken;
 import tech.aroma.thrift.authentication.AuthenticationToken;
@@ -60,6 +64,13 @@ public class ModuleAromaServiceOperationsTest
             
             bind(EmailService.Iface.class)
                 .toInstance(mock(EmailService.Iface.class));
+        }
+        
+        @Provides
+        @AromaAnnotations.SuperUsers
+        Set<String> provideSuperUsers()
+        {
+            return Sets.emptySet();
         }
         
     };
