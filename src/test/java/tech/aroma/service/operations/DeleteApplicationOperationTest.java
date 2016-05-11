@@ -68,6 +68,8 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
 import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -136,6 +138,8 @@ public class DeleteApplicationOperationTest
     @GenerateList(User.class)
     private List<User> followers;
     
+    private List<String> superUsers;
+    
     private DeleteApplicationOperation instance;
     
     @Captor
@@ -155,7 +159,8 @@ public class DeleteApplicationOperationTest
                                                   messageRepo,
                                                   userRepo,
                                                   authenticationService,
-                                                  tokenMapper);
+                                                  tokenMapper,
+                                                  superUsers);
 
         verifyZeroInteractions(activityRepo,
                                appRepo,
@@ -182,6 +187,8 @@ public class DeleteApplicationOperationTest
         
         user.userId = userId;
         
+        superUsers = Lists.create();
+        
     }
 
     private void setupMocks() throws Exception
@@ -200,14 +207,15 @@ public class DeleteApplicationOperationTest
     @Test
     public void testConstructor()
     {
-        assertThrows(() -> new DeleteApplicationOperation(null, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, null, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, null, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, null, messageRepo, userRepo, authenticationService, tokenMapper));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, null, userRepo, authenticationService, tokenMapper));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, null, authenticationService, tokenMapper));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, null, tokenMapper));
-        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, null));
+        assertThrows(() -> new DeleteApplicationOperation(null, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper, superUsers));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, null, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper, superUsers));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, null, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper, superUsers));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, null, messageRepo, userRepo, authenticationService, tokenMapper, superUsers));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, null, userRepo, authenticationService, tokenMapper, superUsers));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, null, authenticationService, tokenMapper, superUsers));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, null, tokenMapper, superUsers));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, null, superUsers));
+        assertThrows(() -> new DeleteApplicationOperation(activityRepo, appRepo, followerRepo, mediaRepo, messageRepo, userRepo, authenticationService, tokenMapper, null));
     }
 
     @TimeSensitive
@@ -218,46 +226,7 @@ public class DeleteApplicationOperationTest
         DeleteApplicationResponse response = instance.process(request);
         assertThat(response, notNullValue());
         
-        verify(appRepo).deleteApplication(appId);
-        
-        verify(mediaRepo).deleteMedia(app.applicationIconMediaId);
-        verify(mediaRepo).deleteAllThumbnails(app.applicationIconMediaId);
-        
-        verify(mediaRepo).deleteMedia(appId);
-        verify(mediaRepo).deleteAllThumbnails(appId);
-        
-        verify(messageRepo).deleteAllMessages(appId);
-        
-        for (User follower : followers)
-        {
-            String followerId = follower.userId;
-            
-            verify(followerRepo).deleteFollowing(followerId, appId);
-        }
-        
-        
-        for(User follower : followers)
-        {
-            verify(activityRepo).saveEvent(captor.capture(), eq(follower));
-            
-            Event event = captor.getValue();
-            checkEvent(event);
-        }            
-        
-        for (String ownerId : app.owners)
-        {
-            User owner = new User().setUserId(ownerId);
-            
-            verify(activityRepo).saveEvent(captor.capture(), eq(owner));
-            Event event = captor.getValue();
-            checkEvent(event);
-        }
-        
-        InvalidateTokenRequest expectedRequest = new InvalidateTokenRequest()
-            .setToken(authToken)
-            .setBelongingTo(appId);
-        
-        verify(authenticationService).invalidateToken(expectedRequest);
+        verifyThingWereCleanedUp();
     }
     
     @Test
@@ -341,6 +310,18 @@ public class DeleteApplicationOperationTest
         assertThrows(() -> instance.process(requestMissingToken))
             .isInstanceOf(InvalidArgumentException.class);
     }
+    
+    @Test
+    public void testWhenSuperUserMakesRequest() throws Exception
+    {
+        String superUser = one(uuids);
+        superUsers.add(superUser);
+        
+        DeleteApplicationResponse response = instance.process(request);
+        assertThat(response, notNullValue());
+        
+        verifyThingWereCleanedUp();
+    }
 
     private void checkEvent(Event event)
     {
@@ -351,6 +332,50 @@ public class DeleteApplicationOperationTest
         checkThat(event.timestamp).is(epochNowWithinDelta(5_000));
         checkThat(event.userIdOfActor).is(equalTo(userId));
         checkThat(event.actor).is(equalTo(user));
+    }
+
+    private void verifyThingWereCleanedUp() throws Exception
+    {
+        verify(appRepo).deleteApplication(appId);
+        
+        verify(mediaRepo).deleteMedia(app.applicationIconMediaId);
+        verify(mediaRepo).deleteAllThumbnails(app.applicationIconMediaId);
+        
+        verify(mediaRepo).deleteMedia(appId);
+        verify(mediaRepo).deleteAllThumbnails(appId);
+        
+        verify(messageRepo).deleteAllMessages(appId);
+        
+        for (User follower : followers)
+        {
+            String followerId = follower.userId;
+            
+            verify(followerRepo).deleteFollowing(followerId, appId);
+        }
+        
+        
+        for(User follower : followers)
+        {
+            verify(activityRepo).saveEvent(captor.capture(), eq(follower));
+            
+            Event event = captor.getValue();
+            checkEvent(event);
+        }            
+        
+        for (String ownerId : app.owners)
+        {
+            User owner = new User().setUserId(ownerId);
+            
+            verify(activityRepo).saveEvent(captor.capture(), eq(owner));
+            Event event = captor.getValue();
+            checkEvent(event);
+        }
+        
+        InvalidateTokenRequest expectedRequest = new InvalidateTokenRequest()
+            .setToken(authToken)
+            .setBelongingTo(appId);
+        
+        verify(authenticationService).invalidateToken(expectedRequest);
     }
 
 }

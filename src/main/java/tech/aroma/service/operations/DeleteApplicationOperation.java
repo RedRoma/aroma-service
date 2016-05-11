@@ -18,18 +18,21 @@ package tech.aroma.service.operations;
 
 import com.google.common.base.Strings;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.lists.Lists;
+import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.ActivityRepository;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MediaRepository;
 import tech.aroma.data.MessageRepository;
 import tech.aroma.data.UserRepository;
+import tech.aroma.service.AromaAnnotations.SuperUsers;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
 import tech.aroma.thrift.authentication.AuthenticationToken;
@@ -75,6 +78,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     private final MessageRepository messageRepo;
     private final UserRepository userRepo;
     private final Function<UserToken, AuthenticationToken> tokenMapper;
+    private final List<String> superUsers;
 
     @Inject
     DeleteApplicationOperation(ActivityRepository activityRepo,
@@ -84,7 +88,8 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
                                MessageRepository messageRepo,
                                UserRepository userRepo,
                                AuthenticationService.Iface authenticationService,
-                               Function<UserToken, AuthenticationToken> tokenMapper)
+                               Function<UserToken, AuthenticationToken> tokenMapper,
+                               @SuperUsers List<String> superUsers)
     {
         checkThat(activityRepo,
                   appRepo,
@@ -93,7 +98,8 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
                   messageRepo,
                   userRepo,
                   authenticationService,
-                  tokenMapper)
+                  tokenMapper,
+                  superUsers)
             .are(notNull());
 
         this.activityRepo = activityRepo;
@@ -102,6 +108,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         this.followerRepo = followerRepo;
         this.mediaRepo = mediaRepo;
         this.messageRepo = messageRepo;
+        this.superUsers = superUsers;
         this.tokenMapper = tokenMapper;
         this.userRepo = userRepo;
     }
@@ -118,7 +125,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
 
         checkThat(userId)
             .throwing(UnauthorizedException.class)
-            .is(anOwnerOfApp(app));
+            .is(aUserAuthorizedToDelete(app));
 
         User user = userRepo.getUser(userId);
 
@@ -146,13 +153,15 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         };
     }
 
-    private AlchemyAssertion<String> anOwnerOfApp(Application app)
+    private AlchemyAssertion<String> aUserAuthorizedToDelete(Application app)
     {
         return userId ->
         {
+            Set<String> allowedUsers = Sets.unionOf(app.owners, superUsers);
+            
             checkThat(userId)
                 .usingMessage("User is not an owner and cannot delete this Application")
-                .is(elementInCollection(app.owners));
+                .is(elementInCollection(allowedUsers));
         };
     }
 
