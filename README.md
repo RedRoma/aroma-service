@@ -1,9 +1,9 @@
 Aroma Service
 ==============================================
 
-[<img src="https://raw.githubusercontent.com/RedRoma/Aroma/develop/Graphics/Logo.png" width="300">](https://github.com/RedRoma/Aroma)
+[<img src="https://raw.githubusercontent.com/RedRoma/Aroma/develop/Graphics/Logo.png" width="300">](http://aroma.redroma.tech/)
 
-[![Build Status](http://jenkins.sirwellington.tech/view/Aroma/job/Aroma%20Service/badge/icon)](http://jenkins.sirwellington.tech/view/Aroma/job/Aroma%20Service/)
+[![Build Status](http://jenkins.redroma.tech/view/Aroma/job/Aroma%20Service/badge/icon)](http://jenkins.redroma.tech/view/Aroma/job/Aroma%20Service/)
 
 
 The Famed Aroma Service!
@@ -21,7 +21,3 @@ The Open Source version of the Aroma Service is fully functional, with the follo
 
 ## No Payments
 There are no payment collection systems built into the Service.
-
-## No Authentication
-There is no authentication system provided, although the interface is defined.
-This is because we assume that you will host your own instance behind your firewall.
