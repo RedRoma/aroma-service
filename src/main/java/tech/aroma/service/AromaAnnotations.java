@@ -41,8 +41,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <pre>
  * {@code 
  * 
- *  SomeObject(@PowerUsers List<String> powerUsers, @BlackListedUsers List<String> blacklisted)
- * }
+ *  SomeObject(@SuperUsers List<String> powerUsers, @BlackListedUsers List<String> blacklisted)
+ }
  * </pre>
  * 
  * @author SirWellington
@@ -74,7 +74,7 @@ public interface AromaAnnotations
     @BindingAnnotation
     @Target({ PARAMETER, FIELD, METHOD })
     @Retention(RUNTIME)
-    public @interface PowerUsers
+    public @interface SuperUsers
     {
         
     }

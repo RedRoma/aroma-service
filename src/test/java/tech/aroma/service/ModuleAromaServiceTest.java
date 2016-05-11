@@ -37,6 +37,7 @@ import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mock;
 
 /**
  * This Test Class can be considered an Integration level test, because it tests the validity of
@@ -104,9 +105,9 @@ public class ModuleAromaServiceTest
     }
 
     @Test
-    public void testProvidePowerUsers()
+    public void testProvideSuperUsers()
     {
-        List<String> result = instance.providePowerUsers();
+        List<String> result = instance.provideSuperUsers();
         assertThat(result, notNullValue());
     }
 

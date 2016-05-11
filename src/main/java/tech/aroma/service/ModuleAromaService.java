@@ -80,8 +80,8 @@ public class ModuleAromaService extends AbstractModule
     }
     
     @Provides
-    @AromaAnnotations.PowerUsers
-    List<String> providePowerUsers()
+    @AromaAnnotations.SuperUsers
+    List<String> provideSuperUsers()
     {
         return Lists.emptyList();
     }
