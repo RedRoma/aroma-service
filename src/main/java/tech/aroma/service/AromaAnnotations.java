@@ -52,6 +52,22 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public interface AromaAnnotations 
 {
     /**
+     * Defines a set of users that have been black-listed within Aroma.
+     * These are typically defined as a {@linkplain Set set} of {@linkplain User#userId User IDs}.
+     * 
+     * <p>
+     * Blacklisted users typically cannot perform any Update/Delete operations.
+     * 
+     */
+    @BindingAnnotation
+    @Target({ PARAMETER, FIELD, METHOD })
+    @Retention(RUNTIME)
+    public @interface BlacklistedUsers
+    {
+        
+    }
+    
+    /**
      * Defines a set of users that have Super-Power abilities within Aroma.
      * These are typically defined as a {@linkplain Set set} of {@linkplain User#userId User IDs}.
      */
