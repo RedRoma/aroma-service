@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import java.util.List;
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,5 +95,19 @@ public class ModuleAromaServiceTest
         }
         
     };
+
+    @Test
+    public void testProvideBlackListedUsers()
+    {
+        List<String> result = instance.provideBlackListedUsers();
+        assertThat(result, notNullValue());
+    }
+
+    @Test
+    public void testProvidePowerUsers()
+    {
+        List<String> result = instance.providePowerUsers();
+        assertThat(result, notNullValue());
+    }
 
 }
