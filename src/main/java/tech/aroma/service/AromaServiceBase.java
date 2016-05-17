@@ -24,7 +24,6 @@ import tech.aroma.thrift.AromaConstants;
 import tech.aroma.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.thrift.exceptions.ApplicationAlreadyRegisteredException;
 import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
-import tech.aroma.thrift.exceptions.ChannelDoesNotExistException;
 import tech.aroma.thrift.exceptions.CustomChannelUnreachableException;
 import tech.aroma.thrift.exceptions.DoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -63,8 +62,6 @@ import tech.aroma.thrift.service.GetInboxRequest;
 import tech.aroma.thrift.service.GetInboxResponse;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetMySavedChannelsRequest;
-import tech.aroma.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.thrift.service.GetReactionsRequest;
 import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
@@ -75,20 +72,14 @@ import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.thrift.service.RemoveSavedChannelRequest;
-import tech.aroma.thrift.service.RemoveSavedChannelResponse;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
 import tech.aroma.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.thrift.service.SaveChannelRequest;
-import tech.aroma.thrift.service.SaveChannelResponse;
 import tech.aroma.thrift.service.SearchForApplicationsRequest;
 import tech.aroma.thrift.service.SearchForApplicationsResponse;
 import tech.aroma.thrift.service.SignInRequest;
 import tech.aroma.thrift.service.SignInResponse;
 import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
-import tech.aroma.thrift.service.SnoozeChannelRequest;
-import tech.aroma.thrift.service.SnoozeChannelResponse;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
@@ -125,13 +116,10 @@ final class AromaServiceBase implements AromaService.Iface
     private final ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
     private final ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
     private final ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
-    private final ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
     private final ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
-    private final ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
     private final ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
     private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
     private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
-    private final ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
     private final ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
     private final ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation;
     private final ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
@@ -147,7 +135,6 @@ final class AromaServiceBase implements AromaService.Iface
     private final ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
     private final ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation;
     private final ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation;
-    private final ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
     private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
     private final ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation;
 
@@ -163,9 +150,6 @@ final class AromaServiceBase implements AromaService.Iface
                      ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
                      ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation,
                      ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation,
-                     ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
-                     ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
-                     ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
                      ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
                      ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation,
                      ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation,
@@ -173,7 +157,6 @@ final class AromaServiceBase implements AromaService.Iface
                      ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
                      ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation,
                      ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation,
-                     ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
                      ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
                      ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
                      ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
@@ -197,18 +180,14 @@ final class AromaServiceBase implements AromaService.Iface
                   getApplicationMessagesOperation,
                   getApplicationsFollowedByOperation,
                   getApplicationsOwnedByOperation,
-                  getMySavedChannelsOperation,
                   getReactionsOperation,
                   getUserInfoOperation,
                   provisionApplicationOperation,
                   regenerateApplicationTokenOperation,
                   registerHealthCheckOperation,
-                  removeSavedChannelOperation,
                   renewApplicationTokenOperation,
-                  saveChannelOperation,
                   searchForApplicationsOperation,
                   signUpOperation,
-                  snoozeChannelOperation,
                   signInOperation,
                   updateApplicationOperation,
                   updateReactionsOperation,
@@ -222,13 +201,10 @@ final class AromaServiceBase implements AromaService.Iface
         this.provisionApplicationOperation = provisionApplicationOperation;
         this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
         this.registerHealthCheckOperation = registerHealthCheckOperation;
-        this.removeSavedChannelOperation = removeSavedChannelOperation;
         this.renewApplicationTokenOperation = renewApplicationTokenOperation;
-        this.saveChannelOperation = saveChannelOperation;
         this.searchForApplicationsOperation = searchForApplicationsOperation;
         this.signInOperation = signInOperation;
         this.signUpOperation = signUpOperation;
-        this.snoozeChannelOperation = snoozeChannelOperation;
         this.updateApplicationOperation = updateApplicationOperation;
         this.updateReactionsOperation = updateReactionsOperation;
         this.unfollowApplicationOperation = unfollowApplicationOperation;
@@ -243,7 +219,6 @@ final class AromaServiceBase implements AromaService.Iface
         this.getApplicationMessagesOperation = getApplicationMessagesOperation;
         this.getApplicationsFollowedByOperation = getApplicationsFollowedByOperation;
         this.getApplicationsOwnedByOperation = getApplicationsOwnedByOperation;
-        this.getMySavedChannelsOperation = getMySavedChannelsOperation;
         this.getReactionsOperation = getReactionsOperation;
         this.getUserInfoOperation = getUserInfoOperation;
     }
@@ -364,21 +339,6 @@ final class AromaServiceBase implements AromaService.Iface
     }
 
     @Override
-    public RemoveSavedChannelResponse removeSavedChannel(RemoveSavedChannelRequest request) throws OperationFailedException,
-                                                                                                   InvalidArgumentException,
-                                                                                                   InvalidCredentialsException,
-                                                                                                   UnauthorizedException,
-                                                                                                   ChannelDoesNotExistException,
-                                                                                                   TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Receive drequest to remove a saved channel: {}", request);
-
-        return removeSavedChannelOperation.process(request);
-    }
-
-    @Override
     public RenewApplicationTokenResponse renewApplicationToken(RenewApplicationTokenRequest request) throws
         OperationFailedException,
         InvalidArgumentException,
@@ -394,19 +354,6 @@ final class AromaServiceBase implements AromaService.Iface
         return renewApplicationTokenOperation.process(request);
     }
 
-    @Override
-    public SaveChannelResponse saveChannel(SaveChannelRequest request) throws OperationFailedException,
-                                                                              InvalidArgumentException,
-                                                                              InvalidCredentialsException,
-                                                                              UnauthorizedException,
-                                                                              TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Received request to Save a Channel: {}", request);
-
-        return saveChannelOperation.process(request);
-    }
 
     @Override
     public SignInResponse signIn(SignInRequest request) throws OperationFailedException,
@@ -439,21 +386,6 @@ final class AromaServiceBase implements AromaService.Iface
         return signUpOperation.process(request);
     }
 
-    @Override
-    public SnoozeChannelResponse snoozeChannel(SnoozeChannelRequest request) throws OperationFailedException,
-                                                                                    InvalidArgumentException,
-                                                                                    InvalidCredentialsException,
-                                                                                    UnauthorizedException,
-                                                                                    ChannelDoesNotExistException,
-                                                                                    TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Received request to snooze a channel: {}", request);
-
-        return snoozeChannelOperation.process(request);
-    }
-    
        
     @Override
     public UpdateApplicationResponse updateApplication(UpdateApplicationRequest request) throws OperationFailedException,
@@ -608,19 +540,6 @@ final class AromaServiceBase implements AromaService.Iface
         LOG.info("Received request to Get My Applications: {}", request);
 
         return getApplicationsOwnedByOperation.process(request);
-    }
-
-    @Override
-    public GetMySavedChannelsResponse getMySavedChannels(GetMySavedChannelsRequest request) throws OperationFailedException,
-                                                                                                   InvalidArgumentException,
-                                                                                                   InvalidCredentialsException,
-                                                                                                   TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Received request to Get My Saved Channels: {}", request);
-
-        return getMySavedChannelsOperation.process(request);
     }
 
     @Override

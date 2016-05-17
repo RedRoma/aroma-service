@@ -31,7 +31,6 @@ import tech.aroma.thrift.authentication.service.VerifyTokenRequest;
 import tech.aroma.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.thrift.exceptions.ApplicationAlreadyRegisteredException;
 import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
-import tech.aroma.thrift.exceptions.ChannelDoesNotExistException;
 import tech.aroma.thrift.exceptions.CustomChannelUnreachableException;
 import tech.aroma.thrift.exceptions.DoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -70,8 +69,6 @@ import tech.aroma.thrift.service.GetInboxRequest;
 import tech.aroma.thrift.service.GetInboxResponse;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetMySavedChannelsRequest;
-import tech.aroma.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.thrift.service.GetReactionsRequest;
 import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
@@ -82,20 +79,14 @@ import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.thrift.service.RemoveSavedChannelRequest;
-import tech.aroma.thrift.service.RemoveSavedChannelResponse;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
 import tech.aroma.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.thrift.service.SaveChannelRequest;
-import tech.aroma.thrift.service.SaveChannelResponse;
 import tech.aroma.thrift.service.SearchForApplicationsRequest;
 import tech.aroma.thrift.service.SearchForApplicationsResponse;
 import tech.aroma.thrift.service.SignInRequest;
 import tech.aroma.thrift.service.SignInResponse;
 import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
-import tech.aroma.thrift.service.SnoozeChannelRequest;
-import tech.aroma.thrift.service.SnoozeChannelResponse;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
@@ -244,20 +235,6 @@ final class AuthenticationLayer implements AromaService.Iface
     }
 
     @Override
-    public RemoveSavedChannelResponse removeSavedChannel(RemoveSavedChannelRequest request) throws OperationFailedException,
-                                                                                                   InvalidArgumentException,
-                                                                                                   InvalidCredentialsException,
-                                                                                                   UnauthorizedException,
-                                                                                                   ChannelDoesNotExistException,
-                                                                                                   TException
-    {
-        checkNotNull(request);
-        checkAndEnrichToken(request.token);
-
-        return delegate.removeSavedChannel(request);
-    }
-
-    @Override
     public RenewApplicationTokenResponse renewApplicationToken(RenewApplicationTokenRequest request) throws OperationFailedException,
                                                                                                             InvalidArgumentException,
                                                                                                             InvalidCredentialsException,
@@ -269,19 +246,6 @@ final class AuthenticationLayer implements AromaService.Iface
         checkAndEnrichToken(request.token);
 
         return delegate.renewApplicationToken(request);
-    }
-
-    @Override
-    public SaveChannelResponse saveChannel(SaveChannelRequest request) throws OperationFailedException, 
-                                                                              InvalidArgumentException,
-                                                                              InvalidCredentialsException, 
-                                                                              UnauthorizedException,
-                                                                              TException
-    {
-        checkNotNull(request);
-        checkAndEnrichToken(request.token);
-
-        return delegate.saveChannel(request);
     }
 
     @Override
@@ -307,21 +271,6 @@ final class AuthenticationLayer implements AromaService.Iface
 
         return delegate.signUp(request);
     }
-
-    @Override
-    public SnoozeChannelResponse snoozeChannel(SnoozeChannelRequest request) throws OperationFailedException,
-                                                                                    InvalidArgumentException,
-                                                                                    InvalidCredentialsException,
-                                                                                    UnauthorizedException,
-                                                                                    ChannelDoesNotExistException,
-                                                                                    TException
-    {
-        checkNotNull(request);
-        checkAndEnrichToken(request.token);
-
-        return delegate.snoozeChannel(request);
-    }
-
     @Override
     public GetActivityResponse getActivity(GetActivityRequest request) throws OperationFailedException, 
                                                                               InvalidArgumentException,
@@ -433,18 +382,6 @@ final class AuthenticationLayer implements AromaService.Iface
         return delegate.getApplicationsFollowedBy(request);
     }
 
-    @Override
-    public GetMySavedChannelsResponse getMySavedChannels(GetMySavedChannelsRequest request) throws OperationFailedException,
-                                                                                                   InvalidArgumentException,
-                                                                                                   InvalidCredentialsException,
-                                                                                                   TException
-    {
-        checkNotNull(request);
-        checkAndEnrichToken(request.token);
-
-        return delegate.getMySavedChannels(request);
-    }
-    
     @Override
     public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException, 
                                                                   InvalidArgumentException,

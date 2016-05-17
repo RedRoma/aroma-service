@@ -56,8 +56,6 @@ import tech.aroma.thrift.service.GetInboxRequest;
 import tech.aroma.thrift.service.GetInboxResponse;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetMySavedChannelsRequest;
-import tech.aroma.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.thrift.service.GetReactionsRequest;
 import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
@@ -68,20 +66,14 @@ import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.thrift.service.RemoveSavedChannelRequest;
-import tech.aroma.thrift.service.RemoveSavedChannelResponse;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
 import tech.aroma.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.thrift.service.SaveChannelRequest;
-import tech.aroma.thrift.service.SaveChannelResponse;
 import tech.aroma.thrift.service.SearchForApplicationsRequest;
 import tech.aroma.thrift.service.SearchForApplicationsResponse;
 import tech.aroma.thrift.service.SignInRequest;
 import tech.aroma.thrift.service.SignInResponse;
 import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
-import tech.aroma.thrift.service.SnoozeChannelRequest;
-import tech.aroma.thrift.service.SnoozeChannelResponse;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
@@ -129,15 +121,8 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse>>(){})
             .to(RegisterHealthCheckOperation.class);
         
-        bind(new TypeLiteral<ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse>>(){})
-            .to(RemoveSavedChannelOperation.class);
-        
         bind(new TypeLiteral<ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>>(){})
             .to(RenewApplicationTokenOperation.class);
-        
-        bind(new TypeLiteral<ThriftOperation<SaveChannelRequest, SaveChannelResponse>>(){})
-            .to(SaveChannelOperation.class);
-        
         bind(new TypeLiteral<ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse>>(){})
             .to(SearchForApplicationsOperation.class);
         
@@ -146,9 +131,6 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         
         bind(new TypeLiteral<ThriftOperation<SignUpRequest, SignUpResponse>>(){})
             .to(SignUpOperation.class);
-        
-        bind(new TypeLiteral<ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse>>(){})
-            .to(SnoozeChannelOperation.class);
         
         
         bind(new TypeLiteral<ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse>>(){})
@@ -191,9 +173,6 @@ public final class ModuleAromaServiceOperations extends AbstractModule
               
         bind(new TypeLiteral<ThriftOperation<GetMediaRequest, GetMediaResponse>>() {})
             .to(GetMediaOperation.class);
-        
-        bind(new TypeLiteral<ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse>>(){})
-            .to(GetMySavedChannelsOperation.class);
         
         
         bind(new TypeLiteral<ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse>>(){})

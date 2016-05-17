@@ -49,7 +49,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.aroma.thrift.reactions.ReactionsConstants.MAXIMUM_REACTIONS;
+import static tech.aroma.thrift.service.AromaServiceConstants.MAXIMUM_REACTIONS;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;

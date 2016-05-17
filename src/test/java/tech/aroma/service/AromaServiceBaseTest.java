@@ -57,8 +57,6 @@ import tech.aroma.thrift.service.GetInboxRequest;
 import tech.aroma.thrift.service.GetInboxResponse;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetMySavedChannelsRequest;
-import tech.aroma.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.thrift.service.GetReactionsRequest;
 import tech.aroma.thrift.service.GetReactionsResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
@@ -69,20 +67,14 @@ import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.thrift.service.RemoveSavedChannelRequest;
-import tech.aroma.thrift.service.RemoveSavedChannelResponse;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
 import tech.aroma.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.thrift.service.SaveChannelRequest;
-import tech.aroma.thrift.service.SaveChannelResponse;
 import tech.aroma.thrift.service.SearchForApplicationsRequest;
 import tech.aroma.thrift.service.SearchForApplicationsResponse;
 import tech.aroma.thrift.service.SignInRequest;
 import tech.aroma.thrift.service.SignInResponse;
 import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
-import tech.aroma.thrift.service.SnoozeChannelRequest;
-import tech.aroma.thrift.service.SnoozeChannelResponse;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
@@ -152,15 +144,6 @@ public class AromaServiceBaseTest
     private ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
 
     @Mock
-    private ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
-
-    @Mock
-    private ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
-
-    @Mock
-    private ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
-  
-    @Mock
     private ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
     
     @Mock
@@ -181,9 +164,6 @@ public class AromaServiceBaseTest
 
     @Mock
     private ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation;
-
-    @Mock
-    private ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
 
     @Mock
     private ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
@@ -227,9 +207,6 @@ public class AromaServiceBaseTest
                                         registerHealthCheckOperation,
                                         renewApplicationTokenOperation,
                                         searchForApplicationsOperation,
-                                        saveChannelOperation,
-                                        removeSavedChannelOperation,
-                                        snoozeChannelOperation,
                                         updateApplicationOperation,
                                         updateReactionsOperation,
                                         unfollowApplicationOperation,
@@ -237,7 +214,6 @@ public class AromaServiceBaseTest
                                         getBuzzOperation,
                                         getApplicationsFollowedByOperation,
                                         getApplicationsOwnedByOperation,
-                                        getMySavedChannelsOperation,
                                         getApplicationInfoOperation,
                                         getDashboardOperation,
                                         getInboxOperation,
@@ -258,9 +234,6 @@ public class AromaServiceBaseTest
                                registerHealthCheckOperation,
                                renewApplicationTokenOperation,
                                searchForApplicationsOperation,
-                               saveChannelOperation,
-                               removeSavedChannelOperation,
-                               snoozeChannelOperation,
                                updateApplicationOperation,
                                updateReactionsOperation,
                                unfollowApplicationOperation,
@@ -268,7 +241,6 @@ public class AromaServiceBaseTest
                                getBuzzOperation,
                                getApplicationsFollowedByOperation,
                                getApplicationsOwnedByOperation,
-                               getMySavedChannelsOperation,
                                getApplicationInfoOperation,
                                getDashboardOperation,
                                getInboxOperation,
@@ -300,23 +272,6 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.getDashboard(null))
-            .isInstanceOf(InvalidArgumentException.class);
-    }
-
-    @Test
-    public void testGetMySavedChannels() throws Exception
-    {
-        GetMySavedChannelsRequest request = one(pojos(GetMySavedChannelsRequest.class));
-        GetMySavedChannelsResponse expectedResponse = one(pojos(GetMySavedChannelsResponse.class));
-
-        when(getMySavedChannelsOperation.process(request)).thenReturn(expectedResponse);
-
-        GetMySavedChannelsResponse response = instance.getMySavedChannels(request);
-        assertThat(response, is(expectedResponse));
-        verify(getMySavedChannelsOperation).process(request);
-
-        //Edge Cases
-        assertThrows(() -> instance.getMySavedChannels(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
 
@@ -452,27 +407,6 @@ public class AromaServiceBaseTest
             .isInstanceOf(OperationFailedException.class);
     }
 
-    @Test
-    public void testRemoveSavedChannel() throws Exception
-    {
-        RemoveSavedChannelRequest request = pojos(RemoveSavedChannelRequest.class).get();
-        RemoveSavedChannelResponse response = mock(RemoveSavedChannelResponse.class);
-        when(removeSavedChannelOperation.process(request))
-            .thenReturn(response);
-
-        RemoveSavedChannelResponse result = instance.removeSavedChannel(request);
-        assertThat(result, is(response));
-        verify(removeSavedChannelOperation).process(request);
-
-        //Edge cases
-        assertThrows(() -> instance.removeSavedChannel(null))
-            .isInstanceOf(InvalidArgumentException.class);
-
-        when(removeSavedChannelOperation.process(request))
-            .thenThrow(new OperationFailedException());
-        assertThrows(() -> instance.removeSavedChannel(request))
-            .isInstanceOf(OperationFailedException.class);
-    }
 
     @Test
     public void testRenewApplicationToken() throws Exception
@@ -496,28 +430,6 @@ public class AromaServiceBaseTest
             .isInstanceOf(OperationFailedException.class);
     }
 
-    @Test
-    public void testSaveChannel() throws Exception
-    {
-        SaveChannelRequest request = one(pojos(SaveChannelRequest.class));
-        SaveChannelResponse response = mock(SaveChannelResponse.class);
-        when(saveChannelOperation.process(request))
-            .thenReturn(response);
-
-        SaveChannelResponse result = instance.saveChannel(request);
-        assertThat(result, is(response));
-        verify(saveChannelOperation).process(request);
-
-        //Edge cases
-        assertThrows(() -> instance.saveChannel(null))
-            .isInstanceOf(InvalidArgumentException.class);
-
-        when(saveChannelOperation.process(request))
-            .thenThrow(new OperationFailedException());
-
-        assertThrows(() -> instance.saveChannel(request))
-            .isInstanceOf(OperationFailedException.class);
-    }
 
     @Test
     public void testSearchForApplications() throws Exception
@@ -602,27 +514,6 @@ public class AromaServiceBaseTest
             .isInstanceOf(InvalidCredentialsException.class);
     }
 
-    @Test
-    public void testSnoozeChannel() throws Exception
-    {
-        SnoozeChannelRequest request = one(pojos(SnoozeChannelRequest.class));
-        SnoozeChannelResponse response = mock(SnoozeChannelResponse.class);
-        when(snoozeChannelOperation.process(request))
-            .thenReturn(response);
-
-        SnoozeChannelResponse result = instance.snoozeChannel(request);
-        assertThat(result, is(response));
-
-        //Edge cases
-        assertThrows(() -> instance.snoozeChannel(null))
-            .isInstanceOf(InvalidArgumentException.class);
-
-        when(snoozeChannelOperation.process(request))
-            .thenThrow(new OperationFailedException());
-
-        assertThrows(() -> instance.snoozeChannel(request))
-            .isInstanceOf(OperationFailedException.class);
-    }
 
     @Test
     public void testFollowApplication() throws Exception
