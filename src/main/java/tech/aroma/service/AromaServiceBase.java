@@ -246,7 +246,8 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                 InvalidArgumentException,
                                                                                                 InvalidTokenException,
                                                                                                 ApplicationDoesNotExistException,
-                                                                                                UnauthorizedException, TException
+                                                                                                UnauthorizedException, 
+                                                                                                TException
     {
         checkNotNull(request);
 
@@ -275,7 +276,8 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                        InvalidArgumentException,
                                                                                        InvalidTokenException,
                                                                                        MessageDoesNotExistException,
-                                                                                       UnauthorizedException, TException
+                                                                                       UnauthorizedException, 
+                                                                                       TException
     {
         checkNotNull(request);
         
@@ -347,13 +349,12 @@ final class AromaServiceBase implements AromaService.Iface
     }
 
     @Override
-    public RenewApplicationTokenResponse renewApplicationToken(RenewApplicationTokenRequest request) throws
-        OperationFailedException,
-        InvalidArgumentException,
-        InvalidCredentialsException,
-        ApplicationDoesNotExistException,
-        UnauthorizedException,
-        TException
+    public RenewApplicationTokenResponse renewApplicationToken(RenewApplicationTokenRequest request) throws OperationFailedException,
+                                                                                                            InvalidArgumentException,
+                                                                                                            InvalidCredentialsException,
+                                                                                                            ApplicationDoesNotExistException,
+                                                                                                            UnauthorizedException,
+                                                                                                            TException
     {
         checkNotNull(request);
 
@@ -483,9 +484,9 @@ final class AromaServiceBase implements AromaService.Iface
 
     @Override
     public GetInboxResponse getInbox(GetInboxRequest request) throws OperationFailedException,
-                                                                              InvalidArgumentException,
-                                                                              InvalidCredentialsException,
-                                                                              TException
+                                                                     InvalidArgumentException,
+                                                                     InvalidCredentialsException,
+                                                                     TException
     {
         checkNotNull(request);
 
