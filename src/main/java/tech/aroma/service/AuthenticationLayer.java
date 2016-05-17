@@ -145,11 +145,11 @@ final class AuthenticationLayer implements AromaService.Iface
     
     @Override
     public DeleteApplicationResponse deleteApplication(DeleteApplicationRequest request) throws OperationFailedException,
-                                                                                    InvalidArgumentException,
-                                                                                    InvalidTokenException,
-                                                                                    ApplicationDoesNotExistException,
-                                                                                    UnauthorizedException,
-                                                                                    TException
+                                                                                                InvalidArgumentException,
+                                                                                                InvalidTokenException,
+                                                                                                ApplicationDoesNotExistException,
+                                                                                                UnauthorizedException,
+                                                                                                TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -331,8 +331,10 @@ final class AuthenticationLayer implements AromaService.Iface
     }
 
     @Override
-    public GetInboxResponse getInbox(GetInboxRequest request) throws OperationFailedException, InvalidArgumentException,
-                                                                     InvalidTokenException, TException
+    public GetInboxResponse getInbox(GetInboxRequest request) throws OperationFailedException,
+                                                                     InvalidArgumentException,
+                                                                     InvalidTokenException,
+                                                                     TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -368,9 +370,9 @@ final class AuthenticationLayer implements AromaService.Iface
     
     @Override
     public GetApplicationsOwnedByResponse getApplicationsOwnedBy(GetApplicationsOwnedByRequest request) throws OperationFailedException,
-                                                                                                InvalidArgumentException,
-                                                                                                InvalidCredentialsException,
-                                                                                                TException
+                                                                                                               InvalidArgumentException,
+                                                                                                               InvalidCredentialsException,
+                                                                                                               TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -380,9 +382,9 @@ final class AuthenticationLayer implements AromaService.Iface
     
     @Override
     public GetApplicationsFollowedByResponse getApplicationsFollowedBy(GetApplicationsFollowedByRequest request) throws OperationFailedException,
-                                                                                                InvalidArgumentException,
-                                                                                                InvalidCredentialsException,
-                                                                                                TException
+                                                                                                                        InvalidArgumentException,
+                                                                                                                        InvalidCredentialsException,
+                                                                                                                        TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -469,7 +471,8 @@ final class AuthenticationLayer implements AromaService.Iface
                                                                                           InvalidArgumentException,
                                                                                           InvalidTokenException,
                                                                                           ApplicationDoesNotExistException,
-                                                                                          UnauthorizedException, TException
+                                                                                          UnauthorizedException, 
+                                                                                          TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -479,9 +482,11 @@ final class AuthenticationLayer implements AromaService.Iface
 
     @Override
     public GetReactionsResponse getReactions(GetReactionsRequest request) throws OperationFailedException,
-                                                                                 InvalidArgumentException, InvalidTokenException,
+                                                                                 InvalidArgumentException, 
+                                                                                 InvalidTokenException,
                                                                                  ApplicationDoesNotExistException,
-                                                                                 UnauthorizedException, TException
+                                                                                 UnauthorizedException, 
+                                                                                 TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -525,7 +530,8 @@ final class AuthenticationLayer implements AromaService.Iface
     public RegisterDeviceResponse registerDevice(RegisterDeviceRequest request) throws OperationFailedException,
                                                                                        InvalidArgumentException,
                                                                                        InvalidTokenException,
-                                                                                       UnauthorizedException, TException
+                                                                                       UnauthorizedException,
+                                                                                       TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -537,7 +543,8 @@ final class AuthenticationLayer implements AromaService.Iface
     public UnregisterDeviceResponse unregisterDevice(UnregisterDeviceRequest request) throws OperationFailedException,
                                                                                              InvalidArgumentException,
                                                                                              InvalidTokenException,
-                                                                                             UnauthorizedException, TException
+                                                                                             UnauthorizedException,
+                                                                                             TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -549,7 +556,7 @@ final class AuthenticationLayer implements AromaService.Iface
     //==========================================================
     // INTERNAL OPERATIONS
     //==========================================================
-        private void checkAndEnrichToken(UserToken token) throws InvalidTokenException, TException
+    private void checkAndEnrichToken(UserToken token) throws InvalidTokenException, TException
     {
         checkTokenIsValid(token);
 
