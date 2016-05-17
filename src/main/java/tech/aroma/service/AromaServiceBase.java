@@ -34,6 +34,8 @@ import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.AromaService;
+import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
+import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
@@ -64,12 +66,16 @@ import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
 import tech.aroma.thrift.service.GetReactionsRequest;
 import tech.aroma.thrift.service.GetReactionsResponse;
+import tech.aroma.thrift.service.GetRegisteredDevicesRequest;
+import tech.aroma.thrift.service.GetRegisteredDevicesResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RegisterDeviceRequest;
+import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
@@ -82,6 +88,8 @@ import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UnregisterDeviceRequest;
+import tech.aroma.thrift.service.UnregisterDeviceResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.aroma.thrift.service.UpdateReactionsRequest;
@@ -618,6 +626,72 @@ final class AromaServiceBase implements AromaService.Iface
         return getReactionsOperation.process(request);
     }
     
+   
+
+    //==========================================================
+    // DEVICE OPERATIONS
+    //==========================================================
+
+    @Override
+    public CheckIfDeviceIsRegisteredResponse checkIfDeviceIsRegistered(CheckIfDeviceIsRegisteredRequest request) throws OperationFailedException,
+                                                                                                                        InvalidArgumentException,
+                                                                                                                        InvalidTokenException,
+                                                                                                                        UnauthorizedException,
+                                                                                                                        TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to check if device is registered: {}", request.device);
+        
+        return null;
+    }
+
+    @Override
+    public GetRegisteredDevicesResponse getRegisteredDevices(GetRegisteredDevicesRequest request) throws OperationFailedException,
+                                                                                                         InvalidArgumentException,
+                                                                                                         InvalidTokenException,
+                                                                                                         UnauthorizedException,
+                                                                                                         TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to GetRegisteredDevices by {}", request.token.userId);
+        
+        return null;
+    }
+
+    @Override
+    public RegisterDeviceResponse registerDevice(RegisterDeviceRequest request) throws OperationFailedException,
+                                                                                       InvalidArgumentException,
+                                                                                       InvalidTokenException,
+                                                                                       UnauthorizedException,
+                                                                                       TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to register a device: {}", request.device);
+        
+        return null;
+    }
+
+    @Override
+    public UnregisterDeviceResponse unregisterDevice(UnregisterDeviceRequest request) throws OperationFailedException,
+                                                                                             InvalidArgumentException,
+                                                                                             InvalidTokenException,
+                                                                                             UnauthorizedException, 
+                                                                                             TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received a request to unregister a device: {}", request.device);
+        
+        return null;
+    }
+    
+
+    //==========================================================
+    // INTERNAL OPERATIONS
+    //==========================================================
     private void ensureEmailIsLowerCased(SignInRequest request)
     {
         if (request.isSetEmailAddress())
@@ -625,7 +699,7 @@ final class AromaServiceBase implements AromaService.Iface
             request.setEmailAddress(request.emailAddress.toLowerCase());
         }
     }
-    
+
     private void ensureEmailIsLowerCased(SignUpRequest request)
     {
         if (request.isSetEmail())
@@ -633,7 +707,7 @@ final class AromaServiceBase implements AromaService.Iface
             request.setEmail(request.email.toLowerCase());
         }
     }
-    
+
     private void ensureEmailIsLowerCasedIfPresent(GetUserInfoRequest request)
     {
         if (request.isSetEmail())
@@ -641,7 +715,4 @@ final class AromaServiceBase implements AromaService.Iface
             request.setEmail(request.email.toLowerCase());
         }
     }
-
-
-
 }
