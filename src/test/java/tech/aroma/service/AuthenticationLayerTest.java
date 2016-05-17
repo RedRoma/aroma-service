@@ -86,6 +86,8 @@ import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UnregisterDeviceRequest;
+import tech.aroma.thrift.service.UnregisterDeviceResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.aroma.thrift.service.UpdateReactionsRequest;
@@ -1246,6 +1248,44 @@ public class AuthenticationLayerTest
     @Test
     public void testUnregisterDevice() throws Exception
     {
+
+        UnregisterDeviceRequest request = new UnregisterDeviceRequest()
+            .setToken(userToken)
+            .setDevice(one(mobileDevices()));
+
+        UnregisterDeviceResponse expected = new UnregisterDeviceResponse()
+            .setRemovedDevice(one(mobileDevices()));
+
+        when(delegate.unregisterDevice(request))
+            .thenReturn(expected);
+
+        UnregisterDeviceResponse response = instance.unregisterDevice(request);
+        assertThat(response, sameInstance(expected));
+        verify(delegate).unregisterDevice(request);
+    }
+
+    @Test
+    public void testUnregisterDeviceWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+
+        UnregisterDeviceRequest request = new UnregisterDeviceRequest()
+            .setToken(userToken);
+
+        assertThrows(() -> instance.unregisterDevice(request))
+            .isInstanceOf(InvalidTokenException.class);
+
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testUnregisterDeviceWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.unregisterDevice(null))
+            .isInstanceOf(InvalidArgumentException.class);
+
+        assertThrows(() -> instance.unregisterDevice(new UnregisterDeviceRequest()))
+            .isInstanceOf(InvalidTokenException.class);
     }
 
     private void setupWithBadToken() throws TException
