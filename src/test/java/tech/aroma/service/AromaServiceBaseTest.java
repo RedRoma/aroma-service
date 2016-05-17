@@ -27,8 +27,11 @@ import tech.aroma.thrift.exceptions.DoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
+import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.generators.TokenGenerators;
+import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
+import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
@@ -59,12 +62,16 @@ import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
 import tech.aroma.thrift.service.GetReactionsRequest;
 import tech.aroma.thrift.service.GetReactionsResponse;
+import tech.aroma.thrift.service.GetRegisteredDevicesRequest;
+import tech.aroma.thrift.service.GetRegisteredDevicesResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RegisterDeviceRequest;
+import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
@@ -77,6 +84,8 @@ import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UnregisterDeviceRequest;
+import tech.aroma.thrift.service.UnregisterDeviceResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.aroma.thrift.service.UpdateReactionsRequest;
@@ -94,8 +103,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.aroma.thrift.generators.ChannelGenerators.mobileDevices;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.BooleanGenerators.booleans;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
@@ -188,6 +199,18 @@ public class AromaServiceBaseTest
     
     @Mock
     private ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
+ 
+    @Mock
+    private ThriftOperation<CheckIfDeviceIsRegisteredRequest, CheckIfDeviceIsRegisteredResponse> checkIfDeviceIsRegisteredOperation;
+    
+    @Mock
+    private ThriftOperation<GetRegisteredDevicesRequest, GetRegisteredDevicesResponse> getRegisteredDevicesOperation;
+    
+    @Mock
+    private ThriftOperation<RegisterDeviceRequest, RegisterDeviceResponse> registerDeviceOperation;
+    
+    @Mock
+    private ThriftOperation<UnregisterDeviceRequest, UnregisterDeviceResponse> unregisterDeviceOperation;
 
     private AromaServiceBase instance;
     
@@ -196,59 +219,65 @@ public class AromaServiceBaseTest
     @Before
     public void setUp() throws Exception
     {
-        instance = new AromaServiceBase(deleteApplicationOperation,
+        instance = new AromaServiceBase(checkIfDeviceIsRegisteredOperation,
+                                        deleteApplicationOperation,
                                         deleteMessageOperation,
                                         dismissMessageOperation,
-                                        signInOperation,
-                                        signUpOperation,
+                                        followApplicationOperation,
+                                        getActivityOperation,
+                                        getApplicationInfoOperation,
+                                        getApplicationMessagesOperation,
+                                        getApplicationsFollowedByOperation,
+                                        getApplicationsOwnedByOperation,
+                                        getBuzzOperation,
+                                        getDashboardOperation,
+                                        getFullMessageOperation,
+                                        getInboxOperation,
+                                        getMediaOperation,
+                                        getReactionsOperation,
+                                        getRegisteredDevicesOperation,
+                                        getUserInfoOperation,
                                         provisionApplicationOperation,
                                         regenerateApplicationTokenOperation,
-                                        followApplicationOperation,
+                                        registerDeviceOperation,
                                         registerHealthCheckOperation,
                                         renewApplicationTokenOperation,
                                         searchForApplicationsOperation,
-                                        updateApplicationOperation,
-                                        updateReactionsOperation,
+                                        signInOperation, signUpOperation,
                                         unfollowApplicationOperation,
-                                        getActivityOperation,
-                                        getBuzzOperation,
-                                        getApplicationsFollowedByOperation,
-                                        getApplicationsOwnedByOperation,
-                                        getApplicationInfoOperation,
-                                        getDashboardOperation,
-                                        getInboxOperation,
-                                        getMediaOperation,
-                                        getApplicationMessagesOperation,
-                                        getFullMessageOperation,
-                                        getReactionsOperation,
-                                        getUserInfoOperation);
+                                        unregisterDeviceOperation,
+                                        updateApplicationOperation,
+                                        updateReactionsOperation);
 
-        verifyZeroInteractions(deleteApplicationOperation,
+        verifyZeroInteractions(checkIfDeviceIsRegisteredOperation,
+                               deleteApplicationOperation,
                                deleteMessageOperation,
                                dismissMessageOperation,
-                               signInOperation,
-                               signUpOperation,
+                               followApplicationOperation,
+                               getActivityOperation,
+                               getApplicationInfoOperation,
+                               getApplicationMessagesOperation,
+                               getApplicationsFollowedByOperation,
+                               getApplicationsOwnedByOperation,
+                               getBuzzOperation,
+                               getDashboardOperation,
+                               getFullMessageOperation,
+                               getInboxOperation,
+                               getMediaOperation,
+                               getReactionsOperation,
+                               getRegisteredDevicesOperation,
+                               getUserInfoOperation,
                                provisionApplicationOperation,
                                regenerateApplicationTokenOperation,
-                               followApplicationOperation,
+                               registerDeviceOperation,
                                registerHealthCheckOperation,
                                renewApplicationTokenOperation,
                                searchForApplicationsOperation,
-                               updateApplicationOperation,
-                               updateReactionsOperation,
+                               signInOperation, signUpOperation,
                                unfollowApplicationOperation,
-                               getActivityOperation,
-                               getBuzzOperation,
-                               getApplicationsFollowedByOperation,
-                               getApplicationsOwnedByOperation,
-                               getApplicationInfoOperation,
-                               getDashboardOperation,
-                               getInboxOperation,
-                               getMediaOperation,
-                               getApplicationMessagesOperation,
-                               getFullMessageOperation,
-                               getReactionsOperation,
-                               getUserInfoOperation);
+                               unregisterDeviceOperation,
+                               updateApplicationOperation,
+                               updateReactionsOperation);
 
         
         setupData();
@@ -893,5 +922,154 @@ public class AromaServiceBaseTest
             .isInstanceOf(OperationFailedException.class);
     }
 
+    @Test
+    public void testCheckIfDeviceIsRegistered() throws Exception
+    {
+        CheckIfDeviceIsRegisteredRequest request = new CheckIfDeviceIsRegisteredRequest()
+            .setToken(token);
+        CheckIfDeviceIsRegisteredResponse expected = new CheckIfDeviceIsRegisteredResponse()
+            .setIsRegistered(one(booleans()));
+        
+        when(checkIfDeviceIsRegisteredOperation.process(request))
+            .thenReturn(expected);
+        
+        CheckIfDeviceIsRegisteredResponse response = instance.checkIfDeviceIsRegistered(request);
+        assertThat(response, is(expected));
+        verify(checkIfDeviceIsRegisteredOperation).process(request);
+    }
+    
+    @DontRepeat
+    @Test
+    public void testCheckIfDeviceIsRegisteredWhenFails() throws Exception
+    {
+        CheckIfDeviceIsRegisteredRequest request = new CheckIfDeviceIsRegisteredRequest()
+        .setToken(token);
+        
+        when(checkIfDeviceIsRegisteredOperation.process(request))
+            .thenThrow(new OperationFailedException());
+        
+        assertThrows(() -> instance.checkIfDeviceIsRegistered(request))
+            .isInstanceOf(OperationFailedException.class);
+    }
+
+    @DontRepeat
+    @Test
+    public void testCheckIfDeviceIsRegisteredWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.checkIfDeviceIsRegistered(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testGetRegisteredDevices() throws Exception
+    {
+        GetRegisteredDevicesRequest request = new GetRegisteredDevicesRequest(token);
+        GetRegisteredDevicesResponse expected = new GetRegisteredDevicesResponse()
+            .setDevices(listOf(mobileDevices(), 10));
+        
+        when(getRegisteredDevicesOperation.process(request))
+            .thenReturn(expected);
+        
+        GetRegisteredDevicesResponse response = instance.getRegisteredDevices(request);
+        assertThat(response, is(expected));
+        verify(getRegisteredDevicesOperation).process(request);
+    }
+
+    @DontRepeat
+    @Test
+    public void testGetRegisteredDevicesWhenFails() throws Exception
+    {
+        GetRegisteredDevicesRequest request = new GetRegisteredDevicesRequest().setToken(token);
+        when(getRegisteredDevicesOperation.process(request))
+            .thenThrow(new DoesNotExistException());
+
+        assertThrows(() -> instance.getRegisteredDevices(request))
+            .isInstanceOf(DoesNotExistException.class);
+    }
+
+    @DontRepeat
+    @Test
+    public void testGetRegisteredDevicesWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.getRegisteredDevices(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testRegisterDevice() throws Exception
+    {
+        RegisterDeviceRequest request = new RegisterDeviceRequest()
+            .setToken(token)
+            .setDevice(one(mobileDevices()));
+        
+        RegisterDeviceResponse expected = one(pojos(RegisterDeviceResponse.class));
+        
+        when(registerDeviceOperation.process(request))
+            .thenReturn(expected);
+        
+        RegisterDeviceResponse response = instance.registerDevice(request);
+        assertThat(response, is(expected));
+        verify(registerDeviceOperation).process(request);
+    }
+
+    @DontRepeat
+    @Test
+    public void testRegisterDeviceWhenFails() throws Exception
+    {
+        RegisterDeviceRequest request = new RegisterDeviceRequest()
+            .setToken(token);
+        when(registerDeviceOperation.process(request))
+            .thenThrow(new UnauthorizedException());
+        
+        assertThrows(() -> instance.registerDevice(request))
+            .isInstanceOf(UnauthorizedException.class);
+    }
+
+    @Test
+    public void testRegisterDeviceWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.registerDevice(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
+
+    @Test
+    public void testUnregisterDevice() throws Exception
+    {
+        UnregisterDeviceRequest request = new UnregisterDeviceRequest()
+            .setToken(token)
+            .setDevice(one(mobileDevices()));
+        
+        UnregisterDeviceResponse expected = new UnregisterDeviceResponse()
+            .setRemovedDevice(one(mobileDevices()));
+        
+        when(unregisterDeviceOperation.process(request))
+            .thenReturn(expected);
+        
+        UnregisterDeviceResponse response = instance.unregisterDevice(request);
+        assertThat(response, is(expected));
+        verify(unregisterDeviceOperation).process(request);
+    }
+
+    @DontRepeat
+    @Test
+    public void testUnregisterDeviceWhenFails() throws Exception
+    {
+        UnregisterDeviceRequest request = new UnregisterDeviceRequest()
+            .setToken(token)
+            .setDevice(one(mobileDevices()));
+        
+        when(unregisterDeviceOperation.process(request))
+            .thenThrow(new DoesNotExistException());
+        
+        assertThrows(() -> instance.unregisterDevice(request))
+            .isInstanceOf(DoesNotExistException.class);
+    }
+
+    @Test
+    public void testUnregisterDeviceWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.unregisterDevice(null))
+            .isInstanceOf(InvalidArgumentException.class);
+    }
  
 }

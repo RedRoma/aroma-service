@@ -57,7 +57,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
 import static tech.aroma.thrift.generators.UserGenerators.users;
-import static tech.aroma.thrift.reactions.ReactionsConstants.MAXIMUM_REACTIONS;
+import static tech.aroma.thrift.service.AromaServiceConstants.MAXIMUM_REACTIONS;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
