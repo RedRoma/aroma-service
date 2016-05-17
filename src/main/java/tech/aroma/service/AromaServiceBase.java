@@ -116,119 +116,161 @@ final class AromaServiceBase implements AromaService.Iface
 
     private final static Logger LOG = LoggerFactory.getLogger(AromaServiceBase.class);
 
-    //Action and Save Operations
-    private final ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation;
+    //------------------------------
+    //Authentication Operations
+    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
+    private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
+
+    //------------------------------
+    //User Profile Operations
+    private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
+
+    //------------------------------
+    //Inbox Operations
+    private final ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation;
+
+    //------------------------------
+    //Message Operations
     private final ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation;
     private final ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation;
+    private final ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
+    private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
+
+    //------------------------------
+    //Application Operations
+    private final ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
+    private final ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation;
+
+    private final ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation;
+
+    //------------------------------
+    //Reaction Operations
+    private final ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation;
+    private final ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation;
+
+    //------------------------------
+    //App Follow Operations
+    private final ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation;
     private final ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
+    private final ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
+
+    //------------------------------
+    //Action and Save Operations
     private final ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
     private final ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
     private final ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
     private final ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
     private final ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
-    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
-    private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
     private final ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
-    private final ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation;
-    private final ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
 
-    //Query and GET Operations
+    //------------------------------
+    //Device Registration Operations
+    private final ThriftOperation<CheckIfDeviceIsRegisteredRequest, CheckIfDeviceIsRegisteredResponse> checkIfDeviceIsRegisteredOperation;
+    private final ThriftOperation<GetRegisteredDevicesRequest, GetRegisteredDevicesResponse> getRegisteredDevicesOperation;
+    private final ThriftOperation<RegisterDeviceRequest, RegisterDeviceResponse> registerDeviceOperation;
+    private final ThriftOperation<UnregisterDeviceRequest, UnregisterDeviceResponse> unregisterDeviceOperation;
+
+    //------------------------------
+    //Other Operations
     private final ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
-    private final ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
     private final ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
     private final ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
-    private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
-    private final ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation;
     private final ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation;
-    private final ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
-    private final ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation;
-    private final ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation;
-    private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
-    private final ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation;
 
     @Inject
-    AromaServiceBase(ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation,
+    AromaServiceBase(ThriftOperation<CheckIfDeviceIsRegisteredRequest, CheckIfDeviceIsRegisteredResponse> checkIfDeviceIsRegisteredOperation,
+                     ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation,
                      ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation,
                      ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation,
-                     ThriftOperation<SignInRequest, SignInResponse> signInOperation,
-                     ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
+                     ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation,
+                     ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
+                     ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
+                     ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
+                     ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation,
+                     ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation,
+                     ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
+                     ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
+                     ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
+                     ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
+                     ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation,
+                     ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation,
+                     ThriftOperation<GetRegisteredDevicesRequest, GetRegisteredDevicesResponse> getRegisteredDevicesOperation,
+                     ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation,
                      ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
                      ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,
-                     ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation,
+                     ThriftOperation<RegisterDeviceRequest, RegisterDeviceResponse> registerDeviceOperation,
                      ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
                      ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation,
                      ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation,
-                     ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
-                     ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation,
+                     ThriftOperation<SignInRequest, SignInResponse> signInOperation,
+                     ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
                      ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation,
-                     ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
-                     ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
-                     ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation,
-                     ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation,
-                     ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
-                     ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
-                     ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
-                     ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation,
-                     ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
-                     ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
-                     ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation,
-                     ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
+                     ThriftOperation<UnregisterDeviceRequest, UnregisterDeviceResponse> unregisterDeviceOperation,
+                     ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
+                     ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation)
     {
-        checkThat(deleteApplicationOperation,
-                  deleteMessageOperation,
+        checkThat(checkIfDeviceIsRegisteredOperation,
+                  deleteApplicationOperation,
                   dismissMessageOperation,
                   followApplicationOperation,
                   getActivityOperation,
                   getApplicationInfoOperation,
+                  getApplicationMessagesOperation,
+                  getApplicationsFollowedByOperation,
+                  getApplicationsOwnedByOperation,
                   getBuzzOperation,
                   getDashboardOperation,
                   getFullMessageOperation,
                   getInboxOperation,
                   getMediaOperation,
-                  getApplicationMessagesOperation,
-                  getApplicationsFollowedByOperation,
-                  getApplicationsOwnedByOperation,
                   getReactionsOperation,
+                  getRegisteredDevicesOperation,
                   getUserInfoOperation,
                   provisionApplicationOperation,
                   regenerateApplicationTokenOperation,
+                  registerDeviceOperation,
                   registerHealthCheckOperation,
                   renewApplicationTokenOperation,
                   searchForApplicationsOperation,
-                  signUpOperation,
                   signInOperation,
+                  signUpOperation,
+                  unfollowApplicationOperation,
+                  unregisterDeviceOperation,
                   updateApplicationOperation,
                   updateReactionsOperation,
-                  unfollowApplicationOperation)
+                  deleteMessageOperation)
             .are(notNull());
 
+        this.checkIfDeviceIsRegisteredOperation = checkIfDeviceIsRegisteredOperation;
         this.deleteApplicationOperation = deleteApplicationOperation;
         this.deleteMessageOperation = deleteMessageOperation;
         this.dismissMessageOperation = dismissMessageOperation;
         this.followApplicationOperation = followApplicationOperation;
-        this.provisionApplicationOperation = provisionApplicationOperation;
-        this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
-        this.registerHealthCheckOperation = registerHealthCheckOperation;
-        this.renewApplicationTokenOperation = renewApplicationTokenOperation;
-        this.searchForApplicationsOperation = searchForApplicationsOperation;
-        this.signInOperation = signInOperation;
-        this.signUpOperation = signUpOperation;
-        this.updateApplicationOperation = updateApplicationOperation;
-        this.updateReactionsOperation = updateReactionsOperation;
-        this.unfollowApplicationOperation = unfollowApplicationOperation;
-        
         this.getActivityOperation = getActivityOperation;
         this.getApplicationInfoOperation = getApplicationInfoOperation;
+        this.getApplicationMessagesOperation = getApplicationMessagesOperation;
+        this.getApplicationsFollowedByOperation = getApplicationsFollowedByOperation;
+        this.getApplicationsOwnedByOperation = getApplicationsOwnedByOperation;
         this.getBuzzOperation = getBuzzOperation;
         this.getDashboardOperation = getDashboardOperation;
         this.getFullMessageOperation = getFullMessageOperation;
         this.getInboxOperation = getInboxOperation;
         this.getMediaOperation = getMediaOperation;
-        this.getApplicationMessagesOperation = getApplicationMessagesOperation;
-        this.getApplicationsFollowedByOperation = getApplicationsFollowedByOperation;
-        this.getApplicationsOwnedByOperation = getApplicationsOwnedByOperation;
         this.getReactionsOperation = getReactionsOperation;
+        this.getRegisteredDevicesOperation = getRegisteredDevicesOperation;
         this.getUserInfoOperation = getUserInfoOperation;
+        this.provisionApplicationOperation = provisionApplicationOperation;
+        this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
+        this.registerDeviceOperation = registerDeviceOperation;
+        this.registerHealthCheckOperation = registerHealthCheckOperation;
+        this.renewApplicationTokenOperation = renewApplicationTokenOperation;
+        this.searchForApplicationsOperation = searchForApplicationsOperation;
+        this.signInOperation = signInOperation;
+        this.signUpOperation = signUpOperation;
+        this.unfollowApplicationOperation = unfollowApplicationOperation;
+        this.unregisterDeviceOperation = unregisterDeviceOperation;
+        this.updateApplicationOperation = updateApplicationOperation;
+        this.updateReactionsOperation = updateReactionsOperation;
     }
     
     
@@ -644,7 +686,7 @@ final class AromaServiceBase implements AromaService.Iface
         
         LOG.info("Received request to check if device is registered: {}", request.device);
         
-        return null;
+        return checkIfDeviceIsRegisteredOperation.process(request);
     }
 
     @Override
@@ -658,7 +700,7 @@ final class AromaServiceBase implements AromaService.Iface
         
         LOG.info("Received request to GetRegisteredDevices by {}", request.token.userId);
         
-        return null;
+        return getRegisteredDevicesOperation.process(request);
     }
 
     @Override
@@ -672,7 +714,7 @@ final class AromaServiceBase implements AromaService.Iface
         
         LOG.info("Received request to register a device: {}", request.device);
         
-        return null;
+        return registerDeviceOperation.process(request);
     }
 
     @Override
@@ -686,7 +728,8 @@ final class AromaServiceBase implements AromaService.Iface
         
         LOG.info("Received a request to unregister a device: {}", request.device);
         
-        return null;
+        
+        return unregisterDeviceOperation.process(request);
     }
     
 
