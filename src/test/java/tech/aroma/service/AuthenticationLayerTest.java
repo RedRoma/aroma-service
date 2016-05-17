@@ -72,6 +72,8 @@ import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RegisterDeviceRequest;
+import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
@@ -1202,6 +1204,43 @@ public class AuthenticationLayerTest
     @Test
     public void testRegisterDevice() throws Exception
     {
+        RegisterDeviceRequest request = new RegisterDeviceRequest()
+            .setToken(userToken)
+            .setDevice(one(mobileDevices()));
+
+        RegisterDeviceResponse expected = one(pojos(RegisterDeviceResponse.class));
+        
+        when(delegate.registerDevice(request))
+            .thenReturn(expected);
+        
+        RegisterDeviceResponse response = instance.registerDevice(request);
+        
+        assertThat(response, is(expected));
+        verify(delegate).registerDevice(request);
+    }
+
+    @Test
+    public void testRegisterDeviceWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+        
+        RegisterDeviceRequest request = new RegisterDeviceRequest()
+            .setToken(userToken);
+        
+        assertThrows(() -> instance.registerDevice(request))
+            .isInstanceOf(InvalidTokenException.class);
+        
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testRegisterDeviceWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.registerDevice(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.registerDevice(new RegisterDeviceRequest()))
+            .isInstanceOf(InvalidTokenException.class);
     }
 
     @Test
