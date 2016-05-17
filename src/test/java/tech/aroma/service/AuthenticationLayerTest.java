@@ -32,6 +32,8 @@ import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.InvalidTokenException;
 import tech.aroma.thrift.functions.TokenFunctions;
 import tech.aroma.thrift.service.AromaService;
+import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
+import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
@@ -62,6 +64,8 @@ import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
 import tech.aroma.thrift.service.GetReactionsRequest;
 import tech.aroma.thrift.service.GetReactionsResponse;
+import tech.aroma.thrift.service.GetRegisteredDevicesRequest;
+import tech.aroma.thrift.service.GetRegisteredDevicesResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
@@ -96,7 +100,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.aroma.thrift.generators.ChannelGenerators.mobileDevices;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.BooleanGenerators.booleans;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
@@ -1111,6 +1118,96 @@ public class AuthenticationLayerTest
         assertThrows(() -> instance.getReactions(new GetReactionsRequest()))
             .isInstanceOf(InvalidTokenException.class);
     }
+    
+    @Test
+    public void testCheckIfDeviceIsRegistered() throws Exception
+    {
+        CheckIfDeviceIsRegisteredRequest request = new CheckIfDeviceIsRegisteredRequest()
+            .setToken(userToken)
+            .setDevice(one(mobileDevices()));
+        
+        CheckIfDeviceIsRegisteredResponse expected = new CheckIfDeviceIsRegisteredResponse()
+            .setIsRegistered(one(booleans()));
+        when(delegate.checkIfDeviceIsRegistered(request))
+            .thenReturn(expected);
+        
+        CheckIfDeviceIsRegisteredResponse response = instance.checkIfDeviceIsRegistered(request);
+        assertThat(response, is(expected));
+        verify(delegate).checkIfDeviceIsRegistered(request);
+    }
+    
+    @Test
+    public void testCheckIfDeviceIsRegisteredWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+        
+        CheckIfDeviceIsRegisteredRequest request = new CheckIfDeviceIsRegisteredRequest()
+            .setToken(userToken);
+        
+        assertThrows(() -> instance.checkIfDeviceIsRegistered(request))
+            .isInstanceOf(InvalidTokenException.class);
+        
+        verifyZeroInteractions(delegate);
+    }
+    
+    @Test
+    public void testCheckIfDeviceIsRegisteredWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.checkIfDeviceIsRegistered(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.checkIfDeviceIsRegistered(new CheckIfDeviceIsRegisteredRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+
+    @Test
+    public void testGetRegisteredDevices() throws Exception
+    {
+        GetRegisteredDevicesRequest request = new GetRegisteredDevicesRequest()
+            .setToken(userToken);
+        
+        GetRegisteredDevicesResponse expected = new GetRegisteredDevicesResponse()
+            .setDevices(listOf(mobileDevices(), 20));
+        
+        when(delegate.getRegisteredDevices(request)).thenReturn(expected);
+        
+        GetRegisteredDevicesResponse response = instance.getRegisteredDevices(request);
+        assertThat(response, is(expected));
+        verify(delegate).getRegisteredDevices(request);
+    }
+
+    @Test
+    public void testGetRegisteredDevicesWithBadToken() throws Exception
+    {
+        setupWithBadToken();
+        
+        GetRegisteredDevicesRequest request = new GetRegisteredDevicesRequest()
+            .setToken(userToken);
+        
+        assertThrows(() -> instance.getRegisteredDevices(request))
+            .isInstanceOf(InvalidTokenException.class);
+        verifyZeroInteractions(delegate);
+    }
+
+    @Test
+    public void testGetRegisteredDevicesWithBadArgs() throws Exception
+    {
+        assertThrows(() -> instance.getRegisteredDevices(null))
+            .isInstanceOf(InvalidArgumentException.class);
+        
+        assertThrows(() -> instance.getRegisteredDevices(new GetRegisteredDevicesRequest()))
+            .isInstanceOf(InvalidTokenException.class);
+    }
+
+    @Test
+    public void testRegisterDevice() throws Exception
+    {
+    }
+
+    @Test
+    public void testUnregisterDevice() throws Exception
+    {
+    }
 
     private void setupWithBadToken() throws TException
     {
@@ -1137,5 +1234,6 @@ public class AuthenticationLayerTest
             .setTokenType(TokenType.USER)
             .setTokenId(tokenId);
     }
+
 
 }
