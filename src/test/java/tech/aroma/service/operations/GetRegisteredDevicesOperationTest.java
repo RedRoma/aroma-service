@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import sir.wellington.alchemy.collections.sets.Sets;
-import tech.aroma.data.DeviceRepository;
+import tech.aroma.data.UserPreferencesRepository;
 import tech.aroma.thrift.authentication.UserToken;
 import tech.aroma.thrift.channels.MobileDevice;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -58,7 +58,7 @@ public class GetRegisteredDevicesOperationTest
 {
     
     @Mock
-    private DeviceRepository deviceRepo;
+    private UserPreferencesRepository userPreferencesRepo;
     
     private GetRegisteredDevicesOperation instance;
 
@@ -77,7 +77,7 @@ public class GetRegisteredDevicesOperationTest
         
         setupData();
         setupMocks();
-        instance = new GetRegisteredDevicesOperation(deviceRepo);
+        instance = new GetRegisteredDevicesOperation(userPreferencesRepo);
     }
 
 
@@ -87,7 +87,7 @@ public class GetRegisteredDevicesOperationTest
         
         devices = listOf(mobileDevices(), 25);
         
-        when(deviceRepo.getMobileDevices(userId))
+        when(userPreferencesRepo.getMobileDevices(userId))
             .thenReturn(Sets.emptySet());
     }
 
@@ -108,7 +108,7 @@ public class GetRegisteredDevicesOperationTest
     {
         Set<MobileDevice> expected = Sets.copyOf(devices);
         
-        when(deviceRepo.getMobileDevices(userId))
+        when(userPreferencesRepo.getMobileDevices(userId))
             .thenReturn(expected);
             
         GetRegisteredDevicesResponse response = instance.process(request);
@@ -126,7 +126,7 @@ public class GetRegisteredDevicesOperationTest
     @Test
     public void testWhenDeviceRepoFails() throws Exception
     {
-        when(deviceRepo.getMobileDevices(userId))
+        when(userPreferencesRepo.getMobileDevices(userId))
             .thenThrow(new OperationFailedException());
         
         assertThrows(() -> instance.process(request))

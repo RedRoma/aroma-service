@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import tech.aroma.data.DeviceRepository;
+import tech.aroma.data.UserPreferencesRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.channels.MobileDevice;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -29,6 +29,7 @@ import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.RegisterDeviceRequest;
 import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
+import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
 import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
@@ -52,12 +53,13 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 @RunWith(AlchemyTestRunner.class)
 public class RegisterDeviceOperationTest 
 {
-    @Mock
-    private DeviceRepository deviceRepo;
-    
+   
     @Mock
     private UserRepository userRepo;
-    
+
+    @Mock
+    private UserPreferencesRepository userPreferencesRepo;
+     
     private RegisterDeviceOperation instance;
     
     @GenerateString(UUID)
@@ -74,9 +76,9 @@ public class RegisterDeviceOperationTest
         
         setupData();
         setupMocks();
-        
-        instance = new RegisterDeviceOperation(deviceRepo, userRepo);
-        verifyZeroInteractions(deviceRepo, userRepo);
+
+        instance = new RegisterDeviceOperation(userRepo, userPreferencesRepo);
+        verifyZeroInteractions(userRepo, userPreferencesRepo);
     }
 
 
@@ -93,6 +95,14 @@ public class RegisterDeviceOperationTest
         when(userRepo.containsUser(userId)).thenReturn(true);
         
     }
+    
+    @DontRepeat
+    @Test
+    public void testConstructor() throws Exception
+    {
+        assertThrows(() -> new RegisterDeviceOperation(null, userPreferencesRepo));
+        assertThrows(() -> new RegisterDeviceOperation(userRepo, null));
+    }
 
     @Test
     public void testProcess() throws Exception
@@ -101,7 +111,7 @@ public class RegisterDeviceOperationTest
         assertThat(response, notNullValue());
 
         verify(userRepo).containsUser(userId);
-        verify(deviceRepo).saveMobileDevice(userId, device);
+        verify(userPreferencesRepo).saveMobileDevice(userId, device);
         
     }
     
@@ -112,14 +122,14 @@ public class RegisterDeviceOperationTest
             .thenReturn(false);
         
         assertThrows(() -> instance.process(request)).isInstanceOf(UserDoesNotExistException.class);
-        verifyZeroInteractions(deviceRepo);
+        verifyZeroInteractions(userPreferencesRepo);
     }
     
     @Test
     public void testWhenDeviceRepoFails() throws Exception
     {
         doThrow(new OperationFailedException())
-            .when(deviceRepo)
+            .when(userPreferencesRepo)
             .saveMobileDevice(userId, device);
         
         assertThrows(() -> instance.process(request))
@@ -135,7 +145,7 @@ public class RegisterDeviceOperationTest
         assertThrows(() -> instance.process(request))
             .isInstanceOf(OperationFailedException.class);
         
-        verifyZeroInteractions(deviceRepo);
+        verifyZeroInteractions(userPreferencesRepo);
     }
     
     @Test

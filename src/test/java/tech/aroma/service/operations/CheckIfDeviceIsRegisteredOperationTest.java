@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import tech.aroma.data.DeviceRepository;
+import tech.aroma.data.UserPreferencesRepository;
 import tech.aroma.thrift.channels.MobileDevice;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
@@ -52,7 +52,7 @@ public class CheckIfDeviceIsRegisteredOperationTest
 {
 
     @Mock
-    private DeviceRepository deviceRepo;
+    private UserPreferencesRepository userPreferencesRepo;
     
     private CheckIfDeviceIsRegisteredOperation instance;
     
@@ -71,7 +71,7 @@ public class CheckIfDeviceIsRegisteredOperationTest
         setupData();
         setupMocks();
         
-        instance = new CheckIfDeviceIsRegisteredOperation(deviceRepo);
+        instance = new CheckIfDeviceIsRegisteredOperation(userPreferencesRepo);
     }
 
 
@@ -99,7 +99,7 @@ public class CheckIfDeviceIsRegisteredOperationTest
     public void testProcess() throws Exception
     {
         boolean deviceExists = one(booleans());
-        when(deviceRepo.containsMobileDevice(userId, device))
+        when(userPreferencesRepo.containsMobileDevice(userId, device))
             .thenReturn(deviceExists);
         
         CheckIfDeviceIsRegisteredResponse response = instance.process(request);
@@ -111,7 +111,7 @@ public class CheckIfDeviceIsRegisteredOperationTest
     @Test
     public void testProcessWhenDeviceRepoFails() throws Exception
     {
-        when(deviceRepo.containsMobileDevice(userId, device))
+        when(userPreferencesRepo.containsMobileDevice(userId, device))
             .thenThrow(new OperationFailedException());
         
         assertThrows(() -> instance.process(request))
