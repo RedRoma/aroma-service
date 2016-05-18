@@ -45,15 +45,15 @@ final class RegisterDeviceOperation implements ThriftOperation<RegisterDeviceReq
     private final static Logger LOG = LoggerFactory.getLogger(RegisterDeviceOperation.class);
 
     private final UserRepository userRepo;
-    private final UserPreferencesRepository userPreferenceRepo;
+    private final UserPreferencesRepository userPreferencesRepo;
 
     @Inject
-    RegisterDeviceOperation(UserRepository userRepo, UserPreferencesRepository userPreferenceRepo)
+    RegisterDeviceOperation(UserRepository userRepo, UserPreferencesRepository userPreferencesRepo)
     {
-        checkThat(userRepo, userPreferenceRepo)
+        checkThat(userRepo, userPreferencesRepo)
             .is(notNull());
         
-        this.userPreferenceRepo = userPreferenceRepo;
+        this.userPreferencesRepo = userPreferencesRepo;
         this.userRepo = userRepo;
     }
     
@@ -67,7 +67,7 @@ final class RegisterDeviceOperation implements ThriftOperation<RegisterDeviceReq
         String userId = request.token.userId;
         ensureUserIdExists(userId);
         
-        userPreferenceRepo.saveMobileDevice(userId, request.device);
+        userPreferencesRepo.saveMobileDevice(userId, request.device);
         
         return new RegisterDeviceResponse();
     }
