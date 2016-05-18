@@ -20,7 +20,6 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.data.DeviceRepository;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
 import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
@@ -29,8 +28,10 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validMobileDevice;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+
+import tech.aroma.data.UserPreferencesRepository;
+
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
@@ -42,14 +43,14 @@ final class CheckIfDeviceIsRegisteredOperation implements ThriftOperation<CheckI
 
     private final static Logger LOG = LoggerFactory.getLogger(CheckIfDeviceIsRegisteredOperation.class);
 
-    private final DeviceRepository deviceRepo;
+    private final UserPreferencesRepository userPreferencesRepo;
 
     @Inject
-    CheckIfDeviceIsRegisteredOperation(DeviceRepository deviceRepo)
+    CheckIfDeviceIsRegisteredOperation(UserPreferencesRepository userPreferencesRepo)
     {
-        checkThat(deviceRepo).is(notNull());
+        checkThat(userPreferencesRepo).is(notNull());
 
-        this.deviceRepo = deviceRepo;
+        this.userPreferencesRepo = userPreferencesRepo;
     }
 
     @Override
@@ -61,7 +62,7 @@ final class CheckIfDeviceIsRegisteredOperation implements ThriftOperation<CheckI
 
         String userId = request.token.userId;
 
-        boolean exists = deviceRepo.containsMobileDevice(userId, request.device);
+        boolean exists = userPreferencesRepo.containsMobileDevice(userId, request.device);
 
         return new CheckIfDeviceIsRegisteredResponse(exists);
     }
