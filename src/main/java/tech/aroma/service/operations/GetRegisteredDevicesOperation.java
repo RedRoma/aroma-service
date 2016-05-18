@@ -24,6 +24,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.lists.Lists;
+import tech.aroma.data.UserPreferencesRepository;
 import tech.aroma.thrift.channels.MobileDevice;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetRegisteredDevicesRequest;
@@ -32,11 +33,8 @@ import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-
-import tech.aroma.data.UserPreferencesRepository;
-
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
  *
@@ -46,14 +44,14 @@ final class GetRegisteredDevicesOperation implements ThriftOperation<GetRegister
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetRegisteredDevicesOperation.class);
     
-    private final UserPreferencesRepository userPreferenceRepo;
+    private final UserPreferencesRepository userPreferencesRepo;
 
     @Inject
-    GetRegisteredDevicesOperation(UserPreferencesRepository userPreferenceRepo)
+    GetRegisteredDevicesOperation(UserPreferencesRepository userPreferencesRepo)
     {
-        checkThat(userPreferenceRepo).is(notNull());
+        checkThat(userPreferencesRepo).is(notNull());
         
-        this.userPreferenceRepo = userPreferenceRepo;
+        this.userPreferencesRepo = userPreferencesRepo;
     }
 
     @Override
@@ -65,7 +63,7 @@ final class GetRegisteredDevicesOperation implements ThriftOperation<GetRegister
         
         String userId = request.token.userId;
         
-        Set<MobileDevice> devices = userPreferenceRepo.getMobileDevices(userId);
+        Set<MobileDevice> devices = userPreferencesRepo.getMobileDevices(userId);
         
         return new GetRegisteredDevicesResponse().setDevices(Lists.copy(devices));
     }
