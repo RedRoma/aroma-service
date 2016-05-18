@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.data.DeviceRepository;
+import tech.aroma.data.UserPreferencesRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
@@ -44,16 +44,16 @@ final class RegisterDeviceOperation implements ThriftOperation<RegisterDeviceReq
 {
     private final static Logger LOG = LoggerFactory.getLogger(RegisterDeviceOperation.class);
 
-    private final DeviceRepository deviceRepo;
     private final UserRepository userRepo;
+    private final UserPreferencesRepository userPreferenceRepo;
 
     @Inject
-    RegisterDeviceOperation(DeviceRepository deviceRepo, UserRepository userRepo)
+    RegisterDeviceOperation(UserRepository userRepo, UserPreferencesRepository userPreferenceRepo)
     {
-        checkThat(deviceRepo, userRepo)
+        checkThat(userRepo, userPreferenceRepo)
             .is(notNull());
         
-        this.deviceRepo = deviceRepo;
+        this.userPreferenceRepo = userPreferenceRepo;
         this.userRepo = userRepo;
     }
     
@@ -67,7 +67,7 @@ final class RegisterDeviceOperation implements ThriftOperation<RegisterDeviceReq
         String userId = request.token.userId;
         ensureUserIdExists(userId);
         
-        deviceRepo.saveMobileDevice(userId, request.device);
+        userPreferenceRepo.saveMobileDevice(userId, request.device);
         
         return new RegisterDeviceResponse();
     }
