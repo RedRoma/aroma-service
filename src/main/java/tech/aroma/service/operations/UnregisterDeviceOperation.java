@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.data.DeviceRepository;
+import tech.aroma.data.UserPreferencesRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
@@ -44,19 +44,19 @@ final class UnregisterDeviceOperation implements ThriftOperation<UnregisterDevic
 {
     private final static Logger LOG = LoggerFactory.getLogger(UnregisterDeviceOperation.class);
 
-    private final DeviceRepository deviceRepo;
+    private final UserPreferencesRepository userPreferencesRepo;
     private final UserRepository userRepo;
 
     @Inject
-    UnregisterDeviceOperation(DeviceRepository deviceRepo, UserRepository userRepo)
+    UnregisterDeviceOperation(UserRepository userRepo, UserPreferencesRepository userPreferencesRepo)
     {
-        checkThat(deviceRepo, userRepo)
+        checkThat(userRepo, userPreferencesRepo)
             .is(notNull());
-        
-        this.deviceRepo = deviceRepo;
+
         this.userRepo = userRepo;
+        this.userPreferencesRepo = userPreferencesRepo;
     }
-    
+
     @Override
     public UnregisterDeviceResponse process(UnregisterDeviceRequest request) throws TException
     {
@@ -67,7 +67,7 @@ final class UnregisterDeviceOperation implements ThriftOperation<UnregisterDevic
         String userId = request.token.userId;
         ensureUserIdExists(userId);
         
-        deviceRepo.deleteMobileDevice(userId, request.device);
+        userPreferencesRepo.deleteMobileDevice(userId, request.device);
         
         return new UnregisterDeviceResponse();
     }
