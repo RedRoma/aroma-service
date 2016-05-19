@@ -148,6 +148,7 @@ public class RegisterDeviceOperationTest
         verifyZeroInteractions(userPreferencesRepo);
     }
     
+    @DontRepeat
     @Test
     public void testProcessWithBadArgs() throws Exception
     {
