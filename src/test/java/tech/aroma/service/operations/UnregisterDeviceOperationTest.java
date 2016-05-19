@@ -147,6 +147,7 @@ public class UnregisterDeviceOperationTest
         verifyZeroInteractions(userPreferencesRepo);
     }
     
+    @DontRepeat
     @Test
     public void testProcessWithBadArgs() throws Exception
     {
