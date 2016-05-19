@@ -728,7 +728,6 @@ final class AromaServiceBase implements AromaService.Iface
         
         LOG.info("Received a request to unregister a device: {}", request.device);
         
-        
         return unregisterDeviceOperation.process(request);
     }
     
