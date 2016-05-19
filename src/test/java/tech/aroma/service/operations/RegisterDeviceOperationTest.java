@@ -55,11 +55,11 @@ public class RegisterDeviceOperationTest
 {
    
     @Mock
-    private UserRepository userRepo;
+    private UserPreferencesRepository userPreferencesRepo;
 
     @Mock
-    private UserPreferencesRepository userPreferencesRepo;
-     
+    private UserRepository userRepo;
+
     private RegisterDeviceOperation instance;
     
     @GenerateString(UUID)
