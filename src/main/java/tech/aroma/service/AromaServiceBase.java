@@ -24,7 +24,6 @@ import tech.aroma.thrift.AromaConstants;
 import tech.aroma.thrift.exceptions.AccountAlreadyExistsException;
 import tech.aroma.thrift.exceptions.ApplicationAlreadyRegisteredException;
 import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
-import tech.aroma.thrift.exceptions.ChannelDoesNotExistException;
 import tech.aroma.thrift.exceptions.CustomChannelUnreachableException;
 import tech.aroma.thrift.exceptions.DoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -35,6 +34,8 @@ import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.AromaService;
+import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
+import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
 import tech.aroma.thrift.service.DeleteApplicationRequest;
 import tech.aroma.thrift.service.DeleteApplicationResponse;
 import tech.aroma.thrift.service.DeleteMessageRequest;
@@ -63,34 +64,32 @@ import tech.aroma.thrift.service.GetInboxRequest;
 import tech.aroma.thrift.service.GetInboxResponse;
 import tech.aroma.thrift.service.GetMediaRequest;
 import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetMySavedChannelsRequest;
-import tech.aroma.thrift.service.GetMySavedChannelsResponse;
 import tech.aroma.thrift.service.GetReactionsRequest;
 import tech.aroma.thrift.service.GetReactionsResponse;
+import tech.aroma.thrift.service.GetRegisteredDevicesRequest;
+import tech.aroma.thrift.service.GetRegisteredDevicesResponse;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
 import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
 import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RegisterDeviceRequest;
+import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.thrift.service.RemoveSavedChannelRequest;
-import tech.aroma.thrift.service.RemoveSavedChannelResponse;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
 import tech.aroma.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.thrift.service.SaveChannelRequest;
-import tech.aroma.thrift.service.SaveChannelResponse;
 import tech.aroma.thrift.service.SearchForApplicationsRequest;
 import tech.aroma.thrift.service.SearchForApplicationsResponse;
 import tech.aroma.thrift.service.SignInRequest;
 import tech.aroma.thrift.service.SignInResponse;
 import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
-import tech.aroma.thrift.service.SnoozeChannelRequest;
-import tech.aroma.thrift.service.SnoozeChannelResponse;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
+import tech.aroma.thrift.service.UnregisterDeviceRequest;
+import tech.aroma.thrift.service.UnregisterDeviceResponse;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
 import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.aroma.thrift.service.UpdateReactionsRequest;
@@ -117,135 +116,161 @@ final class AromaServiceBase implements AromaService.Iface
 
     private final static Logger LOG = LoggerFactory.getLogger(AromaServiceBase.class);
 
-    //Action and Save Operations
-    private final ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation;
+    //------------------------------
+    //Authentication Operations
+    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
+    private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
+
+    //------------------------------
+    //User Profile Operations
+    private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
+
+    //------------------------------
+    //Inbox Operations
+    private final ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation;
+
+    //------------------------------
+    //Message Operations
     private final ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation;
     private final ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation;
+    private final ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
+    private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
+
+    //------------------------------
+    //Application Operations
+    private final ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
+    private final ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation;
+
+    private final ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation;
+
+    //------------------------------
+    //Reaction Operations
+    private final ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation;
+    private final ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation;
+
+    //------------------------------
+    //App Follow Operations
+    private final ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation;
     private final ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation;
+    private final ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
+
+    //------------------------------
+    //Action and Save Operations
     private final ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
     private final ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
     private final ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
-    private final ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation;
     private final ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
-    private final ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation;
     private final ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
-    private final ThriftOperation<SignInRequest, SignInResponse> signInOperation;
-    private final ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation;
-    private final ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation;
     private final ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
-    private final ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation;
-    private final ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
 
-    //Query and GET Operations
+    //------------------------------
+    //Device Registration Operations
+    private final ThriftOperation<CheckIfDeviceIsRegisteredRequest, CheckIfDeviceIsRegisteredResponse> checkIfDeviceIsRegisteredOperation;
+    private final ThriftOperation<GetRegisteredDevicesRequest, GetRegisteredDevicesResponse> getRegisteredDevicesOperation;
+    private final ThriftOperation<RegisterDeviceRequest, RegisterDeviceResponse> registerDeviceOperation;
+    private final ThriftOperation<UnregisterDeviceRequest, UnregisterDeviceResponse> unregisterDeviceOperation;
+
+    //------------------------------
+    //Other Operations
     private final ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation;
-    private final ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation;
     private final ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation;
     private final ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation;
-    private final ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation;
-    private final ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation;
     private final ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation;
-    private final ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation;
-    private final ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation;
-    private final ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation;
-    private final ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation;
-    private final ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
-    private final ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation;
 
     @Inject
-    AromaServiceBase(ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation,
+    AromaServiceBase(ThriftOperation<CheckIfDeviceIsRegisteredRequest, CheckIfDeviceIsRegisteredResponse> checkIfDeviceIsRegisteredOperation,
+                     ThriftOperation<DeleteApplicationRequest, DeleteApplicationResponse> deleteApplicationOperation,
                      ThriftOperation<DeleteMessageRequest, DeleteMessageResponse> deleteMessageOperation,
                      ThriftOperation<DismissMessageRequest, DismissMessageResponse> dismissMessageOperation,
-                     ThriftOperation<SignInRequest, SignInResponse> signInOperation,
-                     ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
+                     ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation,
+                     ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
+                     ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
+                     ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
+                     ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation,
+                     ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation,
+                     ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
+                     ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
+                     ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
+                     ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
+                     ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation,
+                     ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation,
+                     ThriftOperation<GetRegisteredDevicesRequest, GetRegisteredDevicesResponse> getRegisteredDevicesOperation,
+                     ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation,
                      ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
                      ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,
-                     ThriftOperation<FollowApplicationRequest, FollowApplicationResponse> followApplicationOperation,
+                     ThriftOperation<RegisterDeviceRequest, RegisterDeviceResponse> registerDeviceOperation,
                      ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
                      ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation,
                      ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation,
-                     ThriftOperation<SaveChannelRequest, SaveChannelResponse> saveChannelOperation,
-                     ThriftOperation<RemoveSavedChannelRequest, RemoveSavedChannelResponse> removeSavedChannelOperation,
-                     ThriftOperation<SnoozeChannelRequest, SnoozeChannelResponse> snoozeChannelOperation,
-                     ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
-                     ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation,
+                     ThriftOperation<SignInRequest, SignInResponse> signInOperation,
+                     ThriftOperation<SignUpRequest, SignUpResponse> signUpOperation,
                      ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation,
-                     ThriftOperation<GetActivityRequest, GetActivityResponse> getActivityOperation,
-                     ThriftOperation<GetBuzzRequest, GetBuzzResponse> getBuzzOperation,
-                     ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse> getApplicationsFollowedByOperation,
-                     ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse> getApplicationsOwnedByOperation,
-                     ThriftOperation<GetMySavedChannelsRequest, GetMySavedChannelsResponse> getMySavedChannelsOperation,
-                     ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse> getApplicationInfoOperation,
-                     ThriftOperation<GetDashboardRequest, GetDashboardResponse> getDashboardOperation,
-                     ThriftOperation<GetInboxRequest, GetInboxResponse> getInboxOperation,
-                     ThriftOperation<GetMediaRequest, GetMediaResponse> getMediaOperation,
-                     ThriftOperation<GetApplicationMessagesRequest, GetApplicationMessagesResponse> getApplicationMessagesOperation,
-                     ThriftOperation<GetFullMessageRequest, GetFullMessageResponse> getFullMessageOperation,
-                     ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation,
-                     ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation)
+                     ThriftOperation<UnregisterDeviceRequest, UnregisterDeviceResponse> unregisterDeviceOperation,
+                     ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation,
+                     ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation)
     {
-        checkThat(deleteApplicationOperation,
-                  deleteMessageOperation,
+        checkThat(checkIfDeviceIsRegisteredOperation,
+                  deleteApplicationOperation,
                   dismissMessageOperation,
                   followApplicationOperation,
                   getActivityOperation,
                   getApplicationInfoOperation,
+                  getApplicationMessagesOperation,
+                  getApplicationsFollowedByOperation,
+                  getApplicationsOwnedByOperation,
                   getBuzzOperation,
                   getDashboardOperation,
                   getFullMessageOperation,
                   getInboxOperation,
                   getMediaOperation,
-                  getApplicationMessagesOperation,
-                  getApplicationsFollowedByOperation,
-                  getApplicationsOwnedByOperation,
-                  getMySavedChannelsOperation,
                   getReactionsOperation,
+                  getRegisteredDevicesOperation,
                   getUserInfoOperation,
                   provisionApplicationOperation,
                   regenerateApplicationTokenOperation,
+                  registerDeviceOperation,
                   registerHealthCheckOperation,
-                  removeSavedChannelOperation,
                   renewApplicationTokenOperation,
-                  saveChannelOperation,
                   searchForApplicationsOperation,
-                  signUpOperation,
-                  snoozeChannelOperation,
                   signInOperation,
+                  signUpOperation,
+                  unfollowApplicationOperation,
+                  unregisterDeviceOperation,
                   updateApplicationOperation,
                   updateReactionsOperation,
-                  unfollowApplicationOperation)
+                  deleteMessageOperation)
             .are(notNull());
 
+        this.checkIfDeviceIsRegisteredOperation = checkIfDeviceIsRegisteredOperation;
         this.deleteApplicationOperation = deleteApplicationOperation;
         this.deleteMessageOperation = deleteMessageOperation;
         this.dismissMessageOperation = dismissMessageOperation;
         this.followApplicationOperation = followApplicationOperation;
-        this.provisionApplicationOperation = provisionApplicationOperation;
-        this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
-        this.registerHealthCheckOperation = registerHealthCheckOperation;
-        this.removeSavedChannelOperation = removeSavedChannelOperation;
-        this.renewApplicationTokenOperation = renewApplicationTokenOperation;
-        this.saveChannelOperation = saveChannelOperation;
-        this.searchForApplicationsOperation = searchForApplicationsOperation;
-        this.signInOperation = signInOperation;
-        this.signUpOperation = signUpOperation;
-        this.snoozeChannelOperation = snoozeChannelOperation;
-        this.updateApplicationOperation = updateApplicationOperation;
-        this.updateReactionsOperation = updateReactionsOperation;
-        this.unfollowApplicationOperation = unfollowApplicationOperation;
-        
         this.getActivityOperation = getActivityOperation;
         this.getApplicationInfoOperation = getApplicationInfoOperation;
+        this.getApplicationMessagesOperation = getApplicationMessagesOperation;
+        this.getApplicationsFollowedByOperation = getApplicationsFollowedByOperation;
+        this.getApplicationsOwnedByOperation = getApplicationsOwnedByOperation;
         this.getBuzzOperation = getBuzzOperation;
         this.getDashboardOperation = getDashboardOperation;
         this.getFullMessageOperation = getFullMessageOperation;
         this.getInboxOperation = getInboxOperation;
         this.getMediaOperation = getMediaOperation;
-        this.getApplicationMessagesOperation = getApplicationMessagesOperation;
-        this.getApplicationsFollowedByOperation = getApplicationsFollowedByOperation;
-        this.getApplicationsOwnedByOperation = getApplicationsOwnedByOperation;
-        this.getMySavedChannelsOperation = getMySavedChannelsOperation;
         this.getReactionsOperation = getReactionsOperation;
+        this.getRegisteredDevicesOperation = getRegisteredDevicesOperation;
         this.getUserInfoOperation = getUserInfoOperation;
+        this.provisionApplicationOperation = provisionApplicationOperation;
+        this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
+        this.registerDeviceOperation = registerDeviceOperation;
+        this.registerHealthCheckOperation = registerHealthCheckOperation;
+        this.renewApplicationTokenOperation = renewApplicationTokenOperation;
+        this.searchForApplicationsOperation = searchForApplicationsOperation;
+        this.signInOperation = signInOperation;
+        this.signUpOperation = signUpOperation;
+        this.unfollowApplicationOperation = unfollowApplicationOperation;
+        this.unregisterDeviceOperation = unregisterDeviceOperation;
+        this.updateApplicationOperation = updateApplicationOperation;
+        this.updateReactionsOperation = updateReactionsOperation;
     }
     
     
@@ -263,7 +288,8 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                 InvalidArgumentException,
                                                                                                 InvalidTokenException,
                                                                                                 ApplicationDoesNotExistException,
-                                                                                                UnauthorizedException, TException
+                                                                                                UnauthorizedException, 
+                                                                                                TException
     {
         checkNotNull(request);
 
@@ -292,7 +318,8 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                        InvalidArgumentException,
                                                                                        InvalidTokenException,
                                                                                        MessageDoesNotExistException,
-                                                                                       UnauthorizedException, TException
+                                                                                       UnauthorizedException, 
+                                                                                       TException
     {
         checkNotNull(request);
         
@@ -364,28 +391,12 @@ final class AromaServiceBase implements AromaService.Iface
     }
 
     @Override
-    public RemoveSavedChannelResponse removeSavedChannel(RemoveSavedChannelRequest request) throws OperationFailedException,
-                                                                                                   InvalidArgumentException,
-                                                                                                   InvalidCredentialsException,
-                                                                                                   UnauthorizedException,
-                                                                                                   ChannelDoesNotExistException,
-                                                                                                   TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Receive drequest to remove a saved channel: {}", request);
-
-        return removeSavedChannelOperation.process(request);
-    }
-
-    @Override
-    public RenewApplicationTokenResponse renewApplicationToken(RenewApplicationTokenRequest request) throws
-        OperationFailedException,
-        InvalidArgumentException,
-        InvalidCredentialsException,
-        ApplicationDoesNotExistException,
-        UnauthorizedException,
-        TException
+    public RenewApplicationTokenResponse renewApplicationToken(RenewApplicationTokenRequest request) throws OperationFailedException,
+                                                                                                            InvalidArgumentException,
+                                                                                                            InvalidCredentialsException,
+                                                                                                            ApplicationDoesNotExistException,
+                                                                                                            UnauthorizedException,
+                                                                                                            TException
     {
         checkNotNull(request);
 
@@ -394,19 +405,6 @@ final class AromaServiceBase implements AromaService.Iface
         return renewApplicationTokenOperation.process(request);
     }
 
-    @Override
-    public SaveChannelResponse saveChannel(SaveChannelRequest request) throws OperationFailedException,
-                                                                              InvalidArgumentException,
-                                                                              InvalidCredentialsException,
-                                                                              UnauthorizedException,
-                                                                              TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Received request to Save a Channel: {}", request);
-
-        return saveChannelOperation.process(request);
-    }
 
     @Override
     public SignInResponse signIn(SignInRequest request) throws OperationFailedException,
@@ -439,21 +437,6 @@ final class AromaServiceBase implements AromaService.Iface
         return signUpOperation.process(request);
     }
 
-    @Override
-    public SnoozeChannelResponse snoozeChannel(SnoozeChannelRequest request) throws OperationFailedException,
-                                                                                    InvalidArgumentException,
-                                                                                    InvalidCredentialsException,
-                                                                                    UnauthorizedException,
-                                                                                    ChannelDoesNotExistException,
-                                                                                    TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Received request to snooze a channel: {}", request);
-
-        return snoozeChannelOperation.process(request);
-    }
-    
        
     @Override
     public UpdateApplicationResponse updateApplication(UpdateApplicationRequest request) throws OperationFailedException,
@@ -543,9 +526,9 @@ final class AromaServiceBase implements AromaService.Iface
 
     @Override
     public GetInboxResponse getInbox(GetInboxRequest request) throws OperationFailedException,
-                                                                              InvalidArgumentException,
-                                                                              InvalidCredentialsException,
-                                                                              TException
+                                                                     InvalidArgumentException,
+                                                                     InvalidCredentialsException,
+                                                                     TException
     {
         checkNotNull(request);
 
@@ -608,19 +591,6 @@ final class AromaServiceBase implements AromaService.Iface
         LOG.info("Received request to Get My Applications: {}", request);
 
         return getApplicationsOwnedByOperation.process(request);
-    }
-
-    @Override
-    public GetMySavedChannelsResponse getMySavedChannels(GetMySavedChannelsRequest request) throws OperationFailedException,
-                                                                                                   InvalidArgumentException,
-                                                                                                   InvalidCredentialsException,
-                                                                                                   TException
-    {
-        checkNotNull(request);
-
-        LOG.info("Received request to Get My Saved Channels: {}", request);
-
-        return getMySavedChannelsOperation.process(request);
     }
 
     @Override
@@ -699,6 +669,72 @@ final class AromaServiceBase implements AromaService.Iface
         return getReactionsOperation.process(request);
     }
     
+   
+
+    //==========================================================
+    // DEVICE OPERATIONS
+    //==========================================================
+
+    @Override
+    public CheckIfDeviceIsRegisteredResponse checkIfDeviceIsRegistered(CheckIfDeviceIsRegisteredRequest request) throws OperationFailedException,
+                                                                                                                        InvalidArgumentException,
+                                                                                                                        InvalidTokenException,
+                                                                                                                        UnauthorizedException,
+                                                                                                                        TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to check if device is registered: {}", request.device);
+        
+        return checkIfDeviceIsRegisteredOperation.process(request);
+    }
+
+    @Override
+    public GetRegisteredDevicesResponse getRegisteredDevices(GetRegisteredDevicesRequest request) throws OperationFailedException,
+                                                                                                         InvalidArgumentException,
+                                                                                                         InvalidTokenException,
+                                                                                                         UnauthorizedException,
+                                                                                                         TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to GetRegisteredDevices by {}", request.token.userId);
+        
+        return getRegisteredDevicesOperation.process(request);
+    }
+
+    @Override
+    public RegisterDeviceResponse registerDevice(RegisterDeviceRequest request) throws OperationFailedException,
+                                                                                       InvalidArgumentException,
+                                                                                       InvalidTokenException,
+                                                                                       UnauthorizedException,
+                                                                                       TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received request to register a device: {}", request.device);
+        
+        return registerDeviceOperation.process(request);
+    }
+
+    @Override
+    public UnregisterDeviceResponse unregisterDevice(UnregisterDeviceRequest request) throws OperationFailedException,
+                                                                                             InvalidArgumentException,
+                                                                                             InvalidTokenException,
+                                                                                             UnauthorizedException, 
+                                                                                             TException
+    {
+        checkNotNull(request);
+        
+        LOG.info("Received a request to unregister a device: {}", request.device);
+        
+        return unregisterDeviceOperation.process(request);
+    }
+    
+
+    //==========================================================
+    // INTERNAL OPERATIONS
+    //==========================================================
     private void ensureEmailIsLowerCased(SignInRequest request)
     {
         if (request.isSetEmailAddress())
@@ -706,7 +742,7 @@ final class AromaServiceBase implements AromaService.Iface
             request.setEmailAddress(request.emailAddress.toLowerCase());
         }
     }
-    
+
     private void ensureEmailIsLowerCased(SignUpRequest request)
     {
         if (request.isSetEmail())
@@ -714,7 +750,7 @@ final class AromaServiceBase implements AromaService.Iface
             request.setEmail(request.email.toLowerCase());
         }
     }
-    
+
     private void ensureEmailIsLowerCasedIfPresent(GetUserInfoRequest request)
     {
         if (request.isSetEmail())
@@ -722,7 +758,4 @@ final class AromaServiceBase implements AromaService.Iface
             request.setEmail(request.email.toLowerCase());
         }
     }
-
-
-
 }
