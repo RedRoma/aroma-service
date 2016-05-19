@@ -46,48 +46,47 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  *
  * @author SirWellington
  */
-@Repeat(10)
+@Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class CheckIfDeviceIsRegisteredOperationTest 
+public class CheckIfDeviceIsRegisteredOperationTest
 {
 
     @Mock
     private UserPreferencesRepository userPreferencesRepo;
-    
+
     private CheckIfDeviceIsRegisteredOperation instance;
-    
+
     @GeneratePojo
     private CheckIfDeviceIsRegisteredRequest request;
-    
+
     @GenerateString(UUID)
     private String userId;
 
     private MobileDevice device;
-    
+
     @Before
     public void setUp() throws Exception
     {
-        
+
         setupData();
         setupMocks();
-        
+
         instance = new CheckIfDeviceIsRegisteredOperation(userPreferencesRepo);
     }
-
 
     private void setupData() throws Exception
     {
         device = one(mobileDevices());
-        
+
         request.setDevice(device);
         request.token.userId = userId;
-        
+
     }
 
     private void setupMocks() throws Exception
     {
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
@@ -101,23 +100,23 @@ public class CheckIfDeviceIsRegisteredOperationTest
         boolean deviceExists = one(booleans());
         when(userPreferencesRepo.containsMobileDevice(userId, device))
             .thenReturn(deviceExists);
-        
+
         CheckIfDeviceIsRegisteredResponse response = instance.process(request);
         assertThat(response.isRegistered, is(deviceExists));
-        
+
     }
-    
+
     @DontRepeat
     @Test
     public void testProcessWhenDeviceRepoFails() throws Exception
     {
         when(userPreferencesRepo.containsMobileDevice(userId, device))
             .thenThrow(new OperationFailedException());
-        
+
         assertThrows(() -> instance.process(request))
             .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testProcessWithBadArgs() throws Exception
     {
