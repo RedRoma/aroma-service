@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.data.UserPreferencesRepository;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
 import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
@@ -28,11 +29,8 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validMobileDevice;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-
-import tech.aroma.data.UserPreferencesRepository;
-
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
  *
