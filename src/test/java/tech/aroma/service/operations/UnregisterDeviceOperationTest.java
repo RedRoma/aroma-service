@@ -53,11 +53,13 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 @RunWith(AlchemyTestRunner.class)
 public class UnregisterDeviceOperationTest 
 {
-    @Mock
-    private UserPreferencesRepository userPreferencesRepo;
-    
+  
     @Mock
     private UserRepository userRepo;
+
+    @Mock
+    private UserPreferencesRepository userPreferencesRepo;
+
     
     private UnregisterDeviceOperation instance;
     
