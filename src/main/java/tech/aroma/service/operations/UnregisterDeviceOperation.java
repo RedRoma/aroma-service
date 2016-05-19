@@ -44,8 +44,8 @@ final class UnregisterDeviceOperation implements ThriftOperation<UnregisterDevic
 {
     private final static Logger LOG = LoggerFactory.getLogger(UnregisterDeviceOperation.class);
 
-    private final UserPreferencesRepository userPreferencesRepo;
     private final UserRepository userRepo;
+    private final UserPreferencesRepository userPreferencesRepo;
 
     @Inject
     UnregisterDeviceOperation(UserRepository userRepo, UserPreferencesRepository userPreferencesRepo)
