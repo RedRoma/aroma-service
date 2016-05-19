@@ -141,14 +141,11 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<SignUpRequest, SignUpResponse>>(){})
             .to(SignUpOperation.class);
         
-        
         bind(new TypeLiteral<ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse>>(){})
             .to(UnfollowApplicationOperation.class);
         
-        
         bind(new TypeLiteral<ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse>>(){})
             .to(UpdateApplicationOperation.class);
-        
         
         bind(new TypeLiteral<ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse>>(){})
             .to(UpdateReactionsOperation.class);
@@ -183,7 +180,6 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<GetMediaRequest, GetMediaResponse>>() {})
             .to(GetMediaOperation.class);
         
-        
         bind(new TypeLiteral<ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse>>(){})
             .to(GetApplicationsFollowedByOperation.class);
         
@@ -196,9 +192,9 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<GetUserInfoRequest, GetUserInfoResponse>>(){})
             .to(GetUserInfoOperation.class);
   
+        
         //DEVICE REGISTRATION OPERATIONS
         //=========================================
-
                 
         bind(new TypeLiteral<ThriftOperation<CheckIfDeviceIsRegisteredRequest, CheckIfDeviceIsRegisteredResponse>>(){})
             .to(CheckIfDeviceIsRegisteredOperation.class);
