@@ -60,6 +60,8 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
         
+        //TODO: Add a guard to ensure only owners and followers of a message can see it.
+        
         String appId = request.applicationId;
         String messageId = request.messageId;
         
