@@ -22,9 +22,13 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.FollowerRepository;
 import tech.aroma.data.MessageRepository;
+import tech.aroma.thrift.Application;
 import tech.aroma.thrift.Message;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
+import tech.aroma.thrift.exceptions.MessageDoesNotExistException;
 import tech.aroma.thrift.service.GetFullMessageRequest;
 import tech.aroma.thrift.service.GetFullMessageResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
@@ -43,30 +47,41 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetFullMessageOperation.class);
 
+    private final ApplicationRepository appRepo;
+    private final FollowerRepository followerRepo;
     private final MessageRepository messageRepo;
 
     @Inject
-    GetFullMessageOperation(MessageRepository messageRepo)
+    GetFullMessageOperation(ApplicationRepository appRepo, FollowerRepository followerRepo, MessageRepository messageRepo)
     {
-        checkThat(messageRepo).is(notNull());
-        
+        checkThat(appRepo, followerRepo, messageRepo)
+            .are(notNull());
+
+        this.appRepo = appRepo;
+        this.followerRepo = followerRepo;
         this.messageRepo = messageRepo;
     }
-    
+
     @Override
     public GetFullMessageResponse process(GetFullMessageRequest request) throws TException
     {
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
-        
-        //TODO: Add a guard to ensure only owners and followers of a message can see it.
-        
+
         String appId = request.applicationId;
         String messageId = request.messageId;
-        
+        String userId = request.token.userId;
+
+        Application app = appRepo.getById(appId);
+
+        if (!userCanViewAppMessages(userId, app))
+        {
+            throw new MessageDoesNotExistException(request.messageId);
+        }
+
         Message message = messageRepo.getMessage(appId, messageId);
-        
+
         return new GetFullMessageResponse(message);
     }
 
@@ -84,7 +99,28 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
             checkThat(request.applicationId)
                 .is(validApplicationId());
         };
-        
+
+    }
+
+    private boolean userCanViewAppMessages(String userId, Application app) throws TException
+    {
+        if (app.owners.contains(userId))
+        {
+            return true;
+        }
+
+        String appId = app.applicationId;
+
+        try
+        {
+            return followerRepo.followingExists(userId, appId);
+        }
+        catch (TException ex)
+        {
+            LOG.error("Failed to check if user [{}] is following App [{}]", userId, appId);
+            throw ex;
+        }
+
     }
 
 }
