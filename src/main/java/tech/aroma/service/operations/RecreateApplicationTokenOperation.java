@@ -35,8 +35,8 @@ import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
-import tech.aroma.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.thrift.service.RenewApplicationTokenResponse;
+import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
+import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -53,7 +53,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertio
  * 
  * @author SirWellington
  */
-final class RecreateApplicationTokenOperation implements ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>
+final class RecreateApplicationTokenOperation implements ThriftOperation<RecreateApplicationTokenRequest, RecreateApplicationTokenResponse>
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(RecreateApplicationTokenOperation.class);
@@ -77,7 +77,7 @@ final class RecreateApplicationTokenOperation implements ThriftOperation<RenewAp
     }
 
     @Override
-    public RenewApplicationTokenResponse process(RenewApplicationTokenRequest request) throws TException
+    public RecreateApplicationTokenResponse process(RecreateApplicationTokenRequest request) throws TException
     {
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
@@ -98,10 +98,10 @@ final class RecreateApplicationTokenOperation implements ThriftOperation<RenewAp
         app.setTimeOfTokenExpiration(newToken.timeOfExpiration);
         appRepo.saveApplication(app);
         
-        return new RenewApplicationTokenResponse().setServiceToken(newToken);
+        return new RecreateApplicationTokenResponse().setApplicationToken(newToken);
     }
 
-    private AlchemyAssertion<RenewApplicationTokenRequest> good()
+    private AlchemyAssertion<RecreateApplicationTokenRequest> good()
     {
         return request ->
         {

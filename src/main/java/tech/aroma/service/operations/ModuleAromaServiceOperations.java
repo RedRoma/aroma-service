@@ -66,14 +66,12 @@ import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
+import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterDeviceRequest;
 import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.thrift.service.RenewApplicationTokenResponse;
 import tech.aroma.thrift.service.SearchForApplicationsRequest;
 import tech.aroma.thrift.service.SearchForApplicationsResponse;
 import tech.aroma.thrift.service.SignInRequest;
@@ -129,7 +127,7 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse>>(){})
             .to(RegisterHealthCheckOperation.class);
         
-        bind(new TypeLiteral<ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>>(){})
+        bind(new TypeLiteral<ThriftOperation<RecreateApplicationTokenRequest, RecreateApplicationTokenResponse>>(){})
             .to(RecreateApplicationTokenOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse>>(){})

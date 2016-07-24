@@ -34,8 +34,8 @@ import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
 import tech.aroma.thrift.authentication.service.InvalidateTokenResponse;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
-import tech.aroma.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.thrift.service.RenewApplicationTokenResponse;
+import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
+import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -72,7 +72,7 @@ public class RecreateApplicationTokenOperationTest
     private Function<AuthenticationToken, ApplicationToken> tokenMapper;
 
     @GeneratePojo
-    private RenewApplicationTokenRequest request;
+    private RecreateApplicationTokenRequest request;
 
     private Application app;
 
@@ -108,9 +108,9 @@ public class RecreateApplicationTokenOperationTest
     {
         long originalExpiration = app.timeOfTokenExpiration;
         
-        RenewApplicationTokenResponse response = instance.process(request);
+        RecreateApplicationTokenResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        assertThat(response.serviceToken, is(appToken));
+        assertThat(response.applicationToken, is(appToken));
         assertThat(app.timeOfTokenExpiration, not(originalExpiration));
         assertThat(app.timeOfTokenExpiration, is(appToken.timeOfExpiration));
         
@@ -133,16 +133,16 @@ public class RecreateApplicationTokenOperationTest
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
 
-        RenewApplicationTokenRequest emptyRequest = new RenewApplicationTokenRequest();
+        RecreateApplicationTokenRequest emptyRequest = new RecreateApplicationTokenRequest();
         assertThrows(() -> instance.process(emptyRequest))
             .isInstanceOf(InvalidArgumentException.class);
 
-        RenewApplicationTokenRequest requestWithoutToken = new RenewApplicationTokenRequest(request);
+        RecreateApplicationTokenRequest requestWithoutToken = new RecreateApplicationTokenRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken))
             .isInstanceOf(InvalidArgumentException.class);
 
-        RenewApplicationTokenRequest requestWithoutAppId = new RenewApplicationTokenRequest(request);
+        RecreateApplicationTokenRequest requestWithoutAppId = new RecreateApplicationTokenRequest(request);
         requestWithoutAppId.unsetApplicationId();
         assertThrows(() -> instance.process(requestWithoutAppId))
             .isInstanceOf(InvalidArgumentException.class);
