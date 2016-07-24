@@ -17,7 +17,6 @@
 
 package tech.aroma.service.operations;
 
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
@@ -72,6 +71,8 @@ import tech.aroma.thrift.service.RegisterDeviceRequest;
 import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
 import tech.aroma.thrift.service.RegisterHealthCheckResponse;
+import tech.aroma.thrift.service.RenewApplicationTokenRequest;
+import tech.aroma.thrift.service.RenewApplicationTokenResponse;
 import tech.aroma.thrift.service.SearchForApplicationsRequest;
 import tech.aroma.thrift.service.SearchForApplicationsResponse;
 import tech.aroma.thrift.service.SignInRequest;
@@ -87,6 +88,7 @@ import tech.aroma.thrift.service.UpdateApplicationResponse;
 import tech.aroma.thrift.service.UpdateReactionsRequest;
 import tech.aroma.thrift.service.UpdateReactionsResponse;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
+
 
 /**
  * This Module defines the bindings for the implementations of the
@@ -121,8 +123,8 @@ public final class ModuleAromaServiceOperations extends AbstractModule
         bind(new TypeLiteral<ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse>>(){})
             .to(ProvisionApplicationOperation.class);
         
-        bind(new TypeLiteral<ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse>>(){})
-            .to(RegenerateApplicationTokenOperation.class);
+        bind(new TypeLiteral<ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>>(){})
+            .to(RewnewApplicationTokenOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse>>(){})
             .to(RegisterHealthCheckOperation.class);

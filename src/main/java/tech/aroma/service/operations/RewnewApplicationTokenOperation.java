@@ -37,8 +37,8 @@ import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
-import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RenewApplicationTokenRequest;
+import tech.aroma.thrift.service.RenewApplicationTokenResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
@@ -54,17 +54,17 @@ import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.inT
  *
  * @author SirWellington
  */
-final class RegenerateApplicationTokenOperation implements ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse>
+final class RewnewApplicationTokenOperation implements ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(RegenerateApplicationTokenOperation.class);
+    private final static Logger LOG = LoggerFactory.getLogger(RewnewApplicationTokenOperation.class);
 
     private final AuthenticationService.Iface authenticationService;
     private final ApplicationRepository appRepo;
     private final Function<AuthenticationToken, ApplicationToken> tokenMapper;
 
     @Inject
-    RegenerateApplicationTokenOperation(AuthenticationService.Iface authenticationService,
+    RewnewApplicationTokenOperation(AuthenticationService.Iface authenticationService,
                                         ApplicationRepository appRepo,
                                         Function<AuthenticationToken, ApplicationToken> tokenMapper)
     {
@@ -77,7 +77,7 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
     }
 
     @Override
-    public RegenerateApplicationTokenResponse process(RegenerateApplicationTokenRequest request) throws TException
+    public RenewApplicationTokenResponse process(RenewApplicationTokenRequest request) throws TException
     {
         checkThat(request)
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
@@ -97,7 +97,7 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
 
         LOG.debug("App Token successfully regenerated");
 
-        return new RegenerateApplicationTokenResponse()
+        return new RenewApplicationTokenResponse()
             .setApplicationToken(appToken);
 
         //Get User ID
@@ -110,7 +110,7 @@ final class RegenerateApplicationTokenOperation implements ThriftOperation<Regen
         //Return token
     }
     
-    private AlchemyAssertion<RegenerateApplicationTokenRequest> good()
+    private AlchemyAssertion<RenewApplicationTokenRequest> good()
     {
         return request ->
         {

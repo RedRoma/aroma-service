@@ -34,8 +34,8 @@ import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
 import tech.aroma.thrift.authentication.service.InvalidateTokenResponse;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
-import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RenewApplicationTokenRequest;
+import tech.aroma.thrift.service.RenewApplicationTokenResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
 import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
@@ -58,7 +58,7 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  */
 @Repeat(100)
 @RunWith(AlchemyTestRunner.class)
-public class RegenerateApplicationTokenOperationTest
+public class RenewApplicationTokenOperationTest
 {
 
     @Mock
@@ -71,7 +71,7 @@ public class RegenerateApplicationTokenOperationTest
     private Function<AuthenticationToken, ApplicationToken> tokenMapper;
 
     @GeneratePojo
-    private RegenerateApplicationTokenRequest request;
+    private RenewApplicationTokenRequest request;
 
     @GeneratePojo
     private Application app;
@@ -91,12 +91,12 @@ public class RegenerateApplicationTokenOperationTest
     @GenerateString(HEXADECIMAL)
     private String tokenId;
 
-    private RegenerateApplicationTokenOperation instance;
+    private RewnewApplicationTokenOperation instance;
 
     @Before
     public void setUp() throws TException
     {
-        instance = new RegenerateApplicationTokenOperation(authenticationService, appRepo, tokenMapper);
+        instance = new RewnewApplicationTokenOperation(authenticationService, appRepo, tokenMapper);
         verifyZeroInteractions(authenticationService, appRepo, tokenMapper);
 
         setupData();
@@ -106,7 +106,7 @@ public class RegenerateApplicationTokenOperationTest
     @Test
     public void testProcess() throws Exception
     {
-        RegenerateApplicationTokenResponse response = instance.process(request);
+        RenewApplicationTokenResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.applicationToken, is(appToken));
     }
@@ -127,16 +127,16 @@ public class RegenerateApplicationTokenOperationTest
         assertThrows(() -> instance.process(null))
             .isInstanceOf(InvalidArgumentException.class);
 
-        RegenerateApplicationTokenRequest emptyRequest = new RegenerateApplicationTokenRequest();
+        RenewApplicationTokenRequest emptyRequest = new RenewApplicationTokenRequest();
         assertThrows(() -> instance.process(emptyRequest))
             .isInstanceOf(InvalidArgumentException.class);
 
-        RegenerateApplicationTokenRequest requestWithoutToken = new RegenerateApplicationTokenRequest(request);
+        RenewApplicationTokenRequest requestWithoutToken = new RenewApplicationTokenRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken))
             .isInstanceOf(InvalidArgumentException.class);
 
-        RegenerateApplicationTokenRequest requestWithoutAppId = new RegenerateApplicationTokenRequest(request);
+        RenewApplicationTokenRequest requestWithoutAppId = new RenewApplicationTokenRequest(request);
         requestWithoutAppId.unsetApplicationId();
         assertThrows(() -> instance.process(requestWithoutAppId))
             .isInstanceOf(InvalidArgumentException.class);
