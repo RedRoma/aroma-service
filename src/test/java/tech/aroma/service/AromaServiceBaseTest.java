@@ -68,8 +68,8 @@ import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
+import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterDeviceRequest;
 import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
@@ -143,7 +143,7 @@ public class AromaServiceBaseTest
     private ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
 
     @Mock
-    private ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
+    private ThriftOperation<RecreateApplicationTokenRequest, RecreateApplicationTokenResponse> recreateApplicationTokenOperation;
 
     @Mock
     private ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
@@ -238,7 +238,7 @@ public class AromaServiceBaseTest
                                         getRegisteredDevicesOperation,
                                         getUserInfoOperation,
                                         provisionApplicationOperation,
-                                        regenerateApplicationTokenOperation,
+                                        recreateApplicationTokenOperation,
                                         registerDeviceOperation,
                                         registerHealthCheckOperation,
                                         renewApplicationTokenOperation,
@@ -268,7 +268,7 @@ public class AromaServiceBaseTest
                                getRegisteredDevicesOperation,
                                getUserInfoOperation,
                                provisionApplicationOperation,
-                               regenerateApplicationTokenOperation,
+                               recreateApplicationTokenOperation,
                                registerDeviceOperation,
                                registerHealthCheckOperation,
                                renewApplicationTokenOperation,
@@ -394,23 +394,23 @@ public class AromaServiceBaseTest
     @Test
     public void testRenerateApplicationToken() throws Exception
     {
-        RegenerateApplicationTokenRequest request = pojos(RegenerateApplicationTokenRequest.class).get();
-        RegenerateApplicationTokenResponse expectedResponse = mock(RegenerateApplicationTokenResponse.class);
-        when(regenerateApplicationTokenOperation.process(request))
+        RecreateApplicationTokenRequest request = pojos(RecreateApplicationTokenRequest.class).get();
+        RecreateApplicationTokenResponse expectedResponse = mock(RecreateApplicationTokenResponse.class);
+        when(recreateApplicationTokenOperation.process(request))
             .thenReturn(expectedResponse);
 
-        RegenerateApplicationTokenResponse result = instance.regenerateToken(request);
+        RecreateApplicationTokenResponse result = instance.recreateToken(request);
         assertThat(result, is(expectedResponse));
-        verify(regenerateApplicationTokenOperation).process(request);
+        verify(recreateApplicationTokenOperation).process(request);
 
         //Edge Cases
-        assertThrows(() -> instance.regenerateToken(null))
+        assertThrows(() -> instance.recreateToken(null))
             .isInstanceOf(InvalidArgumentException.class);
 
-        when(regenerateApplicationTokenOperation.process(request))
+        when(recreateApplicationTokenOperation.process(request))
             .thenThrow(new OperationFailedException());
 
-        assertThrows(() -> instance.regenerateToken(request))
+        assertThrows(() -> instance.recreateToken(request))
             .isInstanceOf(OperationFailedException.class);
     }
 
@@ -553,21 +553,21 @@ public class AromaServiceBaseTest
     }
 
     @Test
-    public void testRegenerateToken() throws Exception
+    public void testRecreateToken() throws Exception
     {
-        RegenerateApplicationTokenRequest request = one(pojos(RegenerateApplicationTokenRequest.class));
-        RegenerateApplicationTokenResponse expected = one(pojos(RegenerateApplicationTokenResponse.class));
-        when(regenerateApplicationTokenOperation.process(request)).thenReturn(expected);
+        RecreateApplicationTokenRequest request = one(pojos(RecreateApplicationTokenRequest.class));
+        RecreateApplicationTokenResponse expected = one(pojos(RecreateApplicationTokenResponse.class));
+        when(recreateApplicationTokenOperation.process(request)).thenReturn(expected);
 
-        RegenerateApplicationTokenResponse response = instance.regenerateToken(request);
+        RecreateApplicationTokenResponse response = instance.recreateToken(request);
         assertThat(response, is(sameInstance(expected)));
     }
 
     @DontRepeat
     @Test
-    public void testRegenerateTokenWithBadArgs()
+    public void testRecreateTokenWithBadArgs()
     {
-        assertThrows(() -> instance.regenerateToken(null))
+        assertThrows(() -> instance.recreateToken(null))
             .isInstanceOf(InvalidArgumentException.class);
     }
 

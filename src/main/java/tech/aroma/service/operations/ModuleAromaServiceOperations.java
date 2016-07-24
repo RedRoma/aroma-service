@@ -124,7 +124,7 @@ public final class ModuleAromaServiceOperations extends AbstractModule
             .to(ProvisionApplicationOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>>(){})
-            .to(RewnewApplicationTokenOperation.class);
+            .to(RenewApplicationTokenOperation.class);
         
         bind(new TypeLiteral<ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse>>(){})
             .to(RegisterHealthCheckOperation.class);

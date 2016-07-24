@@ -79,8 +79,8 @@ import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
+import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterDeviceRequest;
 import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
@@ -215,7 +215,7 @@ final class AuthenticationLayer implements AromaService.Iface
     }
 
     @Override
-    public RegenerateApplicationTokenResponse regenerateToken(RegenerateApplicationTokenRequest request) throws OperationFailedException,
+    public RecreateApplicationTokenResponse recreateToken(RecreateApplicationTokenRequest request) throws OperationFailedException,
                                                                                                                 InvalidArgumentException,
                                                                                                                 InvalidCredentialsException,
                                                                                                                 ApplicationDoesNotExistException,
@@ -225,7 +225,7 @@ final class AuthenticationLayer implements AromaService.Iface
         checkNotNull(request);
         checkAndEnrichToken(request.token);
 
-        return delegate.regenerateToken(request);
+        return delegate.recreateToken(request);
     }
 
     @Override

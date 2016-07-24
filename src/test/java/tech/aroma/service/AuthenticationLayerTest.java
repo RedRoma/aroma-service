@@ -70,8 +70,8 @@ import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
+import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterDeviceRequest;
 import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
@@ -212,16 +212,16 @@ public class AuthenticationLayerTest
     }
 
     @Test
-    public void testRegenerateToken() throws Exception
+    public void testRecreateToken() throws Exception
     {
-        RegenerateApplicationTokenRequest request = new RegenerateApplicationTokenRequest().setToken(userToken);
-        RegenerateApplicationTokenResponse expected = mock(RegenerateApplicationTokenResponse.class);
-        when(delegate.regenerateToken(request))
+        RecreateApplicationTokenRequest request = new RecreateApplicationTokenRequest().setToken(userToken);
+        RecreateApplicationTokenResponse expected = mock(RecreateApplicationTokenResponse.class);
+        when(delegate.recreateToken(request))
             .thenReturn(expected);
 
-        RegenerateApplicationTokenResponse result = instance.regenerateToken(request);
+        RecreateApplicationTokenResponse result = instance.recreateToken(request);
         assertThat(result, is(expected));
-        verify(delegate).regenerateToken(request);
+        verify(delegate).recreateToken(request);
         verify(authenticationService).verifyToken(expectedVerifyTokenRequest);
         verify(authenticationService).getTokenInfo(expectedGetTokenInfoRequest);
 
@@ -229,25 +229,25 @@ public class AuthenticationLayerTest
 
     @DontRepeat
     @Test
-    public void testRegenerateTokenWithBadRequest() throws Exception
+    public void testRecreateTokenWithBadRequest() throws Exception
     {
-        assertThrows(() -> instance.regenerateToken(null))
+        assertThrows(() -> instance.recreateToken(null))
             .isInstanceOf(InvalidArgumentException.class);
 
-        assertThrows(() -> instance.regenerateToken(new RegenerateApplicationTokenRequest()))
+        assertThrows(() -> instance.recreateToken(new RecreateApplicationTokenRequest()))
             .isInstanceOf(InvalidTokenException.class);
 
         verifyZeroInteractions(delegate);
     }
 
     @Test
-    public void testRegenerateTokenWithBadToken() throws Exception
+    public void testRecreateTokenWithBadToken() throws Exception
     {
         setupWithBadToken();
 
-        RegenerateApplicationTokenRequest request = new RegenerateApplicationTokenRequest().setToken(userToken);
+        RecreateApplicationTokenRequest request = new RecreateApplicationTokenRequest().setToken(userToken);
 
-        assertThrows(() -> instance.regenerateToken(request))
+        assertThrows(() -> instance.recreateToken(request))
             .isInstanceOf(InvalidTokenException.class);
 
         verifyZeroInteractions(delegate);

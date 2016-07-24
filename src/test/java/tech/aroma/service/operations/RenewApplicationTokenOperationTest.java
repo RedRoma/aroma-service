@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.TokenRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.authentication.ApplicationToken;
 import tech.aroma.thrift.authentication.AuthenticationToken;
@@ -66,6 +67,9 @@ public class RenewApplicationTokenOperationTest
 
     @Mock
     private ApplicationRepository appRepo;
+    
+    @Mock
+    private TokenRepository tokenRepo;
 
     @Mock
     private Function<AuthenticationToken, ApplicationToken> tokenMapper;
@@ -91,16 +95,26 @@ public class RenewApplicationTokenOperationTest
     @GenerateString(HEXADECIMAL)
     private String tokenId;
 
-    private RewnewApplicationTokenOperation instance;
+    private RenewApplicationTokenOperation instance;
 
     @Before
     public void setUp() throws TException
     {
-        instance = new RewnewApplicationTokenOperation(authenticationService, appRepo, tokenMapper);
+        instance = new RenewApplicationTokenOperation(authenticationService, appRepo, tokenRepo, tokenMapper);
         verifyZeroInteractions(authenticationService, appRepo, tokenMapper);
 
         setupData();
         setupMocks();
+    }
+    
+    @DontRepeat
+    @Test
+    public void testConstructor() throws Exception
+    {
+        assertThrows(() -> new RenewApplicationTokenOperation(null, appRepo, tokenRepo, tokenMapper));
+        assertThrows(() -> new RenewApplicationTokenOperation(authenticationService, null, tokenRepo, tokenMapper));
+        assertThrows(() -> new RenewApplicationTokenOperation(authenticationService, appRepo, null, tokenMapper));
+        assertThrows(() -> new RenewApplicationTokenOperation(authenticationService, appRepo, tokenRepo, null));
     }
 
     @Test

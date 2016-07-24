@@ -18,12 +18,14 @@ package tech.aroma.service.operations;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.function.Function;
 import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.data.ApplicationRepository;
+import tech.aroma.data.TokenRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.LengthOfTime;
 import tech.aroma.thrift.TimeUnit;
@@ -40,8 +42,10 @@ import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
 import tech.aroma.thrift.service.RenewApplicationTokenResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
+import tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
+import static java.time.Clock.systemUTC;
 import static tech.aroma.data.assertions.AuthenticationAssertions.completeToken;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
@@ -49,30 +53,34 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
 import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.inTheFuture;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
 
 /**
- *
+ * This operation extends the lifetime of an Application's Token.
  * @author SirWellington
  */
-final class RewnewApplicationTokenOperation implements ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>
+final class RenewApplicationTokenOperation implements ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(RewnewApplicationTokenOperation.class);
+    private final static Logger LOG = LoggerFactory.getLogger(RenewApplicationTokenOperation.class);
 
     private final AuthenticationService.Iface authenticationService;
     private final ApplicationRepository appRepo;
+    private final TokenRepository tokenRepo;
     private final Function<AuthenticationToken, ApplicationToken> tokenMapper;
 
     @Inject
-    RewnewApplicationTokenOperation(AuthenticationService.Iface authenticationService,
+    RenewApplicationTokenOperation(AuthenticationService.Iface authenticationService,
                                         ApplicationRepository appRepo,
+                                        TokenRepository tokenRepo,
                                         Function<AuthenticationToken, ApplicationToken> tokenMapper)
     {
-        checkThat(authenticationService, appRepo, tokenMapper)
+        checkThat(authenticationService, appRepo, tokenRepo, tokenMapper)
             .are(notNull());
 
         this.authenticationService = authenticationService;
         this.appRepo = appRepo;
+        this.tokenRepo = tokenRepo;
         this.tokenMapper = tokenMapper;
     }
 
@@ -83,10 +91,20 @@ final class RewnewApplicationTokenOperation implements ThriftOperation<RenewAppl
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
 
+        //Get User Info
+        //Ensure user can perform this operation
+        //Get the App's current token
+        //Extend it's lifetime
+        //Save it
+        //Update the Application object with the new expiration date
+        //Return the updated token
+        
         String userId = request.token.userId;
         String appId = request.applicationId;
         Application app = appRepo.getById(appId);
-
+        
+        updateTokensForApp(app);
+        
         checkThat(userId)
             .throwing(UnauthorizedException.class)
             .is(elementInCollection(app.owners));
@@ -100,14 +118,6 @@ final class RewnewApplicationTokenOperation implements ThriftOperation<RenewAppl
         return new RenewApplicationTokenResponse()
             .setApplicationToken(appToken);
 
-        //Get User ID
-        //Get App Info
-        //Assert user has authorization to do this
-        //Get the App's current token
-        //When creating the token, be sure that 
-        //Delete existing tokens for App
-        //Create new token
-        //Return token
     }
     
     private AlchemyAssertion<RenewApplicationTokenRequest> good()
@@ -195,6 +205,31 @@ final class RewnewApplicationTokenOperation implements ThriftOperation<RenewAppl
         Instant now = Instant.now();
         long secondsUntil = now.until(expiration, ChronoUnit.SECONDS);
         return new LengthOfTime(TimeUnit.SECONDS, secondsUntil);
+    }
+
+    private void updateTokensForApp(Application app) throws TException
+    {
+        List<AuthenticationToken> tokens = tokenRepo.getTokensBelongingTo(app.applicationId);
+        
+        checkThat(tokens)
+            .throwing(InvalidArgumentException.class)
+            .usingMessage(app.name +" currently has no tokens. Recreate one instead.")
+            .is(CollectionAssertions.nonEmptyList())
+            .throwing(OperationFailedException.class)
+            .usingMessage(app.name + " currently has more than one token.")
+            .is(CollectionAssertions.collectionOfSize(1));
+            
+            
+        AuthenticationToken currentToken = tokens.get(0);
+        
+        setNewExpiration(currentToken);
+    }
+
+    private void setNewExpiration(AuthenticationToken currentToken)
+    {
+        Instant now = Instant.now(systemUTC());
+        
+        
     }
 
 }

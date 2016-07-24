@@ -72,8 +72,8 @@ import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
 import tech.aroma.thrift.service.ProvisionApplicationRequest;
 import tech.aroma.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.thrift.service.RegenerateApplicationTokenRequest;
-import tech.aroma.thrift.service.RegenerateApplicationTokenResponse;
+import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
+import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
 import tech.aroma.thrift.service.RegisterDeviceRequest;
 import tech.aroma.thrift.service.RegisterDeviceResponse;
 import tech.aroma.thrift.service.RegisterHealthCheckRequest;
@@ -157,7 +157,7 @@ final class AromaServiceBase implements AromaService.Iface
     //------------------------------
     //Action and Save Operations
     private final ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation;
-    private final ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation;
+    private final ThriftOperation<RecreateApplicationTokenRequest, RecreateApplicationTokenResponse> recreateApplicationTokenOperation;
     private final ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation;
     private final ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation;
     private final ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse> searchForApplicationsOperation;
@@ -197,7 +197,7 @@ final class AromaServiceBase implements AromaService.Iface
                      ThriftOperation<GetRegisteredDevicesRequest, GetRegisteredDevicesResponse> getRegisteredDevicesOperation,
                      ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation,
                      ThriftOperation<ProvisionApplicationRequest, ProvisionApplicationResponse> provisionApplicationOperation,
-                     ThriftOperation<RegenerateApplicationTokenRequest, RegenerateApplicationTokenResponse> regenerateApplicationTokenOperation,
+                     ThriftOperation<RecreateApplicationTokenRequest, RecreateApplicationTokenResponse> recreateApplicationTokenOperation,
                      ThriftOperation<RegisterDeviceRequest, RegisterDeviceResponse> registerDeviceOperation,
                      ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse> registerHealthCheckOperation,
                      ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse> renewApplicationTokenOperation,
@@ -227,7 +227,7 @@ final class AromaServiceBase implements AromaService.Iface
                   getRegisteredDevicesOperation,
                   getUserInfoOperation,
                   provisionApplicationOperation,
-                  regenerateApplicationTokenOperation,
+                  recreateApplicationTokenOperation,
                   registerDeviceOperation,
                   registerHealthCheckOperation,
                   renewApplicationTokenOperation,
@@ -260,7 +260,7 @@ final class AromaServiceBase implements AromaService.Iface
         this.getRegisteredDevicesOperation = getRegisteredDevicesOperation;
         this.getUserInfoOperation = getUserInfoOperation;
         this.provisionApplicationOperation = provisionApplicationOperation;
-        this.regenerateApplicationTokenOperation = regenerateApplicationTokenOperation;
+        this.recreateApplicationTokenOperation = recreateApplicationTokenOperation;
         this.registerDeviceOperation = registerDeviceOperation;
         this.registerHealthCheckOperation = registerHealthCheckOperation;
         this.renewApplicationTokenOperation = renewApplicationTokenOperation;
@@ -361,7 +361,7 @@ final class AromaServiceBase implements AromaService.Iface
     }
 
     @Override
-    public RegenerateApplicationTokenResponse regenerateToken(RegenerateApplicationTokenRequest request) throws OperationFailedException,
+    public RecreateApplicationTokenResponse recreateToken(RecreateApplicationTokenRequest request) throws OperationFailedException,
                                                                                                                 InvalidArgumentException,
                                                                                                                 InvalidCredentialsException,
                                                                                                                 ApplicationDoesNotExistException,
@@ -370,9 +370,9 @@ final class AromaServiceBase implements AromaService.Iface
     {
         checkNotNull(request);
 
-        LOG.info("Received request to regenerate an Application Token {}", request);
+        LOG.info("Received request to recreate an Application Token {}", request);
 
-        return regenerateApplicationTokenOperation.process(request);
+        return recreateApplicationTokenOperation.process(request);
     }
 
     @Override
