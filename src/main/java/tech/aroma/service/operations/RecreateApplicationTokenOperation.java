@@ -48,13 +48,15 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
 
 /**
- *
+ * This Operation deletes an App's existing token and creates a new one.
+ * The Token's Lifetime should also be refreshed.
+ * 
  * @author SirWellington
  */
-final class RenewApplicationTokenOperation implements ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>
+final class RecreateApplicationTokenOperation implements ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>
 {
 
-    private final static Logger LOG = LoggerFactory.getLogger(RenewApplicationTokenOperation.class);
+    private final static Logger LOG = LoggerFactory.getLogger(RecreateApplicationTokenOperation.class);
     private final static LengthOfTime DEFAULT_TOKEN_LIFETIME = new LengthOfTime(TimeUnit.DAYS, 180);
 
     private final AuthenticationService.Iface authenticationService;
@@ -62,11 +64,12 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
     private final Function<AuthenticationToken, ApplicationToken> tokenMapper;
 
     @Inject
-    RenewApplicationTokenOperation(AuthenticationService.Iface authenticationService, 
+    RecreateApplicationTokenOperation(AuthenticationService.Iface authenticationService, 
                                    ApplicationRepository appRepo,
                                    Function<AuthenticationToken, ApplicationToken> tokenMapper)
     {
-        checkThat(authenticationService, appRepo, tokenMapper).is(notNull());
+        checkThat(authenticationService, appRepo, tokenMapper)
+            .is(notNull());
 
         this.authenticationService = authenticationService;
         this.appRepo = appRepo;

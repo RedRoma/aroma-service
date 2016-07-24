@@ -60,7 +60,7 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
  */
 @Repeat(100)
 @RunWith(AlchemyTestRunner.class)
-public class RenewApplicationTokenOperationTest
+public class RecreateApplicationTokenOperationTest
 {
     @Mock
     private AuthenticationService.Iface authenticationService;
@@ -91,12 +91,12 @@ public class RenewApplicationTokenOperationTest
     @GenerateString(HEXADECIMAL)
     private String tokenId;
 
-    private RenewApplicationTokenOperation instance;
+    private RecreateApplicationTokenOperation instance;
 
     @Before
     public void setUp() throws TException
     {
-        instance = new RenewApplicationTokenOperation(authenticationService, appRepo, tokenMapper);
+        instance = new RecreateApplicationTokenOperation(authenticationService, appRepo, tokenMapper);
         verifyZeroInteractions(authenticationService, appRepo, tokenMapper);
 
         setupData();
