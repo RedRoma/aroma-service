@@ -54,6 +54,15 @@ import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.n
  *
  * @author SirWellington
  */
+
+//Get User Info
+//Ensure user can perform this operation
+//Get the App's current token
+//Extend it's lifetime
+//Save it
+//Update the Application object with the new expiration date
+//Return the updated token
+
 final class RenewApplicationTokenOperation implements ThriftOperation<RenewApplicationTokenRequest, RenewApplicationTokenResponse>
 {
 
@@ -86,13 +95,6 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
             .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
             .is(good());
 
-        //Get User Info
-        //Ensure user can perform this operation
-        //Get the App's current token
-        //Extend it's lifetime
-        //Save it
-        //Update the Application object with the new expiration date
-        //Return the updated token
         String userId = request.token.userId;
         String appId = request.applicationId;
         Application app = appRepo.getById(appId);
