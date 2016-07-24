@@ -153,7 +153,6 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
 
     private void updateTokenLifetime(AuthenticationToken token) throws TException
     {
-
         updateWithNewExpiration(token);
         saveToken(token);
     }

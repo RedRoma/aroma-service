@@ -22,8 +22,11 @@ import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import sir.wellington.alchemy.collections.lists.Lists;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.TokenRepository;
 import tech.aroma.thrift.Application;
@@ -35,6 +38,9 @@ import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
 import tech.aroma.thrift.authentication.service.InvalidateTokenResponse;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
+import tech.aroma.thrift.functions.TimeFunctions;
+import tech.aroma.thrift.functions.TokenFunctions;
+import tech.aroma.thrift.service.AromaServiceConstants;
 import tech.aroma.thrift.service.RenewApplicationTokenRequest;
 import tech.aroma.thrift.service.RenewApplicationTokenResponse;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
@@ -45,12 +51,16 @@ import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static tech.aroma.thrift.generators.ApplicationGenerators.applications;
+import static tech.aroma.thrift.generators.TokenGenerators.authenticationTokens;
+import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThanOrEqualTo;
+import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.lessThanOrEqualTo;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
-import static tech.sirwellington.alchemy.generator.TimeGenerators.futureInstants;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
-import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.HEXADECIMAL;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
@@ -77,13 +87,8 @@ public class RenewApplicationTokenOperationTest
     @GeneratePojo
     private RenewApplicationTokenRequest request;
 
-    @GeneratePojo
     private Application app;
-
-    @GeneratePojo
     private ApplicationToken appToken;
-
-    @GeneratePojo
     private AuthenticationToken authToken;
 
     @GenerateString(UUID)
@@ -92,8 +97,10 @@ public class RenewApplicationTokenOperationTest
     @GenerateString(UUID)
     private String appId;
 
-    @GenerateString(HEXADECIMAL)
     private String tokenId;
+    
+    @Captor
+    private ArgumentCaptor<AuthenticationToken> captor;
 
     private RenewApplicationTokenOperation instance;
 
@@ -120,8 +127,24 @@ public class RenewApplicationTokenOperationTest
     @Test
     public void testProcess() throws Exception
     {
+        long expectedExpirationTime = Instant.now()
+            .plusSeconds(TimeFunctions.toSeconds(AromaServiceConstants.DEFAULT_APP_TOKEN_LIFETIME))
+            .toEpochMilli();
+        
+        long delta = 100;
+        
         RenewApplicationTokenResponse response = instance.process(request);
         assertThat(response, notNullValue());
+        
+        verify(tokenRepo).saveToken(captor.capture());
+        
+        AuthenticationToken savedToken = captor.getValue();
+        assertThat(savedToken, is(authToken));
+        
+        checkThat(savedToken.timeOfExpiration)
+            .is(greaterThanOrEqualTo(expectedExpirationTime - delta))
+            .is(lessThanOrEqualTo(expectedExpirationTime + delta));
+        
         assertThat(response.applicationToken, is(appToken));
     }
 
@@ -164,27 +187,30 @@ public class RenewApplicationTokenOperationTest
 
         InvalidateTokenRequest invalidateRequest = new InvalidateTokenRequest()
             .setBelongingTo(appId);
+        
         when(authenticationService.invalidateToken(invalidateRequest))
             .thenReturn(new InvalidateTokenResponse());
 
         when(authenticationService.createToken(Mockito.any()))
             .thenReturn(new CreateTokenResponse(authToken));
+        
+        when(tokenRepo.getTokensBelongingTo(appId))
+            .thenReturn(Lists.createFrom(authToken));
     }
 
     private void setupData()
     {
         request.token.userId = userId;
+
+        app = one(applications());
+        appId = app.applicationId;
         request.applicationId = appId;
 
-        app.applicationId = appId;
-        appToken.tokenId = tokenId;
-        authToken.tokenId = tokenId;
+        authToken = one(authenticationTokens());
+        appToken = TokenFunctions.authTokenToAppTokenFunction().apply(authToken);
+        tokenId = appToken.tokenId;
 
         app.owners.add(userId);
-
-        Instant tokenExpiration = one(futureInstants());
-        authToken.timeOfExpiration = tokenExpiration.toEpochMilli();
-        appToken.timeOfExpiration = authToken.timeOfExpiration;
         app.timeOfTokenExpiration = appToken.timeOfExpiration;
     }
 
