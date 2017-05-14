@@ -33,7 +33,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
  * from RedRoma Applications.
  * Red Roma
  * RedRoma
- * 
+ *
  * @author SirWellington
  */
 @FunctionalInterface
@@ -44,18 +44,18 @@ public interface OverTheWireDecryptor
 
     /**
      * Takes an Encrypted String and decrypts it for consumption.
-     * 
+     *
      * @param encrypredString The String to Decrypt
-     * @return 
+     * @return
      * @throws org.apache.thrift.TException If the String could not be decrypted.
      */
     public String decrypt(String encrypredString) throws TException;
-    
+
     public static OverTheWireDecryptor newInstance(@Required PBEStringEncryptor stringEncryptor)
     {
         checkThat(stringEncryptor).is(notNull());
-        
+
         return new OverTheWireDecryptorImpl(stringEncryptor);
     }
-    
+
 }

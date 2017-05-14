@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
@@ -39,7 +39,6 @@ import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class GetFullMessageOperation implements ThriftOperation<GetFullMessageRequest, GetFullMessageResponse>
@@ -54,7 +53,7 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
     GetFullMessageOperation(ApplicationRepository appRepo, FollowerRepository followerRepo, MessageRepository messageRepo)
     {
         checkThat(appRepo, followerRepo, messageRepo)
-            .are(notNull());
+                .are(notNull());
 
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
@@ -65,8 +64,8 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
     public GetFullMessageResponse process(GetFullMessageRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String appId = request.applicationId;
         String messageId = request.messageId;
@@ -89,14 +88,14 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
         return request ->
         {
             checkThat(request)
-                .usingMessage("missing request")
-                .is(notNull());
-            
+                    .usingMessage("missing request")
+                    .is(notNull());
+
             checkThat(request.messageId)
-                .is(validMessageId());
-            
+                    .is(validMessageId());
+
             checkThat(request.applicationId)
-                .is(validApplicationId());
+                    .is(validApplicationId());
         };
 
     }

@@ -29,7 +29,6 @@ import static org.junit.Assert.assertThat;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -60,7 +59,7 @@ public class RegisterHealthCheckOperationTest
     public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

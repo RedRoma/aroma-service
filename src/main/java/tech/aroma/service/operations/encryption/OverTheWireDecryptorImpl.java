@@ -31,7 +31,6 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 
 /**
- *
  * @author SirWellington
  */
 @Internal
@@ -46,7 +45,7 @@ final class OverTheWireDecryptorImpl implements OverTheWireDecryptor
     OverTheWireDecryptorImpl(PBEStringEncryptor decryptor)
     {
         checkThat(decryptor)
-            .is(notNull());
+                .is(notNull());
 
         this.decryptor = decryptor;
     }
@@ -55,10 +54,10 @@ final class OverTheWireDecryptorImpl implements OverTheWireDecryptor
     public String decrypt(String encrypredString) throws TException
     {
         checkThat(encrypredString)
-            .throwing(InvalidCredentialsException.class)
-            .usingMessage("encrypted string is missing")
-            .is(nonEmptyString());
-        
+                .throwing(InvalidCredentialsException.class)
+                .usingMessage("encrypted string is missing")
+                .is(nonEmptyString());
+
         try
         {
             return decryptor.decrypt(encrypredString);

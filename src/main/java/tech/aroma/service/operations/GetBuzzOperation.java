@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
@@ -36,13 +36,12 @@ import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetBuzzOperation.class);
-    
+
     private final ApplicationRepository appRepo;
     private final OrganizationRepository orgRepo;
     private final UserRepository userRepo;
@@ -51,33 +50,33 @@ final class GetBuzzOperation implements ThriftOperation<GetBuzzRequest, GetBuzzR
     GetBuzzOperation(ApplicationRepository appRepo, OrganizationRepository orgRepo, UserRepository userRepo)
     {
         checkThat(appRepo, orgRepo, userRepo)
-            .are(notNull());
-        
+                .are(notNull());
+
         this.appRepo = appRepo;
         this.orgRepo = orgRepo;
         this.userRepo = userRepo;
     }
-    
+
     @Override
     public GetBuzzResponse process(GetBuzzRequest request) throws TException
     {
         checkNotNull(request);
-        
+
         List<Application> recentApps = appRepo.getRecentlyCreated();
         List<User> recentUsers = userRepo.getRecentlyCreatedUsers();
-        
+
         //Get recently created apps
         //Get the requester's orgs
         //Get recent users in those orgs
         //Get recent apps in those orgs
         //Return all that
         GetBuzzResponse response = new GetBuzzResponse()
-            .setFreshApplications(recentApps)
-            .setFreshUsers(recentUsers);
+                .setFreshApplications(recentApps)
+                .setFreshUsers(recentUsers);
 
         LOG.debug("Returning Buzz: {}", response);
-        
+
         return response;
     }
-    
+
 }

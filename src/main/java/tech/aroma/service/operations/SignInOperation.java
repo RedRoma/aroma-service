@@ -45,7 +45,6 @@ import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.
 import static tech.sirwellington.alchemy.arguments.assertions.PeopleAssertions.validEmailAddress;
 
 /**
- *
  * @author SirWellington
  */
 @Internal
@@ -71,7 +70,7 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
                     UserRepository userRepo)
     {
         checkThat(authenticationService, tokenMapper, credentialsRepo, decryptor, encryptor, userRepo)
-            .are(notNull());
+                .are(notNull());
 
         this.authenticationService = authenticationService;
         this.tokenMapper = tokenMapper;
@@ -87,16 +86,16 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
         LOG.debug("Received request to sign in: {}", request);
 
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         User user = userRepo.getUserByEmail(request.emailAddress);
         checkThatUserHasCredentials(user);
-        
-        
+
+
         String password = decryptPasswordFrom(request);
         String digestedPassword = credentialsRepo.getEncryptedPassword(user.userId);
-        
+
         checkPasswordsMatch(password, digestedPassword);
 
         AuthenticationToken authToken = getTokenFor(user);
@@ -104,20 +103,20 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
         UserToken userToken = tokenMapper.apply(authToken);
 
         return new SignInResponse()
-            .setUserToken(userToken);
+                .setUserToken(userToken);
     }
 
     private AuthenticationToken getTokenFor(User user) throws OperationFailedException
     {
         LengthOfTime tokenLifetime = new LengthOfTime()
-            .setUnit(TimeUnit.DAYS)
-            .setValue(60);
+                .setUnit(TimeUnit.DAYS)
+                .setValue(60);
 
         CreateTokenRequest request = new CreateTokenRequest()
-            .setOwnerId(user.userId)
-            .setOwnerName(user.name)
-            .setDesiredTokenType(TokenType.USER)
-            .setLifetime(tokenLifetime);
+                .setOwnerId(user.userId)
+                .setOwnerName(user.name)
+                .setDesiredTokenType(TokenType.USER)
+                .setLifetime(tokenLifetime);
 
         CreateTokenResponse response;
         try
@@ -131,14 +130,14 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
         }
 
         checkThat(response)
-            .usingMessage("Authentication Service returned null")
-            .throwing(OperationFailedException.class)
-            .is(notNull());
+                .usingMessage("Authentication Service returned null")
+                .throwing(OperationFailedException.class)
+                .is(notNull());
 
         checkThat(response.token)
-            .throwing(OperationFailedException.class)
-            .usingMessage("Authentication Service returned incomplete token")
-            .is(completeToken());
+                .throwing(OperationFailedException.class)
+                .usingMessage("Authentication Service returned incomplete token")
+                .is(completeToken());
 
         return response.getToken();
     }
@@ -148,24 +147,24 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
         return request ->
         {
             checkThat(request)
-                .usingMessage("request missing")
-                .is(notNull());
-            
+                    .usingMessage("request missing")
+                    .is(notNull());
+
             checkThat(request.credentials)
-                .usingMessage("request missing credentials")
-                .is(notNull());
-            
+                    .usingMessage("request missing credentials")
+                    .is(notNull());
+
             checkThat(request.credentials.isSet())
-                .usingMessage("Credentials missing")
-                .is(trueStatement());
-            
+                    .usingMessage("Credentials missing")
+                    .is(trueStatement());
+
             checkThat(request.emailAddress)
-                .usingMessage("Email address is invalid")
-                .is(validEmailAddress());
-            
+                    .usingMessage("Email address is invalid")
+                    .is(validEmailAddress());
+
             checkThat(request.credentials.isSetAromaPassword())
-                .usingMessage("Only Passwords are currently accepted")
-                .is(trueStatement());
+                    .usingMessage("Only Passwords are currently accepted")
+                    .is(trueStatement());
         };
     }
 
@@ -181,19 +180,19 @@ final class SignInOperation implements ThriftOperation<SignInRequest, SignInResp
     private void checkPasswordsMatch(String password, String digestedPassword) throws TException
     {
         checkThat(encryptor.match(password, digestedPassword))
-            .throwing(InvalidCredentialsException.class)
-            .usingMessage("Email and Password do not match")
-            .is(trueStatement());
+                .throwing(InvalidCredentialsException.class)
+                .usingMessage("Email and Password do not match")
+                .is(trueStatement());
     }
 
     private void checkThatUserHasCredentials(User user) throws UserDoesNotExistException
     {
         checkThat(user)
-            .throwing(UserDoesNotExistException.class)
-            .usingMessage("User has no password stored")
-            .is(userWithCredentials());
+                .throwing(UserDoesNotExistException.class)
+                .usingMessage("User has no password stored")
+                .is(userWithCredentials());
     }
-    
+
     private AlchemyAssertion<User> userWithCredentials()
     {
         return user ->

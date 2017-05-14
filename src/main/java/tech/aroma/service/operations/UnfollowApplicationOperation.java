@@ -41,7 +41,6 @@ import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
 /**
- *
  * @author SirWellington
  */
 final class UnfollowApplicationOperation implements ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse>
@@ -61,7 +60,7 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
                                  UserRepository userRepo)
     {
         checkThat(activityRepo, appRepo, followerRepo, userRepo)
-            .are(notNull());
+                .are(notNull());
 
         this.activityRepo = activityRepo;
         this.appRepo = appRepo;
@@ -73,17 +72,17 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
     public UnfollowApplicationResponse process(UnfollowApplicationRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         String userId = request.token.userId;
         String appId = request.applicationId;
-        
+
         User user = userRepo.getUser(userId);
         Application app = appRepo.getById(appId);
 
         followerRepo.deleteFollowing(userId, appId);
-        
+
         sendNotificationThatAppUnfollowedBy(user, app);
 
         return new UnfollowApplicationResponse();
@@ -94,25 +93,25 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
         return request ->
         {
             checkThat(request)
-                .usingMessage("request missing")
-                .is(notNull());
-            
+                    .usingMessage("request missing")
+                    .is(notNull());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
-            
+                    .is(validUserId());
+
             checkThat(request.applicationId)
-                .is(validApplicationId());
+                    .is(validApplicationId());
         };
     }
 
     private void sendNotificationThatAppUnfollowedBy(User user, Application app)
     {
         Event event = createAppUnfollowedEvent(user, app);
-        
+
         Sets.nullToEmpty(app.owners)
             .stream()
             .map(id -> new User().setUserId(id))
@@ -122,26 +121,26 @@ final class UnfollowApplicationOperation implements ThriftOperation<UnfollowAppl
     private Event createAppUnfollowedEvent(User user, Application app)
     {
         EventType eventType = createEventType();
-        
+
         return new Event()
-            .setEventId(one(uuids))
-            .setActor(user)
-            .setUserIdOfActor(user.userId)
-            .setApplication(app)
-            .setApplicationId(app.applicationId)
-            .setTimestamp(now().toEpochMilli())
-            .setEventType(eventType);
+                .setEventId(one(uuids))
+                .setActor(user)
+                .setUserIdOfActor(user.userId)
+                .setApplication(app)
+                .setApplicationId(app.applicationId)
+                .setTimestamp(now().toEpochMilli())
+                .setEventType(eventType);
     }
 
     private EventType createEventType()
     {
         ApplicationUnfollowed appUnfollowed = new ApplicationUnfollowed();
-        
+
         EventType eventType = new EventType();
         eventType.setApplicationUnfollowed(appUnfollowed);
         return eventType;
     }
-    
+
     private void tryToSaveEvent(User owner, Event event)
     {
         try

@@ -36,7 +36,6 @@ import static org.mockito.Mockito.*;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -57,10 +56,10 @@ public class GetBuzzOperationTest
     private GetBuzzRequest request;
 
     private GetBuzzOperation instance;
-    
+
     @GenerateList(Application.class)
     private List<Application> recentApps;
-    
+
     @GenerateList(User.class)
     private List<User> recentUsers;
 
@@ -69,30 +68,30 @@ public class GetBuzzOperationTest
     {
         instance = new GetBuzzOperation(appRepo, orgRepo, userRepo);
         verifyZeroInteractions(appRepo, orgRepo, userRepo);
-        
+
         setupMocks();
     }
-    
+
     private void setupMocks() throws Exception
     {
         when(appRepo.getRecentlyCreated())
-            .thenReturn(recentApps);
-        
+                .thenReturn(recentApps);
+
         when(userRepo.getRecentlyCreatedUsers()).thenReturn(recentUsers);
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
     {
         assertThrows(() -> new GetBuzzOperation(null, orgRepo, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
-        
+                .isInstanceOf(IllegalArgumentException.class);
+
         assertThrows(() -> new GetBuzzOperation(appRepo, null, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
-        
+                .isInstanceOf(IllegalArgumentException.class);
+
         assertThrows(() -> new GetBuzzOperation(appRepo, orgRepo, null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -102,7 +101,7 @@ public class GetBuzzOperationTest
         assertThat(result, notNullValue());
         assertThat(result.freshApplications, is(recentApps));
         assertThat(result.freshUsers, is(recentUsers));
-        
+
         verify(appRepo).getRecentlyCreated();
         verify(userRepo).getRecentlyCreatedUsers();
     }

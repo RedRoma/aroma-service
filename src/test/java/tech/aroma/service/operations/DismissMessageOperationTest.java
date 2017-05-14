@@ -43,47 +43,46 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class DismissMessageOperationTest 
+public class DismissMessageOperationTest
 {
     @Mock
     private InboxRepository inboxRepo;
-    
+
     @GeneratePojo
     private UserToken token;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
     @GenerateString(UUID)
     private String messageId;
-    
+
     @GeneratePojo
     private DismissMessageRequest request;
 
     private DismissMessageOperation instance;
-    
+
     @Before
     public void setUp() throws Exception
     {
         instance = new DismissMessageOperation(inboxRepo);
         verifyZeroInteractions(inboxRepo);
-        
+
         setupData();
-        
+
         setupMocks();
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor()
     {
         assertThrows(() -> new DismissMessageOperation(null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -91,60 +90,60 @@ public class DismissMessageOperationTest
     {
         DismissMessageResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         verify(inboxRepo).deleteMessageForUser(userId, messageId);
     }
-    
+
     @Test
     public void testProcessWithMultipleMessages() throws Exception
     {
         int count = one(integers(10, 50));
         List<String> messageIds = listOf(uuids, count);
         request.setMessageIds(messageIds);
-        
+
         Set<String> expected = Sets.copyOf(messageIds);
-        
+
         instance.process(request);
-        
-        for(String id : expected)
+
+        for (String id : expected)
         {
             verify(inboxRepo).deleteMessageForUser(userId, id);
         }
     }
-    
+
     @Test
     public void testProcessWithDismissAll() throws Exception
     {
         request.setDismissAll(true);
-        
+
         DismissMessageResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         verify(inboxRepo).deleteAllMessagesForUser(userId);
     }
-    
+
     @Test
     public void testProcessWithBadRequests() throws Exception
     {
         DismissMessageRequest nullRequest = null;
         assertThrows(() -> instance.process(nullRequest)).isInstanceOf(InvalidArgumentException.class);
-        
+
         DismissMessageRequest requestWithoutToken = new DismissMessageRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken)).isInstanceOf(InvalidArgumentException.class);
-        
+
         UserToken tokenWithoutUserId = new UserToken(token);
         tokenWithoutUserId.unsetUserId();
-        
+
         DismissMessageRequest requestWithoutUserId = new DismissMessageRequest(request);
         requestWithoutUserId.setToken(tokenWithoutUserId);
-            
+
         assertThrows(() -> instance.process(requestWithoutUserId)).isInstanceOf(InvalidArgumentException.class);
-        
+
         List<String> badIds = listOf(alphabeticString());
         DismissMessageRequest requestWithBadMessageIds = new DismissMessageRequest(request);
         requestWithBadMessageIds.setMessageIds(badIds);
-        
+
         assertThrows(() -> instance.process(requestWithBadMessageIds)).isInstanceOf(InvalidArgumentException.class);
 
 
@@ -153,13 +152,13 @@ public class DismissMessageOperationTest
     private void setupData()
     {
         token.userId = userId;
-        
+
         request.setToken(token);
         request.setDismissAll(false);
         request.messageId = messageId;
-        
+
         request.messageIds.clear();
-        
+
     }
 
     private void setupMocks()

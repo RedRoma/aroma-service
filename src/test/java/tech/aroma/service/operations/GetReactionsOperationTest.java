@@ -43,52 +43,51 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class GetReactionsOperationTest 
+public class GetReactionsOperationTest
 {
-    
+
     @Mock
     private ApplicationRepository appRepo;
-    
+
     @Mock
     private ReactionRepository reactionsRepo;
-    
+
     @Mock
     private UserRepository userRepo;
-    
+
     @GenerateString(UUID)
     private String appId;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
     @GenerateString(ALPHABETIC)
     private String badId;
-    
+
     private List<Reaction> reactions;
-    
+
     private GetReactionsOperation instance;
-    
+
     @GeneratePojo
     private GetReactionsRequest request;
-    
+
     private Application app;
 
     @Before
     public void setUp() throws Exception
     {
-        
+
         setupData();
         setupMocks();
-        
+
         instance = new GetReactionsOperation(appRepo, reactionsRepo, userRepo);
         verifyZeroInteractions(appRepo, reactionsRepo, userRepo);
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor()
@@ -103,110 +102,110 @@ public class GetReactionsOperationTest
     {
         app = one(applications());
         app.owners.add(userId);
-        
+
         reactions = listOf(reactions(), 10);
-        
+
         request.token.userId = userId;
         request.unsetForAppId();
-        
+
     }
 
     private void setupMocks() throws Exception
     {
         when(appRepo.getById(appId)).thenReturn(app);
-        
+
         when(userRepo.containsUser(userId)).thenReturn(true);
-        
+
         when(reactionsRepo.getReactionsForUser(userId))
-            .thenReturn(reactions);
-        
+                .thenReturn(reactions);
+
         when(reactionsRepo.getReactionsForApplication(appId))
-            .thenReturn(reactions);
+                .thenReturn(reactions);
     }
 
     @Test
     public void testProcessForUser() throws Exception
     {
         GetReactionsResponse response = instance.process(request);
-        
+
         assertThat(response.reactions, is(reactions));
-        
+
         verify(reactionsRepo).getReactionsForUser(userId);
         verify(reactionsRepo, never()).getReactionsForApplication(anyString());
     }
-    
+
     @Test
     public void testProcessForApp() throws Exception
     {
         request.forAppId = appId;
-        
+
         GetReactionsResponse response = instance.process(request);
         assertThat(response.reactions, is(reactions));
-        
+
         verify(reactionsRepo).getReactionsForApplication(appId);
         verify(reactionsRepo, never()).getReactionsForUser(anyString());
     }
-    
+
     @Test
     public void testProcessForAppWhenNotAnOwner() throws Exception
     {
         app.owners.remove(userId);
         request.forAppId = appId;
-        
+
         GetReactionsResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.reactions, is(empty()));
-        
+
         verifyZeroInteractions(reactionsRepo);
     }
-    
+
     @Test
     public void testProcessWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         //Includes bad app ID
         request.forAppId = badId;
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         //Request missing token
         request.forAppId = appId;
         request.unsetToken();
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
-    
+
     @Test
     public void testProcessWhenUserDoesNotExist() throws Exception
     {
         when(userRepo.containsUser(userId)).thenReturn(false);
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
     }
-    
+
     @Test
     public void testProcessWhenUserRepoFails() throws Exception
     {
         when(userRepo.containsUser(userId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
-        
+                .isInstanceOf(OperationFailedException.class);
+
         verifyZeroInteractions(reactionsRepo);
     }
-    
+
     @Test
     public void testProcessWhenReactionsRepoFails() throws Exception
     {
         when(reactionsRepo.getReactionsForUser(userId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test

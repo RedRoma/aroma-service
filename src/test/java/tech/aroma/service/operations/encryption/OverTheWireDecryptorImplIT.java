@@ -29,23 +29,22 @@ import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.HEXADECIMAL;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class OverTheWireDecryptorImplIT 
+public class OverTheWireDecryptorImplIT
 {
-    
+
     private PBEStringEncryptor decryptor;
-    
-    private OverTheWireDecryptorImpl instance; 
-    
+
+    private OverTheWireDecryptorImpl instance;
+
     @GenerateString(HEXADECIMAL)
     private String rawMessage;
-    
+
     private String encodedMessage;
-    
+
     @Before
     public void setUp() throws Exception
     {
@@ -55,7 +54,7 @@ public class OverTheWireDecryptorImplIT
 
     private void setupData() throws Exception
     {
-        
+
         encodedMessage = decryptor.encrypt(rawMessage);
     }
 
@@ -71,16 +70,16 @@ public class OverTheWireDecryptorImplIT
         String result = instance.decrypt(encodedMessage);
         assertThat(result, is(rawMessage));
     }
-    
+
     @Test
     public void testDecryptConsistency() throws Exception
     {
         int iterations = one(integers(10, 100));
-        
-        for(int i = 0; i < iterations; ++i)
+
+        for (int i = 0; i < iterations; ++i)
         {
             recreateInstance();
-            
+
             String result = instance.decrypt(encodedMessage);
             assertThat(result, is(rawMessage));
         }

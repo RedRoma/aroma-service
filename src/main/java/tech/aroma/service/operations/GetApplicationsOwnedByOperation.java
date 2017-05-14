@@ -38,64 +38,63 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 
 /**
- *
  * @author SirWellington
  */
 final class GetApplicationsOwnedByOperation implements ThriftOperation<GetApplicationsOwnedByRequest, GetApplicationsOwnedByResponse>
 {
-    
+
     private final static Logger LOG = LoggerFactory.getLogger(GetApplicationsOwnedByOperation.class);
-    
+
     private final ApplicationRepository appRepo;
-    
+
     @Inject
     GetApplicationsOwnedByOperation(ApplicationRepository appRepo)
     {
         checkThat(appRepo)
-            .is(notNull());
-        
+                .is(notNull());
+
         this.appRepo = appRepo;
     }
-    
+
     @Override
     public GetApplicationsOwnedByResponse process(GetApplicationsOwnedByRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         LOG.debug("Received request to GetApplicationsOwnedBy {}", request);
-        
+
         String userId = request.token.userId;
         List<Application> apps = appRepo.getApplicationsOwnedBy(userId)
-            .parallelStream()
-            .sorted(comparing(Application::getName))
-            .collect(toList());
-        
+                                        .parallelStream()
+                                        .sorted(comparing(Application::getName))
+                                        .collect(toList());
+
         LOG.debug("Found {} applications owned by {}", apps.size(), userId);
-        
+
         return new GetApplicationsOwnedByResponse(apps);
     }
-    
+
     private AlchemyAssertion<GetApplicationsOwnedByRequest> good()
     {
         return request ->
         {
             checkThat(request)
-                .usingMessage("missing request")
-                .is(notNull());
-            
+                    .usingMessage("missing request")
+                    .is(notNull());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .usingMessage("token missing userId")
-                .is(nonEmptyString());
-            
+                    .usingMessage("token missing userId")
+                    .is(nonEmptyString());
+
             checkThat(request.token.userId)
-                .is(validUserId());
+                    .is(validUserId());
         };
     }
-    
+
 }

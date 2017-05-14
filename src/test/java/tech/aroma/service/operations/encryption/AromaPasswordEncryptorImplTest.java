@@ -33,26 +33,25 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.HEXADECIMAL;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class AromaPasswordEncryptorImplTest 
+public class AromaPasswordEncryptorImplTest
 {
-    
+
     @Mock
     private PasswordEncryptor encryptor;
-    
+
     @GenerateString(ALPHABETIC)
     private String password;
-    
+
     @GenerateString(HEXADECIMAL)
     private String encrypted;
 
     private AromaPasswordEncryptorImpl instance;
-    
-    
+
+
     @Before
     public void setUp() throws Exception
     {
@@ -63,23 +62,23 @@ public class AromaPasswordEncryptorImplTest
     private void setupData() throws Exception
     {
         when(encryptor.encryptPassword(password))
-            .thenReturn(encrypted);
-        
+                .thenReturn(encrypted);
+
         when(encryptor.checkPassword(password, encrypted))
-            .thenReturn(true);
+                .thenReturn(true);
     }
 
     private void setupMocks() throws Exception
     {
         instance = new AromaPasswordEncryptorImpl(encryptor);
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
     {
         assertThrows(() -> new AromaPasswordEncryptorImpl(null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -88,27 +87,27 @@ public class AromaPasswordEncryptorImplTest
         String result = instance.encryptPassword(password);
         assertThat(result, is(encrypted));
     }
-    
+
     @DontRepeat
     @Test
     public void testEncryptPasswordWhenFails() throws Exception
     {
         when(encryptor.encryptPassword(password))
-            .thenThrow(new RuntimeException());
-        
+                .thenThrow(new RuntimeException());
+
         assertThrows(() -> instance.encryptPassword(password))
-            .isInstanceOf(TException.class);
+                .isInstanceOf(TException.class);
     }
-    
+
     @DontRepeat
     @Test
     public void testEncryptPasswordWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.encryptPassword(null))
-            .isInstanceOf(InvalidCredentialsException.class);
-        
+                .isInstanceOf(InvalidCredentialsException.class);
+
         assertThrows(() -> instance.encryptPassword(""))
-            .isInstanceOf(InvalidCredentialsException.class);
+                .isInstanceOf(InvalidCredentialsException.class);
     }
 
     @Test
@@ -117,26 +116,26 @@ public class AromaPasswordEncryptorImplTest
         boolean result = instance.match(password, encrypted);
         assertThat(result, is(true));
     }
-    
+
     @Test
     public void testMatchWhenDontMatch() throws Exception
     {
         when(encryptor.checkPassword(password, encrypted))
-            .thenReturn(false);
-        
+                .thenReturn(false);
+
         boolean result = instance.match(password, encrypted);
         assertThat(result, is(false));
     }
-    
+
     @DontRepeat
     @Test
     public void testMatchWhenFails() throws Exception
     {
         when(encryptor.checkPassword(password, encrypted))
-            .thenThrow(new RuntimeException());
-        
+                .thenThrow(new RuntimeException());
+
         assertThrows(() -> instance.match(password, encrypted))
-            .isInstanceOf(TException.class);
+                .isInstanceOf(TException.class);
     }
 
 }

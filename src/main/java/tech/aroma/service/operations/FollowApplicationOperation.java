@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
@@ -41,13 +41,12 @@ import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
 /**
- *
  * @author SirWellington
  */
 final class FollowApplicationOperation implements ThriftOperation<FollowApplicationRequest, FollowApplicationResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(FollowApplicationOperation.class);
-    
+
     private final ActivityRepository activityRepo;
     private final ApplicationRepository appRepo;
     private final FollowerRepository followRepo;
@@ -55,36 +54,36 @@ final class FollowApplicationOperation implements ThriftOperation<FollowApplicat
 
     @Inject
     FollowApplicationOperation(ActivityRepository activityRepo,
-                               ApplicationRepository appRepo, 
-                               FollowerRepository followRepo, 
+                               ApplicationRepository appRepo,
+                               FollowerRepository followRepo,
                                UserRepository userRepo)
     {
         checkThat(activityRepo, appRepo, followRepo, userRepo)
-            .are(notNull());
-        
+                .are(notNull());
+
         this.activityRepo = activityRepo;
         this.appRepo = appRepo;
         this.followRepo = followRepo;
         this.userRepo = userRepo;
     }
-    
+
     @Override
     public FollowApplicationResponse process(FollowApplicationRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         String appId = request.applicationId;
         Application app = appRepo.getById(appId);
-        
+
         String userId = request.token.userId;
         User user = userRepo.getUser(userId);
-        
+
         followRepo.saveFollowing(user, app);
         notifyOwnersOfNewFollower(user, app);
         LOG.debug("Following of App {} by User {} successfully saved", app, user);
-        
+
         return new FollowApplicationResponse();
     }
 
@@ -93,22 +92,22 @@ final class FollowApplicationOperation implements ThriftOperation<FollowApplicat
         return request ->
         {
             checkThat(request).is(notNull());
-            
+
             checkThat(request.applicationId)
-                .usingMessage("missing applicationId")
-                .is(nonEmptyString())
-                .usingMessage("applicationId must be a UUID")
-                .is(validUUID());
-            
+                    .usingMessage("missing applicationId")
+                    .is(nonEmptyString())
+                    .usingMessage("applicationId must be a UUID")
+                    .is(validUUID());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .usingMessage("User Token missing userId")
-                .is(nonEmptyString())
-                .usingMessage("userId in token must be a UUID")
-                .is(validUUID());
+                    .usingMessage("User Token missing userId")
+                    .is(nonEmptyString())
+                    .usingMessage("userId in token must be a UUID")
+                    .is(validUUID());
         };
     }
 
@@ -117,8 +116,8 @@ final class FollowApplicationOperation implements ThriftOperation<FollowApplicat
         Event event = createEventToNotifyOwners(follower, app);
 
         app.owners.stream()
-            .map(id -> new User().setUserId(id))
-            .forEach(owner -> this.tryToNotify(owner, event));
+                  .map(id -> new User().setUserId(id))
+                  .forEach(owner -> this.tryToNotify(owner, event));
     }
 
     private Event createEventToNotifyOwners(User follower, Application app)
@@ -126,13 +125,13 @@ final class FollowApplicationOperation implements ThriftOperation<FollowApplicat
         EventType eventType = createEventTypeFor(follower, app);
 
         return new Event()
-            .setApplication(app)
-            .setApplicationId(app.applicationId)
-            .setActor(follower)
-            .setUserIdOfActor(follower.userId)
-            .setTimestamp(now().toEpochMilli())
-            .setEventId(one(uuids))
-            .setEventType(eventType);
+                .setApplication(app)
+                .setApplicationId(app.applicationId)
+                .setActor(follower)
+                .setUserIdOfActor(follower.userId)
+                .setTimestamp(now().toEpochMilli())
+                .setEventId(one(uuids))
+                .setEventType(eventType);
     }
 
     private void tryToNotify(User user, Event event)
@@ -150,7 +149,7 @@ final class FollowApplicationOperation implements ThriftOperation<FollowApplicat
     private EventType createEventTypeFor(User follower, Application app)
     {
         ApplicationFollowed appFollowed = new ApplicationFollowed()
-            .setMessage(follower.firstName + " has followed " + app.name);
+                .setMessage(follower.firstName + " has followed " + app.name);
 
         EventType eventType = new EventType();
         eventType.setApplicationFollowed(appFollowed);

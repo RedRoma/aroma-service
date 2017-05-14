@@ -37,26 +37,25 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class UnregisterDeviceOperationTest 
+public class UnregisterDeviceOperationTest
 {
-  
+
     @Mock
     private UserRepository userRepo;
 
     @Mock
     private UserPreferencesRepository userPreferencesRepo;
 
-    
+
     private UnregisterDeviceOperation instance;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
     @GeneratePojo
     private UnregisterDeviceRequest request;
 
@@ -65,10 +64,10 @@ public class UnregisterDeviceOperationTest
     @Before
     public void setUp() throws Exception
     {
-        
+
         setupData();
         setupMocks();
-        
+
         instance = new UnregisterDeviceOperation(userRepo, userPreferencesRepo);
         verifyZeroInteractions(userRepo, userPreferencesRepo);
     }
@@ -77,7 +76,7 @@ public class UnregisterDeviceOperationTest
     private void setupData() throws Exception
     {
         device = one(mobileDevices());
-        
+
         request.device = device;
         request.token.userId = userId;
     }
@@ -85,10 +84,10 @@ public class UnregisterDeviceOperationTest
     private void setupMocks() throws Exception
     {
         when(userRepo.containsUser(userId)).thenReturn(true);
-        
+
     }
-    
-      @DontRepeat
+
+    @DontRepeat
     @Test
     public void testConstructor() throws Exception
     {
@@ -104,58 +103,58 @@ public class UnregisterDeviceOperationTest
 
         verify(userRepo).containsUser(userId);
         verify(userPreferencesRepo).deleteMobileDevice(userId, device);
-        
+
     }
-    
+
     @Test
     public void testProcessWhenUserDoesNotExist() throws Exception
     {
         when(userRepo.containsUser(userId))
-            .thenReturn(false);
-        
+                .thenReturn(false);
+
         assertThrows(() -> instance.process(request)).isInstanceOf(UserDoesNotExistException.class);
         verifyZeroInteractions(userPreferencesRepo);
     }
-    
+
     @Test
     public void testWhenDeviceRepoFails() throws Exception
     {
         doThrow(new OperationFailedException())
-            .when(userPreferencesRepo)
-            .deleteMobileDevice(userId, device);
-        
+                .when(userPreferencesRepo)
+                .deleteMobileDevice(userId, device);
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testWhenUserRepoFails() throws Exception
     {
         when(userRepo.containsUser(userId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
-        
+                .isInstanceOf(OperationFailedException.class);
+
         verifyZeroInteractions(userPreferencesRepo);
     }
-    
+
     @DontRepeat
     @Test
     public void testProcessWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null)).isInstanceOf(InvalidArgumentException.class);
-        
+
         UnregisterDeviceRequest requestWithoutDevice = new UnregisterDeviceRequest(request);
         requestWithoutDevice.unsetDevice();
         assertThrows(() -> instance.process(requestWithoutDevice)).isInstanceOf(InvalidArgumentException.class);
-        
+
         UnregisterDeviceRequest emptyRequest = new UnregisterDeviceRequest();
         assertThrows(() -> instance.process(emptyRequest)).isInstanceOf(InvalidArgumentException.class);
-        
+
         UnregisterDeviceRequest requestWithoutToken = new UnregisterDeviceRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken)).isInstanceOf(InvalidArgumentException.class);
     }
- 
+
 }

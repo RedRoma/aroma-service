@@ -73,7 +73,7 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
                                    Function<AuthenticationToken, ApplicationToken> tokenMapper)
     {
         checkThat(authenticationService, appRepo, tokenRepo, tokenMapper)
-            .are(notNull());
+                .are(notNull());
 
         this.authenticationService = authenticationService;
         this.appRepo = appRepo;
@@ -85,16 +85,16 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
     public RenewApplicationTokenResponse process(RenewApplicationTokenRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String userId = request.token.userId;
         String appId = request.applicationId;
         Application app = appRepo.getById(appId);
 
         checkThat(userId)
-            .throwing(UnauthorizedException.class)
-            .is(elementInCollection(app.owners));
+                .throwing(UnauthorizedException.class)
+                .is(elementInCollection(app.owners));
 
         AuthenticationToken currentToken = getCurrentTokenFor(app);
 
@@ -106,7 +106,7 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
         ApplicationToken appToken = tokenMapper.apply(currentToken);
 
         return new RenewApplicationTokenResponse()
-            .setApplicationToken(appToken);
+                .setApplicationToken(appToken);
 
     }
 
@@ -115,18 +115,18 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
         return request ->
         {
             checkThat(request)
-                .usingMessage("request is missing")
-                .is(notNull());
-            
+                    .usingMessage("request is missing")
+                    .is(notNull());
+
             checkThat(request.applicationId)
-                .is(validApplicationId());
-            
+                    .is(validApplicationId());
+
             checkThat(request.token)
-                .is(notNull());
-            
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .usingMessage("Request is missing userId in token")
-                .is(nonEmptyString());
+                    .usingMessage("Request is missing userId in token")
+                    .is(nonEmptyString());
         };
     }
 
@@ -135,12 +135,12 @@ final class RenewApplicationTokenOperation implements ThriftOperation<RenewAppli
         List<AuthenticationToken> tokens = tokenRepo.getTokensBelongingTo(app.applicationId);
 
         checkThat(tokens)
-            .throwing(InvalidArgumentException.class)
-            .usingMessage(app.name + " currently has no tokens. Recreate one instead.")
-            .is(nonEmptyList())
-            .throwing(OperationFailedException.class)
-            .usingMessage(app.name + " currently has more than one token.")
-            .is(collectionOfSize(1));
+                .throwing(InvalidArgumentException.class)
+                .usingMessage(app.name + " currently has no tokens. Recreate one instead.")
+                .is(nonEmptyList())
+                .throwing(OperationFailedException.class)
+                .usingMessage(app.name + " currently has more than one token.")
+                .is(collectionOfSize(1));
 
         AuthenticationToken currentToken = tokens.get(0);
         return currentToken;

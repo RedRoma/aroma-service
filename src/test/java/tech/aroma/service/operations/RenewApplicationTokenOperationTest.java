@@ -52,7 +52,6 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(100)
@@ -65,7 +64,7 @@ public class RenewApplicationTokenOperationTest
 
     @Mock
     private ApplicationRepository appRepo;
-    
+
     @Mock
     private TokenRepository tokenRepo;
 
@@ -86,7 +85,7 @@ public class RenewApplicationTokenOperationTest
     private String appId;
 
     private String tokenId;
-    
+
     @Captor
     private ArgumentCaptor<AuthenticationToken> captor;
 
@@ -101,7 +100,7 @@ public class RenewApplicationTokenOperationTest
         setupData();
         setupMocks();
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
@@ -116,23 +115,23 @@ public class RenewApplicationTokenOperationTest
     public void testProcess() throws Exception
     {
         long expectedExpirationTime = Instant.now()
-            .plusSeconds(TimeFunctions.toSeconds(AromaServiceConstants.DEFAULT_APP_TOKEN_LIFETIME))
-            .toEpochMilli();
-        
+                                             .plusSeconds(TimeFunctions.toSeconds(AromaServiceConstants.DEFAULT_APP_TOKEN_LIFETIME))
+                                             .toEpochMilli();
+
         long delta = 100;
-        
+
         RenewApplicationTokenResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         verify(tokenRepo).saveToken(captor.capture());
-        
+
         AuthenticationToken savedToken = captor.getValue();
         assertThat(savedToken, is(authToken));
-        
+
         checkThat(savedToken.timeOfExpiration)
-            .is(greaterThanOrEqualTo(expectedExpirationTime - delta))
-            .is(lessThanOrEqualTo(expectedExpirationTime + delta));
-        
+                .is(greaterThanOrEqualTo(expectedExpirationTime - delta))
+                .is(lessThanOrEqualTo(expectedExpirationTime + delta));
+
         assertThat(response.applicationToken, is(appToken));
     }
 
@@ -142,7 +141,7 @@ public class RenewApplicationTokenOperationTest
         app.owners.remove(userId);
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(UnauthorizedException.class);
     }
 
     @DontRepeat
@@ -150,21 +149,21 @@ public class RenewApplicationTokenOperationTest
     public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RenewApplicationTokenRequest emptyRequest = new RenewApplicationTokenRequest();
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RenewApplicationTokenRequest requestWithoutToken = new RenewApplicationTokenRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RenewApplicationTokenRequest requestWithoutAppId = new RenewApplicationTokenRequest(request);
         requestWithoutAppId.unsetApplicationId();
         assertThrows(() -> instance.process(requestWithoutAppId))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
     }
 
@@ -174,16 +173,16 @@ public class RenewApplicationTokenOperationTest
         when(appRepo.getById(appId)).thenReturn(app);
 
         InvalidateTokenRequest invalidateRequest = new InvalidateTokenRequest()
-            .setBelongingTo(appId);
-        
+                .setBelongingTo(appId);
+
         when(authenticationService.invalidateToken(invalidateRequest))
-            .thenReturn(new InvalidateTokenResponse());
+                .thenReturn(new InvalidateTokenResponse());
 
         when(authenticationService.createToken(Mockito.any()))
-            .thenReturn(new CreateTokenResponse(authToken));
-        
+                .thenReturn(new CreateTokenResponse(authToken));
+
         when(tokenRepo.getTokensBelongingTo(appId))
-            .thenReturn(Lists.createFrom(authToken));
+                .thenReturn(Lists.createFrom(authToken));
     }
 
     private void setupData()

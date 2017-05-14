@@ -42,7 +42,7 @@ import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertio
 /**
  * This Operation deletes an App's existing token and creates a new one.
  * The Token's Lifetime should also be refreshed.
- * 
+ *
  * @author SirWellington
  */
 final class RecreateApplicationTokenOperation implements ThriftOperation<RecreateApplicationTokenRequest, RecreateApplicationTokenResponse>
@@ -56,12 +56,12 @@ final class RecreateApplicationTokenOperation implements ThriftOperation<Recreat
     private final Function<AuthenticationToken, ApplicationToken> tokenMapper;
 
     @Inject
-    RecreateApplicationTokenOperation(AuthenticationService.Iface authenticationService, 
-                                   ApplicationRepository appRepo,
-                                   Function<AuthenticationToken, ApplicationToken> tokenMapper)
+    RecreateApplicationTokenOperation(AuthenticationService.Iface authenticationService,
+                                      ApplicationRepository appRepo,
+                                      Function<AuthenticationToken, ApplicationToken> tokenMapper)
     {
         checkThat(authenticationService, appRepo, tokenMapper)
-            .is(notNull());
+                .is(notNull());
 
         this.authenticationService = authenticationService;
         this.appRepo = appRepo;
@@ -72,24 +72,24 @@ final class RecreateApplicationTokenOperation implements ThriftOperation<Recreat
     public RecreateApplicationTokenResponse process(RecreateApplicationTokenRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String appId = request.applicationId;
         Application app = appRepo.getById(appId);
 
         String userId = request.token.userId;
         checkThat(userId)
-            .throwing(UnauthorizedException.class)
-            .is(elementInCollection(app.owners));
+                .throwing(UnauthorizedException.class)
+                .is(elementInCollection(app.owners));
 
         deleteTokensFor(appId);
-        
+
         ApplicationToken newToken = createNewTokenFor(app);
-        
+
         app.setTimeOfTokenExpiration(newToken.timeOfExpiration);
         appRepo.saveApplication(app);
-        
+
         return new RecreateApplicationTokenResponse().setApplicationToken(newToken);
     }
 
@@ -98,23 +98,23 @@ final class RecreateApplicationTokenOperation implements ThriftOperation<Recreat
         return request ->
         {
             checkThat(request).is(notNull());
-            
+
             checkThat(request.applicationId)
-                .is(validApplicationId());
-            
+                    .is(validApplicationId());
+
             checkThat(request.token)
-                .usingMessage("missing user token")
-                .is(notNull());
-            
+                    .usingMessage("missing user token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
+                    .is(validUserId());
         };
     }
 
     private void deleteTokensFor(String appId) throws OperationFailedException
     {
         InvalidateTokenRequest request = new InvalidateTokenRequest()
-            .setBelongingTo(appId);
+                .setBelongingTo(appId);
 
         try
         {
@@ -125,7 +125,7 @@ final class RecreateApplicationTokenOperation implements ThriftOperation<Recreat
             LOG.error("Failed to delete all tokens for App {}", appId, ex);
             throw new OperationFailedException("Could not delete existing tokens for App: " + ex.getMessage());
         }
-        
+
         LOG.debug("Successfully deleted tokens for App {}", appId);
     }
 
@@ -147,9 +147,9 @@ final class RecreateApplicationTokenOperation implements ThriftOperation<Recreat
         AuthenticationToken authToken = response.token;
 
         checkThat(authToken)
-            .throwing(OperationFailedException.class)
-            .usingMessage("Authentication Service returned incomplete Token")
-            .is(completeToken());
+                .throwing(OperationFailedException.class)
+                .usingMessage("Authentication Service returned incomplete Token")
+                .is(completeToken());
 
         return tokenMapper.apply(authToken);
     }
@@ -159,11 +159,11 @@ final class RecreateApplicationTokenOperation implements ThriftOperation<Recreat
         LengthOfTime timeToLive = DEFAULT_TOKEN_LIFETIME;
 
         return new CreateTokenRequest()
-            .setOwnerId(app.applicationId)
-            .setDesiredTokenType(TokenType.APPLICATION)
-            .setLifetime(timeToLive)
-            .setOrganizationId(app.organizationId)
-            .setOwnerName(app.name);
+                .setOwnerId(app.applicationId)
+                .setDesiredTokenType(TokenType.APPLICATION)
+                .setLifetime(timeToLive)
+                .setOrganizationId(app.organizationId)
+                .setOwnerName(app.name);
     }
 
 }

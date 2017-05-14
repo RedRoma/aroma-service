@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
@@ -44,7 +44,6 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
 
 /**
- *
  * @author SirWellington
  */
 final class GetReactionsOperation implements ThriftOperation<GetReactionsRequest, GetReactionsResponse>
@@ -59,33 +58,33 @@ final class GetReactionsOperation implements ThriftOperation<GetReactionsRequest
     GetReactionsOperation(ApplicationRepository appRepo, ReactionRepository reactionsRepo, UserRepository userRepo)
     {
         checkThat(appRepo, reactionsRepo, userRepo)
-            .are(notNull());
-        
+                .are(notNull());
+
         this.appRepo = appRepo;
         this.reactionsRepo = reactionsRepo;
         this.userRepo = userRepo;
     }
-    
+
     @Override
     public GetReactionsResponse process(GetReactionsRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         String userId = request.token.userId;
-        
+
         checkThat(userRepo.containsUser(userId))
-            .throwing(UserDoesNotExistException.class)
-            .is(trueStatement());
-        
+                .throwing(UserDoesNotExistException.class)
+                .is(trueStatement());
+
         List<Reaction> reactions;
-        
+
         if (request.isSetForAppId())
         {
             String appId = request.forAppId;
             Application app = appRepo.getById(appId);
-            
+
             if (!app.owners.contains(userId))
             {
                 reactions = Lists.emptyList();
@@ -94,46 +93,46 @@ final class GetReactionsOperation implements ThriftOperation<GetReactionsRequest
             else
             {
                 reactions = reactionsRepo.getReactionsForApplication(appId)
-                    .stream()
-                    .collect(toList());
-                
+                                         .stream()
+                                         .collect(toList());
+
                 LOG.debug("Found {} reactions stored for app {}", reactions.size(), appId);
             }
-            
+
         }
-        else        
+        else
         {
             reactions = reactionsRepo.getReactionsForUser(userId)
-                .stream()
-                .collect(toList());
-            
+                                     .stream()
+                                     .collect(toList());
+
             LOG.debug("Found {} reactions stored for user {}", reactions.size(), userId);
         }
-        
-        
+
+
         return new GetReactionsResponse().setReactions(reactions);
     }
-    
+
     private AlchemyAssertion<GetReactionsRequest> good()
     {
         return request ->
         {
             checkThat(request).is(notNull());
-            
+
             checkThat(request.token)
-                .is(notNull());
-            
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
-            
+                    .is(validUserId());
+
             if (request.isSetForAppId())
             {
                 checkThat(request.forAppId)
-                    .is(validApplicationId());
+                        .is(validApplicationId());
             }
         };
     }
-    
+
     private AlchemyAssertion<String> userIdInRepo(UserRepository userRepo)
     {
         return userId ->
@@ -152,5 +151,5 @@ final class GetReactionsOperation implements ThriftOperation<GetReactionsRequest
             }
         };
     }
-    
+
 }

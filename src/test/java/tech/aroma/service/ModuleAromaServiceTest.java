@@ -40,17 +40,17 @@ import static org.mockito.Mockito.*;
 /**
  * This Test Class can be considered an Integration level test, because it tests the validity of
  * the Dependency Injection Framework and Object Graph.
- * 
+ *
  * @author SirWellington
  */
 @RunWith(AlchemyTestRunner.class)
-public class ModuleAromaServiceTest 
+public class ModuleAromaServiceTest
 {
-    
+
     private ModuleMemoryDataRepositories dataModule;
     private ModuleEncryptionMaterialsDev encryptionModule;
     private ModuleAromaService instance;
-    
+
     @Before
     public void setUp()
     {
@@ -68,7 +68,7 @@ public class ModuleAromaServiceTest
                                                  restOfDependencies);
 
         assertThat(injector, notNullValue());
-        
+
         AromaService.Iface service = injector.getInstance(AromaService.Iface.class);
         assertThat(service, notNullValue());
         service.getApiVersion();
@@ -80,19 +80,19 @@ public class ModuleAromaServiceTest
         AlchemyHttp result = instance.provideAlchemyHttpClient();
         assertThat(result, notNullValue());
     }
-    
+
     private final Module restOfDependencies = new AbstractModule()
     {
         @Override
         protected void configure()
         {
             bind(AuthenticationService.Iface.class)
-                .toInstance(mock(AuthenticationService.Iface.class));
-            
+                    .toInstance(mock(AuthenticationService.Iface.class));
+
             bind(EmailService.Iface.class)
-                .toInstance(NoOpEmailService.newInstance());
+                    .toInstance(NoOpEmailService.newInstance());
         }
-        
+
         @Provides
         @AromaAnnotations.SuperUsers
         Set<String> provideSuperUsers()

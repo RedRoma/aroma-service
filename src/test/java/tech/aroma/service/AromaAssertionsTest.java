@@ -35,25 +35,24 @@ import static tech.sirwellington.alchemy.generator.StringGenerators.alphanumeric
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class AromaAssertionsTest 
+public class AromaAssertionsTest
 {
 
     @Before
     public void setUp()
     {
     }
-    
+
     @DontRepeat
     @Test
     public void testCannotInstantiate()
     {
         assertThrows(() -> AromaAssertions.class.newInstance())
-            .isInstanceOf(IllegalAccessException.class);
+                .isInstanceOf(IllegalAccessException.class);
     }
 
     @Test
@@ -61,30 +60,30 @@ public class AromaAssertionsTest
     {
         SignInRequest request = pojos(SignInRequest.class).get();
         AromaAssertions.notMissing().check(request);
-        
+
         assertThrows(() -> AromaAssertions.notMissing().check(null))
-            .isInstanceOf(FailedAssertionException.class);
+                .isInstanceOf(FailedAssertionException.class);
     }
 
-   
+
     @Test
     public void testCheckNotNull() throws Exception
     {
         ProvisionApplicationRequest request = pojos(ProvisionApplicationRequest.class).get();
         AromaAssertions.checkNotNull(request);
-        
+
         assertThrows(() -> AromaAssertions.checkNotNull(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
     public void testWithMessage()
     {
         String message = one(alphanumericString());
-        
+
         ExceptionMapper<InvalidArgumentException> result = AromaAssertions.withMessage(message);
         assertThat(result, notNullValue());
-        
+
         InvalidArgumentException ex = result.apply(null);
         assertThat(ex, notNullValue());
         assertThat(ex.getMessage(), is(message));

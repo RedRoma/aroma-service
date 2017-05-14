@@ -25,11 +25,10 @@ import tech.sirwellington.alchemy.annotations.arguments.Required;
 
 
 /**
- *
  * @author SirWellington
  */
 @ImplementedBy(ThumbnailCreatorImpl.class)
-public interface ThumbnailCreator 
+public interface ThumbnailCreator
 {
     Image createThumbnail(@Required Image originalImage, @Required Dimension desiredSize) throws TException;
 }

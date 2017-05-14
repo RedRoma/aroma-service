@@ -39,7 +39,6 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(100)
@@ -49,10 +48,10 @@ public class GetFullMessageOperationTest
 
     @Mock
     private ApplicationRepository appRepo;
-    
+
     @Mock
     private FollowerRepository followerRepo;
-    
+
     @Mock
     private MessageRepository messageRepo;
 
@@ -60,7 +59,7 @@ public class GetFullMessageOperationTest
     private GetFullMessageRequest request;
 
     private Application app;
-    
+
     @GeneratePojo
     private Message message;
 
@@ -69,10 +68,10 @@ public class GetFullMessageOperationTest
 
     @GenerateString(UUID)
     private String messageId;
-    
+
     @GenerateString(ALPHABETIC)
     private String badId;
-    
+
     @GenerateString(UUID)
     private String userId;
 
@@ -104,72 +103,72 @@ public class GetFullMessageOperationTest
         assertThat(response, notNullValue());
         assertThat(response.fullMessage, is(message));
     }
-    
+
     @Test
     public void testWhenUserIsOnlyAFollower() throws Exception
     {
         setupWhereUserIsFollowerButNotOwner();
-        
+
         GetFullMessageResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.fullMessage, is(message));
     }
-    
+
     @DontRepeat
     @Test
     public void testWhenUserIsNeitherOwnerNorFollower() throws Exception
     {
         setupWhereUserIsNotAFollowerOrOwner();
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(MessageDoesNotExistException.class);
+                .isInstanceOf(MessageDoesNotExistException.class);
     }
-    
+
     @DontRepeat
     @Test
     public void testWhenAppDoesNotExist() throws Exception
     {
         setupWhereAppDoesNotExist();
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(ApplicationDoesNotExistException.class);
+                .isInstanceOf(ApplicationDoesNotExistException.class);
     }
-    
+
     @Test
     public void testWhenMessageNotExists() throws Exception
     {
         when(messageRepo.getMessage(appId, messageId))
-            .thenThrow(new MessageDoesNotExistException());
-        
+                .thenThrow(new MessageDoesNotExistException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(MessageDoesNotExistException.class);
+                .isInstanceOf(MessageDoesNotExistException.class);
     }
-    
+
     @DontRepeat
     @Test
     public void testWithEmptyRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         assertThrows(() -> instance.process(new GetFullMessageRequest()))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
     }
-    
+
     @Test
     public void testWithBadIds() throws Exception
     {
         request.messageId = badId;
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         request.messageId = messageId;
         request.applicationId = badId;
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @DontRepeat
@@ -178,21 +177,21 @@ public class GetFullMessageOperationTest
     {
         app.owners.remove(userId);
         setupWhereFollowerRepoFails();
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     private void setupData() throws Exception
     {
         app = one(applications());
         app.applicationId = appId;
         app.owners.add(userId);
-        
+
         request.messageId = messageId;
         request.applicationId = appId;
         request.token.userId = userId;
-        
+
         message.messageId = messageId;
         message.applicationId = appId;
     }
@@ -200,37 +199,37 @@ public class GetFullMessageOperationTest
     private void setupMocks() throws Exception
     {
         when(messageRepo.getMessage(appId, messageId))
-            .thenReturn(message);
-        
+                .thenReturn(message);
+
         when(appRepo.getById(appId)).thenReturn(app);
     }
-    
+
     private void setupWhereAppDoesNotExist() throws Exception
     {
         when(appRepo.getById(appId))
-            .thenThrow(new ApplicationDoesNotExistException());
+                .thenThrow(new ApplicationDoesNotExistException());
     }
-    
+
     private void setupWhereUserIsNotAFollowerOrOwner() throws Exception
     {
         app.owners.remove(userId);
-        
+
         when(followerRepo.followingExists(userId, appId))
-            .thenReturn(false);
+                .thenReturn(false);
     }
-    
+
     private void setupWhereUserIsFollowerButNotOwner() throws Exception
     {
         app.owners.remove(userId);
-        
+
         when(followerRepo.followingExists(userId, appId))
-            .thenReturn(true);
+                .thenReturn(true);
     }
-    
+
     private void setupWhereFollowerRepoFails() throws Exception
     {
         when(followerRepo.followingExists(userId, appId))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
     }
 
 }

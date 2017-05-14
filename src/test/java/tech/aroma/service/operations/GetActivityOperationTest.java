@@ -44,61 +44,60 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(100)
 @RunWith(AlchemyTestRunner.class)
-public class GetActivityOperationTest 
+public class GetActivityOperationTest
 {
 
     @Mock
     private ActivityRepository activityRepo;
-    
+
     @Mock
     private UserRepository userRepo;
-    
+
     @GeneratePojo
     private GetActivityRequest request;
-    
+
     private List<Event> events;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
     @GeneratePojo
     private User user;
-    
+
     @GenerateString(ALPHABETIC)
     private String badId;
-    
+
     private GetActivityOperation instance;
-    
+
     @Before
     public void setUp() throws Exception
     {
         instance = new GetActivityOperation(activityRepo, userRepo);
-        
+
         setupData();
         setupMocks();
     }
-    
+
     private void setupData()
     {
         events = listOf(events());
         user.userId = userId;
-        
+
         request.token.userId = userId;
     }
-    
+
     private void setupMocks() throws Exception
     {
         User expected = new User().setUserId(userId);
         when(activityRepo.getAllEventsFor(expected))
-            .thenReturn(events);
+                .thenReturn(events);
     }
 
-    
+
     @DontRepeat
     @Test
     public void testConstructor()
@@ -106,55 +105,55 @@ public class GetActivityOperationTest
         assertThrows(() -> new GetActivityOperation(null, userRepo));
         assertThrows(() -> new GetActivityOperation(activityRepo, null));
     }
-    
+
     @Test
     public void testProcess() throws Exception
     {
         GetActivityResponse response = instance.process(request);
-        
+
         assertThat(response, notNullValue());
         assertThat(response.events, is(events));
-        
+
     }
-    
+
     @Test
     public void testWhenActivityRepoFails() throws Exception
     {
         when(activityRepo.getAllEventsFor(Mockito.any(User.class)))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         assertThrows(() -> instance.process(new GetActivityRequest()))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         GetActivityRequest requestMissingToken = new GetActivityRequest(request);
         requestMissingToken.unsetToken();
-        
+
         assertThrows(() -> instance.process(requestMissingToken))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         GetActivityRequest requestWithBadId = new GetActivityRequest(request);
         requestWithBadId.token.setUserId(badId);
         assertThrows(() -> instance.process(requestWithBadId))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
     }
-    
+
     @DontRepeat
     @Test
     public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

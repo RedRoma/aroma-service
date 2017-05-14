@@ -40,7 +40,6 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(100)
@@ -81,9 +80,10 @@ public class GetInboxOperationTest
         assertThat(response, notNullValue());
 
         List<Message> sortedMessages = messages.stream()
-            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
-            .limit(request.limit)
-            .collect(toList());
+                                               .sorted(Comparator.comparingLong(Message::getTimeMessageReceived)
+                                                                 .reversed())
+                                               .limit(request.limit)
+                                               .collect(toList());
 
         assertThat(response.messages, is(sortedMessages));
     }
@@ -93,7 +93,7 @@ public class GetInboxOperationTest
     public void testWhenNoMessages() throws Exception
     {
         when(inboxRepo.getMessagesForUser(userId))
-            .thenReturn(Lists.emptyList());
+                .thenReturn(Lists.emptyList());
 
         GetInboxResponse response = instance.process(request);
         assertThat(response.messages, is(empty()));
@@ -105,7 +105,7 @@ public class GetInboxOperationTest
     public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     private void setupData()
@@ -116,7 +116,7 @@ public class GetInboxOperationTest
     private void setupMocks() throws Exception
     {
         when(inboxRepo.getMessagesForUser(userId))
-            .thenReturn(messages);
+                .thenReturn(messages);
     }
 
 }

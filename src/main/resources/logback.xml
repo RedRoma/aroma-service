@@ -1,6 +1,6 @@
 <configuration>
     <contextName>Aroma</contextName>
-    <jmxConfigurator />
+    <jmxConfigurator/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -30,8 +30,8 @@
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
-    
-    <logger name="tech.aroma.service" level="debug" />
 
-    
+    <logger name="tech.aroma.service" level="debug"/>
+
+
 </configuration>

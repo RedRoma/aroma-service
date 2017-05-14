@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
@@ -29,7 +29,6 @@ import static tech.aroma.service.AromaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
- *
  * @author SirWellington
  */
 final class RegisterHealthCheckOperation implements ThriftOperation<RegisterHealthCheckRequest, RegisterHealthCheckResponse>
@@ -40,7 +39,7 @@ final class RegisterHealthCheckOperation implements ThriftOperation<RegisterHeal
     public RegisterHealthCheckResponse process(RegisterHealthCheckRequest request) throws TException
     {
         checkNotNull(request);
-        
+
         return pojos(RegisterHealthCheckResponse.class).get();
     }
 

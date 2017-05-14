@@ -28,17 +28,16 @@ import static org.junit.Assert.assertThat;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class AromaPasswordEncryptorTest 
+public class AromaPasswordEncryptorTest
 {
-    
+
     @Mock
     private PasswordEncryptor encryptor;
-    
+
     @Before
     public void setUp() throws Exception
     {
@@ -62,13 +61,13 @@ public class AromaPasswordEncryptorTest
         AromaPasswordEncryptor result = AromaPasswordEncryptor.newInstance(encryptor);
         assertThat(result, notNullValue());
     }
-    
+
     @DontRepeat
     @Test
     public void testNewInstanceWithBadArgs()
     {
         assertThrows(() -> AromaPasswordEncryptor.newInstance(null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
 }

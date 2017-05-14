@@ -45,7 +45,6 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 
 /**
- *
  * @author SirWellington
  */
 @Internal
@@ -73,12 +72,12 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
     {
         checkThat(appRepo,
                   followerRepo,
-                  mediaRepo, 
+                  mediaRepo,
                   userRepo,
-                  authenticationService, 
+                  authenticationService,
                   emailService,
                   appTokenMapper)
-            .are(notNull());
+                .are(notNull());
 
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
@@ -95,8 +94,8 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         LOG.info("Received request to provision an Application", request);
 
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         AuthenticationToken authTokenForUser = getUserTokenFrom(request.token);
         User user = userRepo.getUser(authTokenForUser.ownerId);
@@ -120,21 +119,21 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         app.setTimeOfTokenExpiration(appToken.timeOfExpiration);
 
         appRepo.saveApplication(app);
-        
+
         saveOwnersAsFollowers(app);
         sendOutEmail(user, app, appToken, authTokenForUser);
-        
+
         return new ProvisionApplicationResponse()
-            .setApplicationInfo(app)
-            .setApplicationToken(appToken);
+                .setApplicationInfo(app)
+                .setApplicationToken(appToken);
 
     }
 
     private AuthenticationToken getUserTokenFrom(UserToken token) throws InvalidTokenException, OperationFailedException
     {
         GetTokenInfoRequest request = new GetTokenInfoRequest()
-            .setTokenId(token.tokenId)
-            .setTokenType(TokenType.USER);
+                .setTokenId(token.tokenId)
+                .setTokenType(TokenType.USER);
 
         GetTokenInfoResponse response;
 
@@ -153,9 +152,9 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         }
 
         checkThat(response.token)
-            .throwing(OperationFailedException.class)
-            .usingMessage("Auth service returned null response")
-            .is(notNull());
+                .throwing(OperationFailedException.class)
+                .usingMessage("Auth service returned null response")
+                .is(notNull());
 
         return response.token;
     }
@@ -168,29 +167,29 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         String appId = UUID.randomUUID().toString();
 
         return new Application()
-            .setApplicationId(appId)
-            .setName(request.applicationName)
-            .setApplicationDescription(request.applicationDescription)
-            .setOrganizationId(request.organizationId)
-            .setTier(request.tier)
-            .setProgrammingLanguage(request.programmingLanguage)
-            .setTimeOfProvisioning(now().toEpochMilli())
-            .setTotalMessagesSent(0L)
-            .setOwners(owners);
+                .setApplicationId(appId)
+                .setName(request.applicationName)
+                .setApplicationDescription(request.applicationDescription)
+                .setOrganizationId(request.organizationId)
+                .setTier(request.tier)
+                .setProgrammingLanguage(request.programmingLanguage)
+                .setTimeOfProvisioning(now().toEpochMilli())
+                .setTotalMessagesSent(0L)
+                .setOwners(owners);
     }
 
     private AuthenticationToken createAppTokenFor(Application app) throws OperationFailedException
     {
         LengthOfTime lifetime = new LengthOfTime()
-            .setUnit(TimeUnit.DAYS)
-            .setValue(180);
+                .setUnit(TimeUnit.DAYS)
+                .setValue(180);
 
         CreateTokenRequest request = new CreateTokenRequest()
-            .setDesiredTokenType(TokenType.APPLICATION)
-            .setLifetime(lifetime)
-            .setOrganizationId(app.organizationId)
-            .setOwnerId(app.applicationId)
-            .setOwnerName(app.name);
+                .setDesiredTokenType(TokenType.APPLICATION)
+                .setLifetime(lifetime)
+                .setOrganizationId(app.organizationId)
+                .setOwnerId(app.applicationId)
+                .setOwnerName(app.name);
 
         CreateTokenResponse response;
 
@@ -205,14 +204,14 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         }
 
         checkThat(response)
-            .throwing(OperationFailedException.class)
-            .usingMessage("Authentication Service returned null")
-            .is(notNull());
+                .throwing(OperationFailedException.class)
+                .usingMessage("Authentication Service returned null")
+                .is(notNull());
 
         checkThat(response.token)
-            .usingMessage("Auth Service returned incomplete token")
-            .throwing(OperationFailedException.class)
-            .is(completeToken());
+                .usingMessage("Auth Service returned incomplete token")
+                .throwing(OperationFailedException.class)
+                .is(completeToken());
 
         return response.token;
     }
@@ -222,18 +221,18 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         return request ->
         {
             checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
+                    .usingMessage("request is null")
+                    .is(notNull());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.applicationName)
-                .usingMessage("Application name is required")
-                .is(nonEmptyString())
-                .usingMessage("Application name is too long")
-                .is(stringWithLengthLessThanOrEqualTo(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH));
+                    .usingMessage("Application name is required")
+                    .is(nonEmptyString())
+                    .usingMessage("Application name is too long")
+                    .is(stringWithLengthLessThanOrEqualTo(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH));
         };
     }
 
@@ -290,22 +289,22 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
             LOG.warn("Could not save Following Information between Owner [{}] and App [{}]", owner, app, ex);
         }
     }
-    
+
     private void sendOutEmail(User user, Application app, ApplicationToken appToken, AuthenticationToken token)
     {
         EmailNewApplication newApplicationEmail = new EmailNewApplication()
-            .setApp(app)
-            .setCreator(user)
-            .setAppToken(appToken);
-        
+                .setApp(app)
+                .setCreator(user)
+                .setAppToken(appToken);
+
         EmailMessage message = new EmailMessage();
         message.setNewApp(newApplicationEmail);
-        
+
         SendEmailRequest request = new SendEmailRequest()
-            .setEmailAddress(user.email)
-            .setEmailMessage(message)
-            .setToken(token);
-        
+                .setEmailAddress(user.email)
+                .setEmailMessage(message)
+                .setToken(token);
+
         try
         {
             emailService.sendEmail(request);

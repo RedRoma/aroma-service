@@ -28,16 +28,15 @@ import static org.junit.Assert.assertThat;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class OverTheWireDecryptorTest 
+public class OverTheWireDecryptorTest
 {
     @Mock
     private PBEStringEncryptor stringEncryptor;
-    
+
     @Before
     public void setUp() throws Exception
     {
@@ -54,18 +53,19 @@ public class OverTheWireDecryptorTest
     {
 
     }
+
     @Test
     public void testNewInstance()
     {
         OverTheWireDecryptor result = OverTheWireDecryptor.newInstance(stringEncryptor);
         assertThat(result, notNullValue());
     }
-    
+
     @DontRepeat
     @Test
     public void testNewInstanceWithBadArgs()
     {
         assertThrows(() -> OverTheWireDecryptor.newInstance(null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

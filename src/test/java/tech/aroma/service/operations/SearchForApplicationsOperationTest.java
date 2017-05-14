@@ -41,7 +41,6 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -57,22 +56,22 @@ public class SearchForApplicationsOperationTest
 
     @GeneratePojo
     private SearchForApplicationsRequest request;
-    
+
     @GeneratePojo
     private Application app;
-    
+
     @GenerateString(UUID)
     private String appId;
-    
+
     @GenerateString(UUID)
     private String orgId;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
     @GenerateList(Application.class)
     private List<Application> apps;
-    
+
     @GenerateString
     private String searchTerm;
 
@@ -83,7 +82,7 @@ public class SearchForApplicationsOperationTest
     {
         instance = new SearchForApplicationsOperation(appRepo, orgRepo);
         verifyZeroInteractions(appRepo, orgRepo);
-        
+
         setupData();
         setupMocks();
     }
@@ -95,12 +94,12 @@ public class SearchForApplicationsOperationTest
         assertThat(response, notNullValue());
         assertThat(response.applications, is(apps));
     }
-    
+
     @Test
     public void testProcessWhenNoMatches() throws Exception
     {
         request.setApplicationName(one(strings()));
-        
+
         SearchForApplicationsResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.applications, is(empty()));
@@ -111,7 +110,7 @@ public class SearchForApplicationsOperationTest
     public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     private void setupData()
@@ -119,25 +118,25 @@ public class SearchForApplicationsOperationTest
         request.token.userId = userId;
         request.organizationId = orgId;
         request.applicationName = searchTerm;
-        
+
         app.organizationId = orgId;
         app.applicationId = appId;
-        
+
         apps = apps.stream()
-            .map(app -> app.setName(app.name + searchTerm))
-            .collect(toList());
+                   .map(app -> app.setName(app.name + searchTerm))
+                   .collect(toList());
     }
 
     private void setupMocks() throws TException
     {
         when(appRepo.getById(appId)).thenReturn(app);
-        
+
         when(orgRepo.containsOrganization(orgId)).thenReturn(true);
-        
+
         when(orgRepo.isMemberInOrganization(orgId, userId))
-            .thenReturn(true);
-        
+                .thenReturn(true);
+
         when(appRepo.getApplicationsByOrg(orgId))
-            .thenReturn(apps);
+                .thenReturn(apps);
     }
 }

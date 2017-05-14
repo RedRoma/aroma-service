@@ -39,7 +39,6 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -95,7 +94,7 @@ public class CheckIfDeviceIsRegisteredOperationTest
     {
         boolean deviceExists = one(booleans());
         when(userPreferencesRepo.containsMobileDevice(userId, device))
-            .thenReturn(deviceExists);
+                .thenReturn(deviceExists);
 
         CheckIfDeviceIsRegisteredResponse response = instance.process(request);
         assertThat(response.isRegistered, is(deviceExists));
@@ -107,10 +106,10 @@ public class CheckIfDeviceIsRegisteredOperationTest
     public void testProcessWhenDeviceRepoFails() throws Exception
     {
         when(userPreferencesRepo.containsMobileDevice(userId, device))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -118,10 +117,10 @@ public class CheckIfDeviceIsRegisteredOperationTest
     {
         assertThrows(() -> instance.process(null)).isInstanceOf(InvalidArgumentException.class);
         assertThrows(() -> instance.process(new CheckIfDeviceIsRegisteredRequest())).isInstanceOf(InvalidArgumentException.class);
-        
+
         CheckIfDeviceIsRegisteredRequest requestWithoutToken = new CheckIfDeviceIsRegisteredRequest();
         assertThrows(() -> instance.process(requestWithoutToken)).isInstanceOf(InvalidArgumentException.class);
-        
+
         CheckIfDeviceIsRegisteredRequest requestWithoutDevice = new CheckIfDeviceIsRegisteredRequest(request);
         requestWithoutDevice.unsetDevice();
         assertThrows(() -> instance.process(requestWithoutDevice)).isInstanceOf(InvalidArgumentException.class);

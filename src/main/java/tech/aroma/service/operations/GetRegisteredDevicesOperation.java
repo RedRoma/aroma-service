@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
@@ -38,20 +38,19 @@ import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class GetRegisteredDevicesOperation implements ThriftOperation<GetRegisteredDevicesRequest, GetRegisteredDevicesResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetRegisteredDevicesOperation.class);
-    
+
     private final UserPreferencesRepository userPreferencesRepo;
 
     @Inject
     GetRegisteredDevicesOperation(UserPreferencesRepository userPreferencesRepo)
     {
         checkThat(userPreferencesRepo).is(notNull());
-        
+
         this.userPreferencesRepo = userPreferencesRepo;
     }
 
@@ -59,13 +58,13 @@ final class GetRegisteredDevicesOperation implements ThriftOperation<GetRegister
     public GetRegisteredDevicesResponse process(GetRegisteredDevicesRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         String userId = request.token.userId;
-        
+
         Set<MobileDevice> devices = userPreferencesRepo.getMobileDevices(userId);
-        
+
         return new GetRegisteredDevicesResponse().setDevices(Lists.copy(devices));
     }
 
@@ -74,13 +73,13 @@ final class GetRegisteredDevicesOperation implements ThriftOperation<GetRegister
         return request ->
         {
             checkThat(request).is(notNull());
-            
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
+                    .is(validUserId());
         };
     }
 

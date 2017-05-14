@@ -36,7 +36,6 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 
 /**
- *
  * @author SirWellington
  */
 final class DismissMessageOperation implements ThriftOperation<DismissMessageRequest, DismissMessageResponse>
@@ -57,8 +56,8 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
     public DismissMessageResponse process(DismissMessageRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String userId = request.token.userId;
 
@@ -83,28 +82,28 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
         return request ->
         {
             checkThat(request)
-                .is(notNull());
+                    .is(notNull());
 
             checkThat(request.token)
-                .is(notNull());
+                    .is(notNull());
 
             checkThat(request.token.userId)
-                .usingMessage("token is missing userId")
-                .is(nonEmptyString())
-                .usingMessage("token userId must be a UUID")
-                .is(validUUID());
+                    .usingMessage("token is missing userId")
+                    .is(nonEmptyString())
+                    .usingMessage("token userId must be a UUID")
+                    .is(validUUID());
 
             if (request.isSetMessageId())
             {
                 checkThat(request.messageId)
-                    .is(validMessageId());
+                        .is(validMessageId());
             }
 
-            if(request.isSetMessageIds())
+            if (request.isSetMessageIds())
             {
                 request.messageIds
-                    .parallelStream()
-                    .forEach(id -> checkThat(id).is(validMessageId()));
+                        .parallelStream()
+                        .forEach(id -> checkThat(id).is(validMessageId()));
             }
         };
     }
@@ -129,7 +128,7 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
     private void deleteMessages(String userId, Set<String> messageIds)
     {
         messageIds.parallelStream()
-            .forEach(msgId -> this.deleteMessage(userId, msgId));
+                  .forEach(msgId -> this.deleteMessage(userId, msgId));
     }
 
     private void deleteMessage(String userId, String msgId)

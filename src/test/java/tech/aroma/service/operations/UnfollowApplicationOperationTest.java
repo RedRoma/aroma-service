@@ -43,7 +43,6 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -52,13 +51,13 @@ public class UnfollowApplicationOperationTest
 {
     @Mock
     private ActivityRepository activityRepo;
-    
+
     @Mock
     private ApplicationRepository appRepo;
-    
+
     @Mock
     private FollowerRepository followerRepo;
-    
+
     @Mock
     private UserRepository userRepo;
 
@@ -70,7 +69,7 @@ public class UnfollowApplicationOperationTest
 
     @GenerateString(UUID)
     private String userId;
-    
+
     @GeneratePojo
     private User user;
 
@@ -79,9 +78,9 @@ public class UnfollowApplicationOperationTest
 
     @GeneratePojo
     private Application app;
-    
+
     private UnfollowApplicationOperation instance;
-    
+
     @Captor
     private ArgumentCaptor<Event> captor;
 
@@ -100,7 +99,7 @@ public class UnfollowApplicationOperationTest
         request.setApplicationId(appId);
 
         app.applicationId = appId;
-        
+
         user.userId = userId;
     }
 
@@ -125,15 +124,15 @@ public class UnfollowApplicationOperationTest
     {
         UnfollowApplicationResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         verify(followerRepo).deleteFollowing(userId, appId);
-        
+
         for (String ownerId : app.owners)
         {
             User owner = new User().setUserId(ownerId);
-            
+
             verify(activityRepo).saveEvent(captor.capture(), eq(owner));
-            
+
             Event event = captor.getValue();
             checkEvent(event);
         }
@@ -143,50 +142,50 @@ public class UnfollowApplicationOperationTest
     public void testWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         UnfollowApplicationRequest emptyRequest = new UnfollowApplicationRequest();
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         UnfollowApplicationRequest requestMissingToken = new UnfollowApplicationRequest(request);
         requestMissingToken.unsetToken();
         assertThrows(() -> instance.process(requestMissingToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         UnfollowApplicationRequest requestWithBadAppId = new UnfollowApplicationRequest(request)
-            .setApplicationId(badId);
+                .setApplicationId(badId);
         assertThrows(() -> instance.process(requestWithBadAppId))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         UserToken badToken = new UserToken(request.token).setUserId(badId);
         UnfollowApplicationRequest requestWithBadToken = new UnfollowApplicationRequest(request)
-            .setToken(badToken);
+                .setToken(badToken);
         assertThrows(() -> instance.process(requestWithBadToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
-    
+
     @Test
     public void testWhenUserDoesNotExist() throws Exception
     {
         when(userRepo.getUser(userId))
-            .thenThrow(UserDoesNotExistException.class);
-        
+                .thenThrow(UserDoesNotExistException.class);
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
         verifyZeroInteractions(followerRepo, activityRepo);
-        
+
     }
-    
+
     @Test
     public void testWhenApplicationDoesNotExist() throws Exception
     {
         when(appRepo.getById(appId))
-            .thenThrow(new ApplicationDoesNotExistException());
-        
+                .thenThrow(new ApplicationDoesNotExistException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(ApplicationDoesNotExistException.class);
-            
+                .isInstanceOf(ApplicationDoesNotExistException.class);
+
         verifyZeroInteractions(followerRepo, activityRepo);
     }
 

@@ -35,23 +35,24 @@ final class AromaPasswordEncryptorImpl implements AromaPasswordEncryptor
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(AromaPasswordEncryptorImpl.class);
-    
+
     private PasswordEncryptor encryptor;
+
     @Inject
     AromaPasswordEncryptorImpl(PasswordEncryptor encryptor)
     {
         checkThat(encryptor).is(notNull());
-        
+
         this.encryptor = encryptor;
     }
-    
+
     @Override
     public String encryptPassword(String password) throws TException
     {
         checkThat(password)
-            .throwing(InvalidCredentialsException.class)
-            .is(nonEmptyString());
-        
+                .throwing(InvalidCredentialsException.class)
+                .is(nonEmptyString());
+
         try
         {
             return encryptor.encryptPassword(password);
@@ -62,15 +63,15 @@ final class AromaPasswordEncryptorImpl implements AromaPasswordEncryptor
             throw new InvalidCredentialsException("Could not digest password: " + ex.getMessage());
         }
     }
-    
+
     @Override
     public boolean match(String plainPassword, String existingDigestedPassword) throws TException
     {
         checkThat(plainPassword, existingDigestedPassword)
-            .throwing(InvalidCredentialsException.class)
-            .usingMessage("credentials cannot be empty")
-            .are(nonEmptyString());
-        
+                .throwing(InvalidCredentialsException.class)
+                .usingMessage("credentials cannot be empty")
+                .are(nonEmptyString());
+
         try
         {
             return encryptor.checkPassword(plainPassword, existingDigestedPassword);
@@ -81,5 +82,5 @@ final class AromaPasswordEncryptorImpl implements AromaPasswordEncryptor
             throw new OperationFailedException("Could not check credentials: " + ex.getMessage());
         }
     }
-    
+
 }

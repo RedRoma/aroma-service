@@ -40,7 +40,6 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -50,7 +49,7 @@ public class GetMediaOperationTest
 
     @Mock
     private MediaRepository mediaRepo;
-    
+
     @Mock
     private ThumbnailCreator thumbnailCreator;
 
@@ -62,16 +61,16 @@ public class GetMediaOperationTest
 
     @GeneratePojo
     private Image image;
-    
+
     @GeneratePojo
     private Image thumbnail;
 
     @GeneratePojo
     private GetMediaRequest request;
-    
+
     @GeneratePojo
     private Dimension thumbnailSize;
-    
+
     private GetMediaOperation instance;
 
     @Before
@@ -94,17 +93,17 @@ public class GetMediaOperationTest
     private void setupMocks() throws Exception
     {
         when(mediaRepo.getMedia(mediaId))
-            .thenReturn(image);
-        
+                .thenReturn(image);
+
         when(mediaRepo.getThumbnail(mediaId, thumbnailSize))
-            .thenReturn(thumbnail);
+                .thenReturn(thumbnail);
         when(mediaRepo.containsThumbnail(mediaId, thumbnailSize))
-            .thenReturn(true);
-        
+                .thenReturn(true);
+
         when(thumbnailCreator.createThumbnail(image, thumbnailSize))
-            .thenReturn(thumbnail);
+                .thenReturn(thumbnail);
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
@@ -123,94 +122,94 @@ public class GetMediaOperationTest
 
         verify(mediaRepo).getMedia(mediaId);
     }
-    
+
     @DontRepeat
     @Test
     public void testWhenMediaDoesNotExist() throws Exception
     {
         when(mediaRepo.getMedia(mediaId))
-            .thenThrow(new DoesNotExistException());
-        
+                .thenThrow(new DoesNotExistException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(DoesNotExistException.class);
+                .isInstanceOf(DoesNotExistException.class);
     }
 
     @Test
     public void testWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         GetMediaRequest emptyRequest = new GetMediaRequest();
 
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         GetMediaRequest requestWithBadId = new GetMediaRequest(request)
-            .setMediaId(badId);
+                .setMediaId(badId);
 
         assertThrows(() -> instance.process(requestWithBadId))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
-    
+
     @Test
     public void testWithBadThumbnailRequest() throws Exception
     {
         Dimension dimension = new Dimension();
         dimension.setHeight(one(negativeIntegers()))
-            .setWidth(one(negativeIntegers()));
-        
+                 .setWidth(one(negativeIntegers()));
+
         request.setDesiredThumbnailSize(dimension);
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
-    
+
     @Test
     public void testWhenThumbnailExists() throws Exception
     {
         request.setDesiredThumbnailSize(thumbnailSize);
-        
+
         GetMediaResponse response = instance.process(request);
         assertThat(response.image, is(thumbnail));
-        
+
         verify(mediaRepo).getThumbnail(mediaId, thumbnailSize);
     }
-    
+
     @Test
     public void testWhenThumbnailDoesNotExist() throws Exception
     {
         request.setDesiredThumbnailSize(thumbnailSize);
-        
+
         when(mediaRepo.containsThumbnail(mediaId, thumbnailSize)).thenReturn(false);
         when(mediaRepo.getThumbnail(mediaId, thumbnailSize))
-            .thenThrow(new DoesNotExistException());
-        
+                .thenThrow(new DoesNotExistException());
+
         GetMediaResponse response = instance.process(request);
         assertThat(response.image, is(thumbnail));
     }
-    
+
     @Test
     public void testWhenThumbnailCreationFails() throws Exception
     {
         request.setDesiredThumbnailSize(thumbnailSize);
 
         when(mediaRepo.getThumbnail(mediaId, thumbnailSize))
-            .thenThrow(new DoesNotExistException());
+                .thenThrow(new DoesNotExistException());
         when(thumbnailCreator.createThumbnail(image, thumbnailSize))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         GetMediaResponse response = instance.process(request);
         assertThat(response.image, is(image));
     }
-    
+
     @Test
     public void testWhenSavingThumbnailFails() throws Exception
     {
         doThrow(new OperationFailedException())
-            .when(mediaRepo)
-            .saveThumbnail(mediaId, thumbnailSize, thumbnail);
+                .when(mediaRepo)
+                .saveThumbnail(mediaId, thumbnailSize, thumbnail);
 
         request.setDesiredThumbnailSize(thumbnailSize);
 

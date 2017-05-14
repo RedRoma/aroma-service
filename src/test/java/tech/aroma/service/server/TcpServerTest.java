@@ -31,7 +31,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.fail;
 
 /**
- *
  * @author SirWellington
  */
 @IntegrationTest

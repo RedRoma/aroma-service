@@ -39,7 +39,6 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull
 import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThanOrEqualTo;
 
 /**
- *
  * @author SirWellington
  */
 final class GetInboxOperation implements ThriftOperation<GetInboxRequest, GetInboxResponse>
@@ -55,7 +54,7 @@ final class GetInboxOperation implements ThriftOperation<GetInboxRequest, GetInb
                       UserRepository userRepo)
     {
         checkThat(inboxRepo, userRepo)
-            .are(notNull());
+                .are(notNull());
 
         this.inboxRepo = inboxRepo;
         this.userRepo = userRepo;
@@ -68,17 +67,17 @@ final class GetInboxOperation implements ThriftOperation<GetInboxRequest, GetInb
         LOG.debug("Received request to get messages: {}", request);
 
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String userId = request.token.userId;
         int limit = request.limit == 0 ? 2000 : request.limit;
 
         List<Message> messages = inboxRepo.getMessagesForUser(userId)
-            .parallelStream()
-            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
-            .limit(limit)
-            .collect(toList());
+                                          .parallelStream()
+                                          .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
+                                          .limit(limit)
+                                          .collect(toList());
 
         LOG.debug("Found {} messages for user [{}] ", messages.size(), userId);
 
@@ -90,21 +89,21 @@ final class GetInboxOperation implements ThriftOperation<GetInboxRequest, GetInb
         return request ->
         {
             checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
+                    .usingMessage("request is null")
+                    .is(notNull());
+
             checkThat(request.limit)
-                .usingMessage("Limit must be >= 0")
-                .is(greaterThanOrEqualTo(0));
-            
+                    .usingMessage("Limit must be >= 0")
+                    .is(greaterThanOrEqualTo(0));
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .usingMessage("token UserID is invalid")
-                .is(validUserId());
-            
+                    .usingMessage("token UserID is invalid")
+                    .is(validUserId());
+
         };
     }
 

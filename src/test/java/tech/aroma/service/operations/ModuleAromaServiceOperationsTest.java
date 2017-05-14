@@ -38,7 +38,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -48,29 +47,29 @@ public class ModuleAromaServiceOperationsTest
     private ModuleEncryptionMaterialsDev encryptionMaterials;
     private ModuleMemoryDataRepositories dataModule;
     private ModuleAromaServiceOperations instance;
-    
+
     private final Module mockDependencies = new AbstractModule()
     {
         @Override
         protected void configure()
         {
             bind(AuthenticationService.Iface.class)
-                .toInstance(mock(AuthenticationService.Iface.class));
-            
+                    .toInstance(mock(AuthenticationService.Iface.class));
+
             bind(EmailService.Iface.class)
-                .toInstance(mock(EmailService.Iface.class));
+                    .toInstance(mock(EmailService.Iface.class));
         }
-        
+
         @Provides
         @AromaAnnotations.SuperUsers
         Set<String> provideSuperUsers()
         {
             return Sets.emptySet();
         }
-        
+
     };
-    
-    
+
+
     @Before
     public void setUp()
     {
@@ -83,7 +82,7 @@ public class ModuleAromaServiceOperationsTest
     public void testConfigure()
     {
         Injector injector = Guice.createInjector(dataModule, encryptionMaterials, mockDependencies, instance);
-        
+
     }
 
     @Test

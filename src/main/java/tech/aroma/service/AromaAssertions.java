@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service;
 
 
@@ -30,40 +30,39 @@ import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 @Internal
 @NonInstantiable
-public final class AromaAssertions 
+public final class AromaAssertions
 {
     private final static Logger LOG = LoggerFactory.getLogger(AromaAssertions.class);
-    
+
     private AromaAssertions() throws IllegalAccessException
     {
         throw new IllegalAccessException("cannot instantiate");
     }
-    
+
     public static <T> AlchemyAssertion<T> notMissing()
     {
         return a ->
         {
             checkThat(a)
-                .usingMessage("missing request")
-                .is(notNull());
+                    .usingMessage("missing request")
+                    .is(notNull());
         };
     }
-    
+
     public static <T> void checkNotNull(T object) throws InvalidArgumentException
     {
         checkThat(object)
-            .throwing(InvalidArgumentException.class)
-            .is(notMissing());
+                .throwing(InvalidArgumentException.class)
+                .is(notMissing());
     }
 
     public static ExceptionMapper<InvalidArgumentException> withMessage(String message)
     {
         return ex -> new InvalidArgumentException(message);
     }
-    
+
 }

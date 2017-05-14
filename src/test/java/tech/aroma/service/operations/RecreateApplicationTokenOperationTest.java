@@ -47,7 +47,6 @@ import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(100)
@@ -99,13 +98,13 @@ public class RecreateApplicationTokenOperationTest
     public void testProcess() throws Exception
     {
         long originalExpiration = app.timeOfTokenExpiration;
-        
+
         RecreateApplicationTokenResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.applicationToken, is(appToken));
         assertThat(app.timeOfTokenExpiration, not(originalExpiration));
         assertThat(app.timeOfTokenExpiration, is(appToken.timeOfExpiration));
-        
+
         verify(appRepo).saveApplication(app);
     }
 
@@ -115,7 +114,7 @@ public class RecreateApplicationTokenOperationTest
         app.owners.remove(userId);
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(UnauthorizedException.class);
     }
 
     @DontRepeat
@@ -123,21 +122,21 @@ public class RecreateApplicationTokenOperationTest
     public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RecreateApplicationTokenRequest emptyRequest = new RecreateApplicationTokenRequest();
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RecreateApplicationTokenRequest requestWithoutToken = new RecreateApplicationTokenRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RecreateApplicationTokenRequest requestWithoutAppId = new RecreateApplicationTokenRequest(request);
         requestWithoutAppId.unsetApplicationId();
         assertThrows(() -> instance.process(requestWithoutAppId))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
     }
 
@@ -147,19 +146,19 @@ public class RecreateApplicationTokenOperationTest
         when(appRepo.getById(appId)).thenReturn(app);
 
         InvalidateTokenRequest invalidateRequest = new InvalidateTokenRequest()
-            .setBelongingTo(appId);
+                .setBelongingTo(appId);
         when(authenticationService.invalidateToken(invalidateRequest))
-            .thenReturn(new InvalidateTokenResponse());
+                .thenReturn(new InvalidateTokenResponse());
 
         when(authenticationService.createToken(Mockito.any()))
-            .thenReturn(new CreateTokenResponse(authToken));
+                .thenReturn(new CreateTokenResponse(authToken));
     }
 
     private void setupData()
     {
         app = one(applications());
         app.applicationId = appId;
-        
+
         request.token.userId = userId;
         request.applicationId = appId;
 

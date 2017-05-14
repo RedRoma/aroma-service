@@ -51,7 +51,6 @@ import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -61,19 +60,19 @@ public class ProvisionApplicationOperationTest
 
     @Mock
     private ApplicationRepository appRepo;
-    
+
     @Mock
     private FollowerRepository followerRepo;
-    
+
     @Mock
     private MediaRepository mediaRepo;
-    
+
     @Mock
     private UserRepository userRepo;
 
     @Mock
     private AuthenticationService.Iface authenticationService;
-    
+
     @Mock
     private EmailService.Iface emailService;
 
@@ -82,13 +81,13 @@ public class ProvisionApplicationOperationTest
 
     @GeneratePojo
     private AuthenticationToken authToken;
-    
+
     @GeneratePojo
     private ApplicationToken appToken;
-    
+
     @Captor
     private ArgumentCaptor<Application> captor;
-    
+
     @Captor
     private ArgumentCaptor<CreateTokenRequest> authRequestCaptor;
 
@@ -96,16 +95,16 @@ public class ProvisionApplicationOperationTest
 
     @GeneratePojo
     private ProvisionApplicationRequest request;
-    
+
     @GeneratePojo
     private User user;
-    
+
     @GenerateString
     private String userId;
-    
+
     @Captor
     private ArgumentCaptor<SendEmailRequest> emailCaptor;
-    
+
     @Before
     public void setUp() throws TException
     {
@@ -128,7 +127,7 @@ public class ProvisionApplicationOperationTest
         setupData();
         setupMocks();
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor()
@@ -146,9 +145,9 @@ public class ProvisionApplicationOperationTest
     public void testProcess() throws Exception
     {
         ProvisionApplicationResponse response = instance.process(request);
-        
+
         verify(appRepo).saveApplication(captor.capture());
-        
+
         Application savedApp = captor.getValue();
         assertThat(savedApp, notNullValue());
         assertThat(savedApp.name, is(request.applicationName));
@@ -158,39 +157,39 @@ public class ProvisionApplicationOperationTest
         assertThat(savedApp.organizationId, is(request.organizationId));
         assertThat(savedApp.applicationDescription, is(request.applicationDescription));
         assertThat(savedApp.timeOfTokenExpiration, is(appToken.timeOfExpiration));
-        
+
         assertThat(response, notNullValue());
         assertThat(response.applicationToken, is(appToken));
         assertThat(response.applicationInfo, is(savedApp));
-        
+
         verify(authenticationService).createToken(authRequestCaptor.capture());
-        
+
         CreateTokenRequest authRequestMade = authRequestCaptor.getValue();
         assertThat(authRequestMade, notNullValue());
         assertThat(authRequestMade.organizationId, is(request.organizationId));
         assertThat(authRequestMade.ownerId, is(savedApp.applicationId));
         assertThat(authRequestMade.desiredTokenType, is(TokenType.APPLICATION));
         assertThat(authRequestMade.ownerName, is(savedApp.name));
-        
+
         verify(mediaRepo).saveMedia(savedApp.applicationIconMediaId, request.icon);
-        
+
         verify(followerRepo).saveFollowing(user, savedApp);
-        
+
         verify(emailService).sendEmail(emailCaptor.capture());
         SendEmailRequest emailRequest = emailCaptor.getValue();
         verifyEmailRequest(emailRequest, savedApp);
     }
-    
+
     @Test
     public void testWithoutAppIcon() throws Exception
     {
         request.unsetIcon();
-        
+
         ProvisionApplicationResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         verify(appRepo).saveApplication(captor.capture());
-        
+
         Application savedApp = captor.getValue();
         assertThat(savedApp, notNullValue());
         assertThat(savedApp.name, is(request.applicationName));
@@ -201,29 +200,29 @@ public class ProvisionApplicationOperationTest
         assertThat(savedApp.applicationDescription, is(request.applicationDescription));
         assertThat(savedApp.timeOfTokenExpiration, is(appToken.timeOfExpiration));
         assertThat(savedApp.isSetApplicationIconMediaId(), is(false));
-        
+
         verifyZeroInteractions(mediaRepo);
     }
-    
+
     @Test
     public void testWhenUserDoesNotExist() throws Exception
     {
         when(userRepo.getUser(userId))
-            .thenThrow(UserDoesNotExistException.class);
-        
+                .thenThrow(UserDoesNotExistException.class);
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
     }
-    
+
     @Test
     public void testWhenAppRepoFails() throws Exception
     {
         doThrow(new OperationFailedException())
-            .when(appRepo)
-            .saveApplication(Mockito.any());
-        
+                .when(appRepo)
+                .saveApplication(Mockito.any());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @DontRepeat
@@ -231,42 +230,42 @@ public class ProvisionApplicationOperationTest
     public void testProcessEdgeCases()
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         ProvisionApplicationRequest emptyRequest = new ProvisionApplicationRequest();
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
-    
+
     @Test
     public void testWhenMultipleOwners() throws Exception
     {
         List<User> additionalOwners = listOf(pojos(User.class), 5)
-            .stream()
-            .map(u -> u.setUserId(one(uuids)))
-            .collect(toList());
-        
+                .stream()
+                .map(u -> u.setUserId(one(uuids)))
+                .collect(toList());
+
         Map<String, User> ownerMap = additionalOwners.stream()
-            .collect(toMap(User::getUserId, u -> u));
-        
+                                                     .collect(toMap(User::getUserId, u -> u));
+
         for (Map.Entry<String, User> owner : ownerMap.entrySet())
         {
             when(userRepo.getUser(owner.getKey())).thenReturn(owner.getValue());
         }
-        
+
         request.setOwners(Sets.copyOf(ownerMap.keySet()));
-        
+
         ProvisionApplicationResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         verify(appRepo).saveApplication(captor.capture());
-        
+
         Application savedApp = captor.getValue();
         Set<String> expectedOwners = Sets.copyOf(ownerMap.keySet());
         expectedOwners.add(userId);
-        
+
         assertThat(savedApp.owners, is(expectedOwners));
-        
+
         for (User owner : additionalOwners)
         {
             verify(followerRepo).saveFollowing(owner, savedApp);
@@ -278,7 +277,7 @@ public class ProvisionApplicationOperationTest
         request.token.unsetUserId();
         request.applicationName = one(alphabeticString(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH - 1));
         request.owners.clear();
-        
+
         authToken.ownerId = userId;
         user.userId = userId;
     }
@@ -286,18 +285,18 @@ public class ProvisionApplicationOperationTest
     private void setupMocks() throws TException
     {
         GetTokenInfoRequest expectedAuthRequest = new GetTokenInfoRequest(request.token.tokenId, TokenType.USER);
-        
+
         when(authenticationService.getTokenInfo(expectedAuthRequest))
-            .thenReturn(new GetTokenInfoResponse(authToken));
-        
+                .thenReturn(new GetTokenInfoResponse(authToken));
+
         when(userRepo.getUser(userId)).thenReturn(user);
-        
+
         when(appTokenMapper.apply(authToken))
-            .thenReturn(appToken);
-            
-        
+                .thenReturn(appToken);
+
+
         when(authenticationService.createToken(Mockito.any()))
-            .thenReturn(new CreateTokenResponse(authToken));
+                .thenReturn(new CreateTokenResponse(authToken));
     }
 
     private void verifyEmailRequest(SendEmailRequest emailRequest, Application savedApp)
@@ -305,7 +304,7 @@ public class ProvisionApplicationOperationTest
         assertThat(emailRequest, notNullValue());
         assertThat(emailRequest.emailAddress, is(user.email));
         assertThat(emailRequest.emailMessage.isSetNewApp(), is(true));
-        
+
         EmailNewApplication newApp = emailRequest.emailMessage.getNewApp();
         assertThat(newApp.app, is(savedApp));
         assertThat(newApp.appToken, is(appToken));

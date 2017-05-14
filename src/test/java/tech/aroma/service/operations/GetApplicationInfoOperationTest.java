@@ -37,7 +37,6 @@ import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @RunWith(AlchemyTestRunner.class)
@@ -89,12 +88,12 @@ public class GetApplicationInfoOperationTest
     public void testWhenUserNotFollowingApp() throws Exception
     {
         app.isFollowing = false;
-        
+
         GetApplicationInfoResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.applicationInfo, is(app));
     }
-    
+
     @Test
     public void testWhenFollowingInfoNotRequested() throws Exception
     {
@@ -107,31 +106,31 @@ public class GetApplicationInfoOperationTest
         verifyZeroInteractions(followingRepo);
 
     }
-    
+
     @DontRepeat
     @Test
     public void testProcessWhenAppDoesNotExist() throws Exception
     {
         when(appRepo.getById(appId))
-            .thenThrow(new ApplicationDoesNotExistException());
+                .thenThrow(new ApplicationDoesNotExistException());
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(ApplicationDoesNotExistException.class);
+                .isInstanceOf(ApplicationDoesNotExistException.class);
     }
 
     @Test
     public void testProcessWithBadRequest()
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         assertThrows(() -> instance.process(new GetApplicationInfoRequest()))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         GetApplicationInfoRequest requestWithoutToken = new GetApplicationInfoRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     private void setupData()
@@ -146,7 +145,7 @@ public class GetApplicationInfoOperationTest
     {
         when(appRepo.getById(appId)).thenReturn(app);
         when(followingRepo.followingExists(userId, appId))
-            .thenReturn(false);
+                .thenReturn(false);
     }
 
 }

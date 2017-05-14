@@ -40,7 +40,6 @@ import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
 
 /**
- *
  * @author SirWellington
  */
 final class SearchForApplicationsOperation implements ThriftOperation<SearchForApplicationsRequest, SearchForApplicationsResponse>
@@ -55,38 +54,38 @@ final class SearchForApplicationsOperation implements ThriftOperation<SearchForA
     SearchForApplicationsOperation(ApplicationRepository appRepo, OrganizationRepository orgRepo)
     {
         checkThat(appRepo, orgRepo)
-            .are(notNull());
-        
+                .are(notNull());
+
         this.appRepo = appRepo;
         this.orgRepo = orgRepo;
     }
-    
+
     @Override
     public SearchForApplicationsResponse process(SearchForApplicationsRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         String searchTerm = request.getApplicationName();
         String userId = request.token.userId;
-        
-        if(request.isSetOrganizationId())
+
+        if (request.isSetOrganizationId())
         {
             String orgId = request.organizationId;
             checkThat(orgId)
-                .throwing(OrganizationDoesNotExistException.class)
-                .is(real());
-            
+                    .throwing(OrganizationDoesNotExistException.class)
+                    .is(real());
+
             checkThat(userId)
-                .throwing(UnauthorizedException.class)
-                .is(memberInOrg(orgId));
-            
+                    .throwing(UnauthorizedException.class)
+                    .is(memberInOrg(orgId));
+
             List<Application> apps = searchForApplicationInOrgThatMatch(orgId, searchTerm);
-            
+
             return new SearchForApplicationsResponse(apps);
         }
-        
+
         return pojos(SearchForApplicationsResponse.class).get();
     }
 
@@ -95,31 +94,31 @@ final class SearchForApplicationsOperation implements ThriftOperation<SearchForA
         return request ->
         {
             checkThat(request).is(notNull());
-            
+
             checkThat(request.applicationName)
-                .usingMessage("Search term is empty")
-                .is(nonEmptyString())
-                .usingMessage("Search term must have at least 2 characters")
-                .is(stringWithLengthGreaterThan(2));
-            
+                    .usingMessage("Search term is empty")
+                    .is(nonEmptyString())
+                    .usingMessage("Search term must have at least 2 characters")
+                    .is(stringWithLengthGreaterThan(2));
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .usingMessage("token missing userId")
-                .is(nonEmptyString())
-                .usingMessage("userId must be a UUID")
-                .is(validUUID());
-            
-            if(request.isSetOrganizationId())
+                    .usingMessage("token missing userId")
+                    .is(nonEmptyString())
+                    .usingMessage("userId must be a UUID")
+                    .is(validUUID());
+
+            if (request.isSetOrganizationId())
             {
                 checkThat(request.organizationId)
-                    .usingMessage("orgId must be a UUID")
-                    .is(validUUID());
+                        .usingMessage("orgId must be a UUID")
+                        .is(validUUID());
             }
         };
-        
+
     }
 
     private AlchemyAssertion<String> memberInOrg(String orgId) throws TException
@@ -127,17 +126,17 @@ final class SearchForApplicationsOperation implements ThriftOperation<SearchForA
         return userId ->
         {
             boolean isMember = false;
-            
+
             try
             {
                 isMember = orgRepo.isMemberInOrganization(orgId, userId);
             }
-            catch(TException ex)
+            catch (TException ex)
             {
                 throw new FailedAssertionException("Could not check for membership of user in org: " + orgId, ex);
             }
-            
-            if(!isMember)
+
+            if (!isMember)
             {
                 throw new FailedAssertionException(format("User %s is not a member in Org %s", userId, orgId));
             }
@@ -148,14 +147,14 @@ final class SearchForApplicationsOperation implements ThriftOperation<SearchForA
     private List<Application> searchForApplicationInOrgThatMatch(String orgId, String searchTerm) throws TException
     {
         return appRepo.getApplicationsByOrg(orgId)
-            .parallelStream()
-            .filter(app -> app.name.contains(searchTerm))
-            .collect(toList());
+                      .parallelStream()
+                      .filter(app -> app.name.contains(searchTerm))
+                      .collect(toList());
     }
 
     private AlchemyAssertion<String> real()
     {
-        return orgId -> 
+        return orgId ->
         {
             boolean exists = false;
             try
@@ -166,12 +165,12 @@ final class SearchForApplicationsOperation implements ThriftOperation<SearchForA
             {
                 throw new FailedAssertionException(format("Could not check if org exists: %s ", orgId), ex);
             }
-            
-            if(!exists)
+
+            if (!exists)
             {
                 throw new FailedAssertionException("Organization does not exist: " + orgId);
             }
-        };         
+        };
     }
 
 

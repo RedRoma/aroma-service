@@ -34,7 +34,6 @@ import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class CheckIfDeviceIsRegisteredOperation implements ThriftOperation<CheckIfDeviceIsRegisteredRequest, CheckIfDeviceIsRegisteredResponse>
@@ -56,8 +55,8 @@ final class CheckIfDeviceIsRegisteredOperation implements ThriftOperation<CheckI
     public CheckIfDeviceIsRegisteredResponse process(CheckIfDeviceIsRegisteredRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String userId = request.token.userId;
 
@@ -71,16 +70,16 @@ final class CheckIfDeviceIsRegisteredOperation implements ThriftOperation<CheckI
         return request ->
         {
             checkThat(request).is(notNull());
-            
+
             checkThat(request.token)
-                .usingMessage("request token missing token")
-                .is(notNull());
-            
+                    .usingMessage("request token missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
-            
+                    .is(validUserId());
+
             checkThat(request.device)
-                .is(validMobileDevice());
+                    .is(validMobileDevice());
         };
     }
 

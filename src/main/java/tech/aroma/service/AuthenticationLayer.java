@@ -56,7 +56,7 @@ final class AuthenticationLayer implements AromaService.Iface
                         AuthenticationService.Iface authenticationService)
     {
         checkThat(delegate, authenticationService)
-            .are(notNull());
+                .are(notNull());
 
         this.delegate = delegate;
         this.authenticationService = authenticationService;
@@ -67,7 +67,7 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         return delegate.getApiVersion();
     }
-    
+
     @Override
     public DeleteApplicationResponse deleteApplication(DeleteApplicationRequest request) throws OperationFailedException,
                                                                                                 InvalidArgumentException,
@@ -81,7 +81,7 @@ final class AuthenticationLayer implements AromaService.Iface
 
         return delegate.deleteApplication(request);
     }
-    
+
     @Override
     public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) throws OperationFailedException,
                                                                                     InvalidArgumentException,
@@ -106,10 +106,10 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.dismissMessage(request);
     }
-    
+
     @Override
     public FollowApplicationResponse followApplication(FollowApplicationRequest request) throws OperationFailedException,
                                                                                                 InvalidArgumentException,
@@ -121,7 +121,7 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.followApplication(request);
     }
 
@@ -141,11 +141,11 @@ final class AuthenticationLayer implements AromaService.Iface
 
     @Override
     public RecreateApplicationTokenResponse recreateToken(RecreateApplicationTokenRequest request) throws OperationFailedException,
-                                                                                                                InvalidArgumentException,
-                                                                                                                InvalidCredentialsException,
-                                                                                                                ApplicationDoesNotExistException,
-                                                                                                                UnauthorizedException,
-                                                                                                                TException
+                                                                                                          InvalidArgumentException,
+                                                                                                          InvalidCredentialsException,
+                                                                                                          ApplicationDoesNotExistException,
+                                                                                                          UnauthorizedException,
+                                                                                                          TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
@@ -204,10 +204,11 @@ final class AuthenticationLayer implements AromaService.Iface
 
         return delegate.signUp(request);
     }
+
     @Override
-    public GetActivityResponse getActivity(GetActivityRequest request) throws OperationFailedException, 
+    public GetActivityResponse getActivity(GetActivityRequest request) throws OperationFailedException,
                                                                               InvalidArgumentException,
-                                                                              InvalidCredentialsException, 
+                                                                              InvalidCredentialsException,
                                                                               TException
     {
         checkNotNull(request);
@@ -251,7 +252,7 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.getApplicationMessages(request);
     }
 
@@ -263,10 +264,10 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.getInbox(request);
     }
-    
+
     @Override
     public GetFullMessageResponse getFullMessage(GetFullMessageRequest request) throws OperationFailedException,
                                                                                        InvalidArgumentException,
@@ -280,7 +281,7 @@ final class AuthenticationLayer implements AromaService.Iface
     }
 
     @Override
-    public GetMediaResponse getMedia(GetMediaRequest request) throws OperationFailedException, 
+    public GetMediaResponse getMedia(GetMediaRequest request) throws OperationFailedException,
                                                                      InvalidArgumentException,
                                                                      InvalidTokenException,
                                                                      DoesNotExistException,
@@ -289,10 +290,10 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.getMedia(request);
     }
-    
+
     @Override
     public GetApplicationsOwnedByResponse getApplicationsOwnedBy(GetApplicationsOwnedByRequest request) throws OperationFailedException,
                                                                                                                InvalidArgumentException,
@@ -304,7 +305,7 @@ final class AuthenticationLayer implements AromaService.Iface
 
         return delegate.getApplicationsOwnedBy(request);
     }
-    
+
     @Override
     public GetApplicationsFollowedByResponse getApplicationsFollowedBy(GetApplicationsFollowedByRequest request) throws OperationFailedException,
                                                                                                                         InvalidArgumentException,
@@ -318,34 +319,34 @@ final class AuthenticationLayer implements AromaService.Iface
     }
 
     @Override
-    public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException, 
+    public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException,
                                                                   InvalidArgumentException,
                                                                   InvalidTokenException,
                                                                   ApplicationDoesNotExistException,
-                                                                  UnauthorizedException, 
+                                                                  UnauthorizedException,
                                                                   TException
     {
         checkNotNull(request);
-        
-        if(request.isSetToken())
+
+        if (request.isSetToken())
         {
             checkAndEnrichToken(request.token);
         }
-        
+
         return delegate.getBuzz(request);
     }
 
     @Override
-    public GetUserInfoResponse getUserInfo(GetUserInfoRequest request) throws OperationFailedException, 
+    public GetUserInfoResponse getUserInfo(GetUserInfoRequest request) throws OperationFailedException,
                                                                               InvalidArgumentException,
                                                                               InvalidTokenException,
                                                                               UnauthorizedException,
-                                                                              UserDoesNotExistException, 
+                                                                              UserDoesNotExistException,
                                                                               TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.getUserInfo(request);
     }
 
@@ -361,7 +362,7 @@ final class AuthenticationLayer implements AromaService.Iface
 
         return delegate.searchForApplications(request);
     }
-    
+
     @Override
     public UpdateApplicationResponse updateApplication(UpdateApplicationRequest request) throws OperationFailedException,
                                                                                                 InvalidArgumentException,
@@ -372,10 +373,10 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.updateApplication(request);
     }
-    
+
     @Override
     public UnfollowApplicationResponse unfollowApplication(UnfollowApplicationRequest request) throws OperationFailedException,
                                                                                                       InvalidArgumentException,
@@ -386,44 +387,44 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.unfollowApplication(request);
     }
-    
-    
-        @Override
+
+
+    @Override
     public UpdateReactionsResponse updateReactions(UpdateReactionsRequest request) throws OperationFailedException,
                                                                                           InvalidArgumentException,
                                                                                           InvalidTokenException,
                                                                                           ApplicationDoesNotExistException,
-                                                                                          UnauthorizedException, 
+                                                                                          UnauthorizedException,
                                                                                           TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.updateReactions(request);
     }
 
     @Override
     public GetReactionsResponse getReactions(GetReactionsRequest request) throws OperationFailedException,
-                                                                                 InvalidArgumentException, 
+                                                                                 InvalidArgumentException,
                                                                                  InvalidTokenException,
                                                                                  ApplicationDoesNotExistException,
-                                                                                 UnauthorizedException, 
+                                                                                 UnauthorizedException,
                                                                                  TException
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.getReactions(request);
     }
-    
-  
+
+
     //==========================================================
     // DEVICE REGISTRATION OPERATIONS
     //==========================================================
-    
+
 
     @Override
     public CheckIfDeviceIsRegisteredResponse checkIfDeviceIsRegistered(CheckIfDeviceIsRegisteredRequest request) throws OperationFailedException,
@@ -434,7 +435,7 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.checkIfDeviceIsRegistered(request);
     }
 
@@ -447,7 +448,7 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.getRegisteredDevices(request);
     }
 
@@ -460,7 +461,7 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.registerDevice(request);
     }
 
@@ -473,11 +474,11 @@ final class AuthenticationLayer implements AromaService.Iface
     {
         checkNotNull(request);
         checkAndEnrichToken(request.token);
-        
+
         return delegate.unregisterDevice(request);
     }
 
-    
+
     //==========================================================
     // INTERNAL OPERATIONS
     //==========================================================
@@ -493,8 +494,8 @@ final class AuthenticationLayer implements AromaService.Iface
         String tokenId = token.tokenId;
 
         GetTokenInfoRequest request = new GetTokenInfoRequest()
-            .setTokenId(tokenId)
-            .setTokenType(TokenType.USER);
+                .setTokenId(tokenId)
+                .setTokenType(TokenType.USER);
 
         GetTokenInfoResponse tokenInfo;
         try
@@ -508,9 +509,9 @@ final class AuthenticationLayer implements AromaService.Iface
         }
 
         checkThat(tokenInfo)
-            .throwing(OperationFailedException.class)
-            .usingMessage("failed to enrich user token. Auth Service returned null response")
-            .is(notNull());
+                .throwing(OperationFailedException.class)
+                .usingMessage("failed to enrich user token. Auth Service returned null response")
+                .is(notNull());
 
         AuthenticationToken authToken = tokenInfo.token;
 
@@ -522,13 +523,13 @@ final class AuthenticationLayer implements AromaService.Iface
     private void checkTokenIsValid(UserToken token) throws TException
     {
         checkThat(token)
-            .throwing(InvalidTokenException.class)
-            .usingMessage("Request missing Token")
-            .is(notNull());
+                .throwing(InvalidTokenException.class)
+                .usingMessage("Request missing Token")
+                .is(notNull());
 
         VerifyTokenRequest request = new VerifyTokenRequest()
-            .setTokenId(token.tokenId)
-            .setOwnerId(token.userId);
+                .setTokenId(token.tokenId)
+                .setOwnerId(token.userId);
 
         try
         {
@@ -549,18 +550,18 @@ final class AuthenticationLayer implements AromaService.Iface
     private void checkToken(AuthenticationToken token) throws TException
     {
         checkThat(token)
-            .throwing(InvalidTokenException.class)
-            .usingMessage("Request missing Token")
-            .is(notNull());
+                .throwing(InvalidTokenException.class)
+                .usingMessage("Request missing Token")
+                .is(notNull());
 
         checkThat(token.tokenId)
-            .usingMessage("Request Token is Invalid")
-            .throwing(InvalidTokenException.class)
-            .is(nonEmptyString());
+                .usingMessage("Request Token is Invalid")
+                .throwing(InvalidTokenException.class)
+                .is(nonEmptyString());
 
         VerifyTokenRequest request = new VerifyTokenRequest()
-            .setTokenId(token.tokenId)
-            .setOwnerId(token.ownerId);
+                .setTokenId(token.tokenId)
+                .setOwnerId(token.ownerId);
 
         try
         {

@@ -55,7 +55,6 @@ import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
 /**
- *
  * @author SirWellington
  */
 @Internal
@@ -94,7 +93,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
                   authenticationService,
                   tokenMapper,
                   superUsers)
-            .are(notNull());
+                .are(notNull());
 
         this.activityRepo = activityRepo;
         this.appRepo = appRepo;
@@ -111,15 +110,15 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     public DeleteApplicationResponse process(DeleteApplicationRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         Application app = appRepo.getById(request.applicationId);
         String userId = request.token.userId;
 
         checkThat(userId)
-            .throwing(UnauthorizedException.class)
-            .is(aUserAuthorizedToDelete(app));
+                .throwing(UnauthorizedException.class)
+                .is(aUserAuthorizedToDelete(app));
 
         User user = userRepo.getUser(userId);
 
@@ -138,11 +137,11 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         {
             checkThat(request).is(notNull());
             checkThat(request.applicationId).is(validApplicationId());
-            
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId).is(validUserId());
         };
     }
@@ -152,10 +151,10 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         return userId ->
         {
             Set<String> allowedUsers = Sets.unionOf(app.owners, superUsers);
-            
+
             checkThat(userId)
-                .usingMessage("User is not an owner and cannot delete this Application")
-                .is(elementInCollection(allowedUsers));
+                    .usingMessage("User is not an owner and cannot delete this Application")
+                    .is(elementInCollection(allowedUsers));
         };
     }
 
@@ -212,8 +211,8 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         List<User> followers = followerRepo.getApplicationFollowers(appId);
 
         followers.parallelStream()
-            .map(User::getUserId)
-            .forEach(userId -> this.deleteFollowing(userId, appId));
+                 .map(User::getUserId)
+                 .forEach(userId -> this.deleteFollowing(userId, appId));
 
         return followers;
     }
@@ -262,14 +261,14 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         usersToNotify.addAll(followers);
 
         usersToNotify.parallelStream()
-            .forEach(user -> this.tryToSave(event, user));
+                     .forEach(user -> this.tryToSave(event, user));
     }
 
     private List<User> getOwners(Application app) throws TException
     {
         return app.owners.stream()
-            .map(id -> new User().setUserId(id))
-            .collect(toList());
+                         .map(id -> new User().setUserId(id))
+                         .collect(toList());
     }
 
     private Event createEventThatAppWasDeletedBy(User actor, Application app)
@@ -277,13 +276,13 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         EventType eventType = createAppDeleted(app);
 
         return new Event()
-            .setEventId(one(uuids))
-            .setApplication(app)
-            .setApplicationId(app.applicationId)
-            .setUserIdOfActor(actor.userId)
-            .setActor(actor)
-            .setTimestamp(now().toEpochMilli())
-            .setEventType(eventType);
+                .setEventId(one(uuids))
+                .setApplication(app)
+                .setApplicationId(app.applicationId)
+                .setUserIdOfActor(actor.userId)
+                .setActor(actor)
+                .setTimestamp(now().toEpochMilli())
+                .setEventType(eventType);
     }
 
     private void tryToSave(Event event, User user)
@@ -301,7 +300,7 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
     private EventType createAppDeleted(Application app)
     {
         ApplicationDeleted appDeleted = new ApplicationDeleted()
-            .setMessage(app.name + " has been deleted");
+                .setMessage(app.name + " has been deleted");
 
         EventType eventType = new EventType();
         eventType.setApplicationDeleted(appDeleted);
@@ -313,8 +312,8 @@ final class DeleteApplicationOperation implements ThriftOperation<DeleteApplicat
         AuthenticationToken token = tokenMapper.apply(usingToken);
 
         InvalidateTokenRequest request = new InvalidateTokenRequest()
-            .setToken(token)
-            .setBelongingTo(app.applicationId);
+                .setToken(token)
+                .setBelongingTo(app.applicationId);
 
         LOG.debug("Making request to invalidate all tokens belonging to: {}", app);
 
