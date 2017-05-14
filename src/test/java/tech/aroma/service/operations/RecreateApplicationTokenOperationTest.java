@@ -18,6 +18,7 @@ package tech.aroma.service.operations;
 
 import java.time.Instant;
 import java.util.function.Function;
+
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,29 +29,20 @@ import tech.aroma.data.ApplicationRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.authentication.ApplicationToken;
 import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.authentication.service.CreateTokenResponse;
-import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
-import tech.aroma.thrift.authentication.service.InvalidateTokenResponse;
+import tech.aroma.thrift.authentication.service.*;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
 import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 import static tech.aroma.thrift.generators.ApplicationGenerators.applications;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.TimeGenerators.futureInstants;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.HEXADECIMAL;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 

@@ -18,23 +18,15 @@ package tech.aroma.service.operations;
 
 import java.util.function.Function;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.data.ApplicationRepository;
-import tech.aroma.thrift.Application;
-import tech.aroma.thrift.LengthOfTime;
-import tech.aroma.thrift.TimeUnit;
-import tech.aroma.thrift.authentication.ApplicationToken;
-import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.TokenType;
-import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.authentication.service.CreateTokenRequest;
-import tech.aroma.thrift.authentication.service.CreateTokenResponse;
-import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UnauthorizedException;
+import tech.aroma.thrift.*;
+import tech.aroma.thrift.authentication.*;
+import tech.aroma.thrift.authentication.service.*;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
 import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
@@ -43,7 +35,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 import static tech.aroma.data.assertions.AuthenticationAssertions.completeToken;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
 

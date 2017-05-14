@@ -20,13 +20,12 @@ package tech.aroma.service.operations;
 
 import java.util.List;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.lists.Lists;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.ReactionRepository;
-import tech.aroma.data.UserRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
@@ -40,7 +39,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
 

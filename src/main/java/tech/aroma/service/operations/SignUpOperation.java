@@ -20,28 +20,19 @@ import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.function.Function;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
-import tech.aroma.data.CredentialRepository;
-import tech.aroma.data.MediaRepository;
-import tech.aroma.data.UserRepository;
+import tech.aroma.data.*;
 import tech.aroma.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.service.operations.encryption.OverTheWireDecryptor;
 import tech.aroma.thrift.Image;
 import tech.aroma.thrift.User;
-import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.TokenType;
-import tech.aroma.thrift.authentication.UserToken;
-import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.authentication.service.CreateTokenRequest;
-import tech.aroma.thrift.authentication.service.CreateTokenResponse;
-import tech.aroma.thrift.exceptions.AccountAlreadyExistsException;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.InvalidCredentialsException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.thrift.authentication.*;
+import tech.aroma.thrift.authentication.service.*;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
@@ -49,14 +40,11 @@ import tech.sirwellington.alchemy.arguments.FailedAssertionException;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.AuthenticationAssertions.completeToken;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
 import static tech.sirwellington.alchemy.arguments.assertions.PeopleAssertions.validEmailAddress;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthGreaterThanOrEqualTo;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthLessThan;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 
 /**
  *

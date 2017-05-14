@@ -16,13 +16,10 @@
 
 package tech.aroma.service.operations;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.Provides;
 import java.util.Set;
 import java.util.function.Function;
+
+import com.google.inject.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,17 +27,15 @@ import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.memory.ModuleMemoryDataRepositories;
 import tech.aroma.service.AromaAnnotations;
 import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
-import tech.aroma.thrift.authentication.ApplicationToken;
-import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.authentication.*;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
 import tech.aroma.thrift.email.service.EmailService;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  *

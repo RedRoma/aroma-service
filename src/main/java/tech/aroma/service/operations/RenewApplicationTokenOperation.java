@@ -20,34 +20,27 @@ import java.time.Instant;
 import java.util.List;
 import java.util.function.Function;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.TokenRepository;
 import tech.aroma.thrift.Application;
-import tech.aroma.thrift.authentication.ApplicationToken;
-import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.TokenStatus;
+import tech.aroma.thrift.authentication.*;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UnauthorizedException;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.functions.TimeFunctions;
-import tech.aroma.thrift.service.AromaServiceConstants;
-import tech.aroma.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.thrift.service.RenewApplicationTokenResponse;
+import tech.aroma.thrift.service.*;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static java.time.Clock.systemUTC;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.collectionOfSize;
-import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
-import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.nonEmptyList;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
+import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.*;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 
 /**
  * This operation extends the lifetime of an Application's Token.

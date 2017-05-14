@@ -17,59 +17,34 @@
 package tech.aroma.service.operations;
 
 import java.util.function.Function;
+
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import tech.aroma.data.CredentialRepository;
-import tech.aroma.data.MediaRepository;
-import tech.aroma.data.UserRepository;
+import org.mockito.*;
+import tech.aroma.data.*;
 import tech.aroma.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.service.operations.encryption.OverTheWireDecryptor;
 import tech.aroma.thrift.Image;
 import tech.aroma.thrift.User;
-import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.Credentials;
-import tech.aroma.thrift.authentication.Password;
-import tech.aroma.thrift.authentication.TokenType;
-import tech.aroma.thrift.authentication.UserToken;
-import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.authentication.service.CreateTokenRequest;
-import tech.aroma.thrift.authentication.service.CreateTokenResponse;
-import tech.aroma.thrift.exceptions.AccountAlreadyExistsException;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.thrift.authentication.*;
+import tech.aroma.thrift.authentication.service.*;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.service.SignUpRequest;
 import tech.aroma.thrift.service.SignUpResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.PeopleGenerators.emails;
 import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
-import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
-import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.HEXADECIMAL;
-import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
+import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.*;
 
 /**
  *

@@ -19,18 +19,14 @@ package tech.aroma.service.operations;
 
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.data.ActivityRepository;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.UserRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
-import tech.aroma.thrift.events.ApplicationFollowed;
-import tech.aroma.thrift.events.Event;
-import tech.aroma.thrift.events.EventType;
+import tech.aroma.thrift.events.*;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.FollowApplicationRequest;
 import tech.aroma.thrift.service.FollowApplicationResponse;
@@ -38,10 +34,9 @@ import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static java.time.Instant.now;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 

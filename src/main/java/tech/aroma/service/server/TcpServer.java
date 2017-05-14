@@ -16,34 +16,32 @@
 
 package tech.aroma.service.server;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
-import java.net.SocketException;
-import java.util.Set;
-import javax.inject.Singleton;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.server.TThreadPoolServer;
-import org.apache.thrift.transport.TServerSocket;
-import org.apache.thrift.transport.TTransportException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sir.wellington.alchemy.collections.sets.Sets;
-import tech.aroma.data.cassandra.ModuleCassandraDataRepositories;
-import tech.aroma.data.cassandra.ModuleCassandraDevCluster;
-import tech.aroma.service.AromaAnnotations;
-import tech.aroma.service.ModuleAromaService;
-import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
-import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.email.service.EmailService;
-import tech.aroma.thrift.service.AromaService;
-import tech.aroma.thrift.service.AromaServiceConstants;
-import tech.aroma.thrift.services.Clients;
-import tech.aroma.thrift.services.NoOpEmailService;
-import tech.sirwellington.alchemy.annotations.access.Internal;
+ import java.net.SocketException;
+ import java.util.Set;
+ import javax.inject.Singleton;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+ import com.google.inject.*;
+ import org.apache.thrift.protocol.TBinaryProtocol;
+ import org.apache.thrift.server.TThreadPoolServer;
+ import org.apache.thrift.transport.TServerSocket;
+ import org.apache.thrift.transport.TTransportException;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import sir.wellington.alchemy.collections.sets.Sets;
+ import tech.aroma.data.cassandra.ModuleCassandraDataRepositories;
+ import tech.aroma.data.cassandra.ModuleCassandraDevCluster;
+ import tech.aroma.service.AromaAnnotations;
+ import tech.aroma.service.ModuleAromaService;
+ import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
+ import tech.aroma.thrift.authentication.service.AuthenticationService;
+ import tech.aroma.thrift.email.service.EmailService;
+ import tech.aroma.thrift.service.AromaService;
+ import tech.aroma.thrift.service.AromaServiceConstants;
+ import tech.aroma.thrift.services.Clients;
+ import tech.aroma.thrift.services.NoOpEmailService;
+ import tech.sirwellington.alchemy.annotations.access.Internal;
+
+ import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * This Main Class runs the Aroma Service on a Server Socket.

@@ -16,11 +16,12 @@
 
 package tech.aroma.service;
 
-import com.google.inject.AbstractModule;
-import decorice.DecoratorModule;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Singleton;
+
+import com.google.inject.AbstractModule;
+import decorice.DecoratorModule;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;

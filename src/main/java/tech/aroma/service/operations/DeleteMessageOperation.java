@@ -16,25 +16,18 @@
 
 package tech.aroma.service.operations;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.lists.Lists;
 import sir.wellington.alchemy.collections.sets.Sets;
-import tech.aroma.data.ActivityRepository;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.MessageRepository;
-import tech.aroma.data.UserRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
-import tech.aroma.thrift.events.ApplicationMessagesDeleted;
-import tech.aroma.thrift.events.Event;
-import tech.aroma.thrift.events.EventType;
+import tech.aroma.thrift.events.*;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.DeleteMessageRequest;
@@ -47,10 +40,10 @@ import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validMessageId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.elementInCollection;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 

@@ -19,12 +19,11 @@ package tech.aroma.service.operations;
 
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.MessageRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.Message;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -36,7 +35,7 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validMessageId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**

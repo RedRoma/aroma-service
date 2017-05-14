@@ -16,12 +16,9 @@
 
 package tech.aroma.service;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.Provides;
 import java.util.Set;
+
+import com.google.inject.*;
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,9 +33,9 @@ import tech.aroma.thrift.services.NoOpEmailService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  * This Test Class can be considered an Integration level test, because it tests the validity of

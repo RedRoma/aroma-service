@@ -16,33 +16,29 @@
 
 package tech.aroma.service.operations;
 
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import javax.inject.Inject;
-import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import tech.aroma.data.InboxRepository;
-import tech.aroma.thrift.Message;
-import tech.aroma.thrift.Urgency;
-import tech.aroma.thrift.service.GetDashboardRequest;
-import tech.aroma.thrift.service.GetDashboardResponse;
-import tech.sirwellington.alchemy.generator.AlchemyGenerator;
-import tech.sirwellington.alchemy.generator.EnumGenerators;
-import tech.sirwellington.alchemy.generator.NumberGenerators;
-import tech.sirwellington.alchemy.generator.PeopleGenerators;
-import tech.sirwellington.alchemy.generator.StringGenerators;
-import tech.sirwellington.alchemy.generator.TimeGenerators;
-import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
+ import java.time.Instant;
+ import java.util.Comparator;
+ import java.util.List;
+ import javax.inject.Inject;
 
-import static java.util.stream.Collectors.toList;
-import static tech.aroma.service.AromaAssertions.checkNotNull;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
-import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
-import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
-import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
+ import org.apache.thrift.TException;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import tech.aroma.data.InboxRepository;
+ import tech.aroma.thrift.Message;
+ import tech.aroma.thrift.Urgency;
+ import tech.aroma.thrift.service.GetDashboardRequest;
+ import tech.aroma.thrift.service.GetDashboardResponse;
+ import tech.sirwellington.alchemy.generator.*;
+ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
+
+ import static java.util.stream.Collectors.toList;
+ import static tech.aroma.service.AromaAssertions.checkNotNull;
+ import static tech.sirwellington.alchemy.arguments.Arguments.*;
+ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
+ import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+ import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
+ import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
 /**
  *
