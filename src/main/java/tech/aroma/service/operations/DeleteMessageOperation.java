@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sir.wellington.alchemy.collections.lists.Lists;
 import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
@@ -229,7 +228,7 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
         return eventType;
     }
 
-    private List<User> getUsersToNotifyFor(Application app) throws TException
+    private Set<User> getUsersToNotifyFor(Application app) throws TException
     {
         String appId = app.applicationId;
 
@@ -240,7 +239,7 @@ final class DeleteMessageOperation implements ThriftOperation<DeleteMessageReque
 
         List<User> followers = followerRepo.getApplicationFollowers(appId);
 
-        return Lists.combine(owners, followers);
+        return Sets.unionOf(owners, followers);
     }
 
     private User toUser(String userId)
