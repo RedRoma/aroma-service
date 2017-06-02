@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import tech.aroma.thrift.authentication.AuthenticationConstants;
 
 /**
- *
  * @author SirWellington
  */
 public class ModuleEncryptionMaterialsDev extends AbstractModule
@@ -71,7 +70,7 @@ public class ModuleEncryptionMaterialsDev extends AbstractModule
         return new RandomSaltGenerator();
 //        return new StringFixedSaltGenerator(FIXED_SALT);
     }
-    
+
     @Provides
     PBEStringEncryptor provideOverTheWireDecryptor()
     {

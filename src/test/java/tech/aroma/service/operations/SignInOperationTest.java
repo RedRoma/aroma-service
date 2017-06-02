@@ -17,51 +17,35 @@
 package tech.aroma.service.operations;
 
 import java.util.function.Function;
+
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import tech.aroma.data.CredentialRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.service.operations.encryption.AromaPasswordEncryptor;
 import tech.aroma.service.operations.encryption.OverTheWireDecryptor;
 import tech.aroma.thrift.User;
-import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.Password;
-import tech.aroma.thrift.authentication.TokenType;
-import tech.aroma.thrift.authentication.UserToken;
-import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.authentication.service.CreateTokenRequest;
-import tech.aroma.thrift.authentication.service.CreateTokenResponse;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.InvalidCredentialsException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.thrift.authentication.*;
+import tech.aroma.thrift.authentication.service.*;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.service.SignInRequest;
 import tech.aroma.thrift.service.SignInResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.PeopleGenerators.emails;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -80,7 +64,7 @@ public class SignInOperationTest
 
     @Mock
     private OverTheWireDecryptor decryptor;
-    
+
     @Mock
     private AromaPasswordEncryptor encryptor;
 
@@ -110,7 +94,7 @@ public class SignInOperationTest
 
     @GeneratePojo
     private SignInRequest request;
-    
+
     @GeneratePojo
     private Password password;
 
@@ -121,7 +105,7 @@ public class SignInOperationTest
     {
         instance = new SignInOperation(authenticationService, tokenMapper, credentialsRepo, decryptor, encryptor, userRepo);
         verifyZeroInteractions(authenticationService, tokenMapper, credentialsRepo, decryptor, encryptor, userRepo);
-        
+
         setupData();
         setupMocks();
     }
@@ -131,22 +115,22 @@ public class SignInOperationTest
     public void testConstructor()
     {
         assertThrows(() -> new SignInOperation(null, tokenMapper, credentialsRepo, decryptor, encryptor, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThrows(() -> new SignInOperation(authenticationService, null, credentialsRepo, decryptor, encryptor, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThrows(() -> new SignInOperation(authenticationService, tokenMapper, null, decryptor, encryptor, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThrows(() -> new SignInOperation(authenticationService, tokenMapper, credentialsRepo, null, encryptor, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThrows(() -> new SignInOperation(authenticationService, tokenMapper, credentialsRepo, decryptor, null, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThrows(() -> new SignInOperation(authenticationService, tokenMapper, credentialsRepo, decryptor, encryptor, null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -170,58 +154,58 @@ public class SignInOperationTest
     public void testProcessWhenUserDoesNotExist() throws Exception
     {
         when(userRepo.getUserByEmail(request.emailAddress))
-            .thenThrow(new UserDoesNotExistException());
+                .thenThrow(new UserDoesNotExistException());
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
     }
 
     @Test
     public void testWhenCredentialsDontExist() throws Exception
     {
         when(credentialsRepo.containsEncryptedPassword(userId))
-            .thenReturn(false);
-        
+                .thenReturn(false);
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
     }
-    
+
     @Test
     public void testWhenCredentialslDoNotMatch() throws Exception
     {
         when(encryptor.match(password.encryptedPassword, password.encryptedPassword))
-            .thenReturn(false);
-        
+                .thenReturn(false);
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidCredentialsException.class);
+                .isInstanceOf(InvalidCredentialsException.class);
     }
-    
+
     @Test
     public void testWhenDecryptorFails() throws Exception
     {
         when(decryptor.decrypt(password.encryptedPassword))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testWhenEncryptorFails() throws Exception
     {
         when(encryptor.match(anyString(), anyString()))
-            .thenThrow(new OperationFailedException());
-        
-         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .thenThrow(new OperationFailedException());
+
+        assertThrows(() -> instance.process(request))
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @DontRepeat
     @Test
     public void testProcessWithBadArgs()
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     private void setupData()
@@ -235,7 +219,7 @@ public class SignInOperationTest
         userToken.organization = orgId;
 
         user.userId = userId;
-        
+
         request.credentials.setAromaPassword(password);
         request.emailAddress = one(emails());
     }
@@ -243,25 +227,25 @@ public class SignInOperationTest
     private void setupMocks() throws TException
     {
         when(tokenMapper.apply(authToken))
-            .thenReturn(userToken);
+                .thenReturn(userToken);
 
         when(userRepo.getUserByEmail(request.emailAddress))
-            .thenReturn(user);
+                .thenReturn(user);
 
         when(authenticationService.createToken(Mockito.any(CreateTokenRequest.class)))
-            .thenReturn(new CreateTokenResponse(authToken));
-        
+                .thenReturn(new CreateTokenResponse(authToken));
+
         when(decryptor.decrypt(password.encryptedPassword))
-            .thenReturn(password.encryptedPassword);
-        
+                .thenReturn(password.encryptedPassword);
+
         when(encryptor.match(password.encryptedPassword, password.encryptedPassword))
-            .thenReturn(true);
-        
+                .thenReturn(true);
+
         when(credentialsRepo.getEncryptedPassword(userId))
-            .thenReturn(password.encryptedPassword);
-        
+                .thenReturn(password.encryptedPassword);
+
         when(credentialsRepo.containsEncryptedPassword(userId))
-            .thenReturn(true);
+                .thenReturn(true);
     }
 
 }

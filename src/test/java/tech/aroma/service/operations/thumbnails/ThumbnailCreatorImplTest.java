@@ -19,46 +19,40 @@ package tech.aroma.service.operations.thumbnails;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import tech.aroma.thrift.Dimension;
-import tech.aroma.thrift.Image;
-import tech.aroma.thrift.User;
+import tech.aroma.thrift.*;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static tech.aroma.thrift.generators.UserGenerators.usersWithProfileImages;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class ThumbnailCreatorImplTest 
+public class ThumbnailCreatorImplTest
 {
 
     private User user;
-    
+
     private Image image;
-    
+
     @GeneratePojo
     private Dimension thumbnailSize;
-    
+
     private ThumbnailCreatorImpl instance;
-    
+
     @Before
     public void setUp() throws Exception
     {
         setupData();
         setupMocks();
-        
+
         instance = new ThumbnailCreatorImpl();
     }
 
@@ -66,12 +60,12 @@ public class ThumbnailCreatorImplTest
     {
         user = one(usersWithProfileImages());
         image = user.profileImage;
-        
+
     }
 
     private void setupMocks() throws Exception
     {
-        
+
     }
 
     @Test
@@ -82,26 +76,26 @@ public class ThumbnailCreatorImplTest
         assertThat(thumbnail.data, notNullValue());
         assertThat(thumbnail.dimension, is(thumbnailSize));
     }
-    
+
     @DontRepeat
     @Test
     public void testWithBadArgs()
     {
         assertThrows(() -> instance.createThumbnail(image, null))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         assertThrows(() -> instance.createThumbnail(null, thumbnailSize))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         Dimension badDimension = new Dimension().setHeight(0).setWidth(0);
         assertThrows(() -> instance.createThumbnail(image, badDimension))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         Image badImage = new Image(image);
         badImage.unsetData();
-        
+
         assertThrows(() -> instance.createThumbnail(badImage, thumbnailSize))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

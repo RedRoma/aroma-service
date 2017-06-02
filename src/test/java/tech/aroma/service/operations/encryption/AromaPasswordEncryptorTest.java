@@ -21,26 +21,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class AromaPasswordEncryptorTest 
+public class AromaPasswordEncryptorTest
 {
-    
+
     @Mock
     private PasswordEncryptor encryptor;
-    
+
     @Before
     public void setUp() throws Exception
     {
@@ -64,13 +61,13 @@ public class AromaPasswordEncryptorTest
         AromaPasswordEncryptor result = AromaPasswordEncryptor.newInstance(encryptor);
         assertThat(result, notNullValue());
     }
-    
+
     @DontRepeat
     @Test
     public void testNewInstanceWithBadArgs()
     {
         assertThrows(() -> AromaPasswordEncryptor.newInstance(null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
 }

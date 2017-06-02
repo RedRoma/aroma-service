@@ -16,13 +16,10 @@
 
 package tech.aroma.service.operations;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.Provides;
 import java.util.Set;
 import java.util.function.Function;
+
+import com.google.inject.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,20 +27,17 @@ import sir.wellington.alchemy.collections.sets.Sets;
 import tech.aroma.data.memory.ModuleMemoryDataRepositories;
 import tech.aroma.service.AromaAnnotations;
 import tech.aroma.service.operations.encryption.ModuleEncryptionMaterialsDev;
-import tech.aroma.thrift.authentication.ApplicationToken;
-import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.UserToken;
+import tech.aroma.thrift.authentication.*;
 import tech.aroma.thrift.authentication.service.AuthenticationService;
 import tech.aroma.thrift.email.service.EmailService;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 import tech.sirwellington.alchemy.test.junit.runners.Repeat;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -53,29 +47,29 @@ public class ModuleAromaServiceOperationsTest
     private ModuleEncryptionMaterialsDev encryptionMaterials;
     private ModuleMemoryDataRepositories dataModule;
     private ModuleAromaServiceOperations instance;
-    
+
     private final Module mockDependencies = new AbstractModule()
     {
         @Override
         protected void configure()
         {
             bind(AuthenticationService.Iface.class)
-                .toInstance(mock(AuthenticationService.Iface.class));
-            
+                    .toInstance(mock(AuthenticationService.Iface.class));
+
             bind(EmailService.Iface.class)
-                .toInstance(mock(EmailService.Iface.class));
+                    .toInstance(mock(EmailService.Iface.class));
         }
-        
+
         @Provides
         @AromaAnnotations.SuperUsers
         Set<String> provideSuperUsers()
         {
             return Sets.emptySet();
         }
-        
+
     };
-    
-    
+
+
     @Before
     public void setUp()
     {
@@ -88,7 +82,7 @@ public class ModuleAromaServiceOperationsTest
     public void testConfigure()
     {
         Injector injector = Guice.createInjector(dataModule, encryptionMaterials, mockDependencies, instance);
-        
+
     }
 
     @Test

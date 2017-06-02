@@ -17,32 +17,25 @@
 package tech.aroma.service.operations;
 
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.OrganizationRepository;
-import tech.aroma.data.UserRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
 import tech.aroma.thrift.service.GetBuzzRequest;
 import tech.aroma.thrift.service.GetBuzzResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -63,10 +56,10 @@ public class GetBuzzOperationTest
     private GetBuzzRequest request;
 
     private GetBuzzOperation instance;
-    
+
     @GenerateList(Application.class)
     private List<Application> recentApps;
-    
+
     @GenerateList(User.class)
     private List<User> recentUsers;
 
@@ -75,30 +68,30 @@ public class GetBuzzOperationTest
     {
         instance = new GetBuzzOperation(appRepo, orgRepo, userRepo);
         verifyZeroInteractions(appRepo, orgRepo, userRepo);
-        
+
         setupMocks();
     }
-    
+
     private void setupMocks() throws Exception
     {
         when(appRepo.getRecentlyCreated())
-            .thenReturn(recentApps);
-        
+                .thenReturn(recentApps);
+
         when(userRepo.getRecentlyCreatedUsers()).thenReturn(recentUsers);
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
     {
         assertThrows(() -> new GetBuzzOperation(null, orgRepo, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
-        
+                .isInstanceOf(IllegalArgumentException.class);
+
         assertThrows(() -> new GetBuzzOperation(appRepo, null, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
-        
+                .isInstanceOf(IllegalArgumentException.class);
+
         assertThrows(() -> new GetBuzzOperation(appRepo, orgRepo, null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -108,7 +101,7 @@ public class GetBuzzOperationTest
         assertThat(result, notNullValue());
         assertThat(result.freshApplications, is(recentApps));
         assertThat(result.freshUsers, is(recentUsers));
-        
+
         verify(appRepo).getRecentlyCreated();
         verify(userRepo).getRecentlyCreatedUsers();
     }

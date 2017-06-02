@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service;
 
 
-import com.google.inject.BindingAnnotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.Set;
+
+import com.google.inject.BindingAnnotation;
 import tech.aroma.thrift.User;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.access.NonInstantiable;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -36,46 +35,45 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * are defined here.
  * <p>
  * These Binding annotations allow the system to qualify specific dependencies.
- * For example, 
- * 
+ * For example,
+ * <p>
  * <pre>
- * {@code 
- * 
+ * {@code
+ *
  *  SomeObject(@SuperUsers List<String> powerUsers, @BlackListedUsers List<String> blacklisted)
- }
+ * }
  * </pre>
- * 
+ *
  * @author SirWellington
  */
 @Internal
 @NonInstantiable
-public interface AromaAnnotations 
+public interface AromaAnnotations
 {
     /**
      * Defines a set of users that have been black-listed within Aroma.
      * These are typically defined as a {@linkplain Set set} of {@linkplain User#userId User IDs}.
-     * 
+     * <p>
      * <p>
      * Blacklisted users typically cannot perform any Update/Delete operations.
-     * 
      */
     @BindingAnnotation
-    @Target({ PARAMETER, FIELD, METHOD })
+    @Target({PARAMETER, FIELD, METHOD})
     @Retention(RUNTIME)
     public @interface BlacklistedUsers
     {
-        
+
     }
-    
+
     /**
      * Defines a set of users that have Super-Power abilities within Aroma.
      * These are typically defined as a {@linkplain Set set} of {@linkplain User#userId User IDs}.
      */
     @BindingAnnotation
-    @Target({ PARAMETER, FIELD, METHOD })
+    @Target({PARAMETER, FIELD, METHOD})
     @Retention(RUNTIME)
     public @interface SuperUsers
     {
-        
+
     }
 }

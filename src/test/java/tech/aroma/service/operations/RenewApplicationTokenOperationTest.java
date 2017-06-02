@@ -18,53 +18,40 @@ package tech.aroma.service.operations;
 
 import java.time.Instant;
 import java.util.function.Function;
+
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import sir.wellington.alchemy.collections.lists.Lists;
 import tech.aroma.data.ApplicationRepository;
 import tech.aroma.data.TokenRepository;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.authentication.ApplicationToken;
 import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.authentication.service.CreateTokenResponse;
-import tech.aroma.thrift.authentication.service.InvalidateTokenRequest;
-import tech.aroma.thrift.authentication.service.InvalidateTokenResponse;
+import tech.aroma.thrift.authentication.service.*;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.functions.TimeFunctions;
 import tech.aroma.thrift.functions.TokenFunctions;
-import tech.aroma.thrift.service.AromaServiceConstants;
-import tech.aroma.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.thrift.service.RenewApplicationTokenResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.aroma.thrift.service.*;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 import static tech.aroma.thrift.generators.ApplicationGenerators.applications;
 import static tech.aroma.thrift.generators.TokenGenerators.authenticationTokens;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.greaterThanOrEqualTo;
 import static tech.sirwellington.alchemy.arguments.assertions.NumberAssertions.lessThanOrEqualTo;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(100)
@@ -77,7 +64,7 @@ public class RenewApplicationTokenOperationTest
 
     @Mock
     private ApplicationRepository appRepo;
-    
+
     @Mock
     private TokenRepository tokenRepo;
 
@@ -98,7 +85,7 @@ public class RenewApplicationTokenOperationTest
     private String appId;
 
     private String tokenId;
-    
+
     @Captor
     private ArgumentCaptor<AuthenticationToken> captor;
 
@@ -113,7 +100,7 @@ public class RenewApplicationTokenOperationTest
         setupData();
         setupMocks();
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
@@ -128,23 +115,23 @@ public class RenewApplicationTokenOperationTest
     public void testProcess() throws Exception
     {
         long expectedExpirationTime = Instant.now()
-            .plusSeconds(TimeFunctions.toSeconds(AromaServiceConstants.DEFAULT_APP_TOKEN_LIFETIME))
-            .toEpochMilli();
-        
+                                             .plusSeconds(TimeFunctions.toSeconds(AromaServiceConstants.DEFAULT_APP_TOKEN_LIFETIME))
+                                             .toEpochMilli();
+
         long delta = 100;
-        
+
         RenewApplicationTokenResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         verify(tokenRepo).saveToken(captor.capture());
-        
+
         AuthenticationToken savedToken = captor.getValue();
         assertThat(savedToken, is(authToken));
-        
+
         checkThat(savedToken.timeOfExpiration)
-            .is(greaterThanOrEqualTo(expectedExpirationTime - delta))
-            .is(lessThanOrEqualTo(expectedExpirationTime + delta));
-        
+                .is(greaterThanOrEqualTo(expectedExpirationTime - delta))
+                .is(lessThanOrEqualTo(expectedExpirationTime + delta));
+
         assertThat(response.applicationToken, is(appToken));
     }
 
@@ -154,7 +141,7 @@ public class RenewApplicationTokenOperationTest
         app.owners.remove(userId);
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(UnauthorizedException.class);
     }
 
     @DontRepeat
@@ -162,21 +149,21 @@ public class RenewApplicationTokenOperationTest
     public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RenewApplicationTokenRequest emptyRequest = new RenewApplicationTokenRequest();
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RenewApplicationTokenRequest requestWithoutToken = new RenewApplicationTokenRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         RenewApplicationTokenRequest requestWithoutAppId = new RenewApplicationTokenRequest(request);
         requestWithoutAppId.unsetApplicationId();
         assertThrows(() -> instance.process(requestWithoutAppId))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
     }
 
@@ -186,16 +173,16 @@ public class RenewApplicationTokenOperationTest
         when(appRepo.getById(appId)).thenReturn(app);
 
         InvalidateTokenRequest invalidateRequest = new InvalidateTokenRequest()
-            .setBelongingTo(appId);
-        
+                .setBelongingTo(appId);
+
         when(authenticationService.invalidateToken(invalidateRequest))
-            .thenReturn(new InvalidateTokenResponse());
+                .thenReturn(new InvalidateTokenResponse());
 
         when(authenticationService.createToken(Mockito.any()))
-            .thenReturn(new CreateTokenResponse(authToken));
-        
+                .thenReturn(new CreateTokenResponse(authToken));
+
         when(tokenRepo.getTokensBelongingTo(appId))
-            .thenReturn(Lists.createFrom(authToken));
+                .thenReturn(Lists.createFrom(authToken));
     }
 
     private void setupData()

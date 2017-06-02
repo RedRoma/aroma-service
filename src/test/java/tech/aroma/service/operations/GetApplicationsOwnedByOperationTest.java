@@ -17,6 +17,7 @@
 package tech.aroma.service.operations;
 
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,27 +28,18 @@ import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
 import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -68,7 +60,7 @@ public class GetApplicationsOwnedByOperationTest
 
     @GenerateList(Application.class)
     private List<Application> apps;
-    
+
     private List<Application> sortedApps;
 
     @GenerateString(ALPHABETIC)
@@ -88,16 +80,16 @@ public class GetApplicationsOwnedByOperationTest
     {
         request.token.userId = userId;
         apps.forEach((Application app) -> app.setIsFollowingIsSet(true));
-        
+
         sortedApps = apps.stream()
-            .sorted((first, second) -> first.name.compareTo(second.name))
-            .collect(toList());
+                         .sorted((first, second) -> first.name.compareTo(second.name))
+                         .collect(toList());
     }
 
     private void setupMocks() throws Exception
     {
         when(appRepo.getApplicationsOwnedBy(userId))
-            .thenReturn(apps);
+                .thenReturn(apps);
     }
 
     @DontRepeat
@@ -105,7 +97,7 @@ public class GetApplicationsOwnedByOperationTest
     public void testConstructor() throws Exception
     {
         assertThrows(() -> new GetApplicationsOwnedByOperation(null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -115,8 +107,8 @@ public class GetApplicationsOwnedByOperationTest
         assertThat(response, notNullValue());
 
         List<Application> sortedApps = apps.stream()
-            .sorted((left, right) -> left.name.compareTo(right.name))
-            .collect(toList());
+                                           .sorted((left, right) -> left.name.compareTo(right.name))
+                                           .collect(toList());
 
         assertThat(response.applications, is(sortedApps));
 
@@ -127,7 +119,7 @@ public class GetApplicationsOwnedByOperationTest
     public void testWhenNoAppsOwned() throws Exception
     {
         when(appRepo.getApplicationsOwnedBy(userId))
-            .thenReturn(Lists.emptyList());
+                .thenReturn(Lists.emptyList());
 
         GetApplicationsOwnedByResponse response = instance.process(request);
         assertThat(response, notNullValue());
@@ -140,7 +132,7 @@ public class GetApplicationsOwnedByOperationTest
         request.token.userId = badId;
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -149,7 +141,7 @@ public class GetApplicationsOwnedByOperationTest
         request.unsetToken();
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -158,18 +150,18 @@ public class GetApplicationsOwnedByOperationTest
         request.token.unsetUserId();
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
     public void testProcessEdgeCases()
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         GetApplicationsOwnedByRequest emptyRequest = new GetApplicationsOwnedByRequest();
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
     }
 

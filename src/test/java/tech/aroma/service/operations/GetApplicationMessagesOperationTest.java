@@ -18,43 +18,31 @@ package tech.aroma.service.operations;
 
 import java.util.Comparator;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import sir.wellington.alchemy.collections.lists.Lists;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.MessageRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.Message;
-import tech.aroma.thrift.exceptions.DoesNotExistException;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.service.GetApplicationMessagesRequest;
 import tech.aroma.thrift.service.GetApplicationMessagesResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.negativeIntegers;
 import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -67,7 +55,7 @@ public class GetApplicationMessagesOperationTest
 
     @Mock
     private FollowerRepository followerRepo;
-    
+
     @Mock
     private MessageRepository messageRepo;
 
@@ -81,7 +69,7 @@ public class GetApplicationMessagesOperationTest
 
     @GenerateString(UUID)
     private String userId;
-    
+
     @GeneratePojo
     private Application app;
 
@@ -89,7 +77,7 @@ public class GetApplicationMessagesOperationTest
     private List<Message> messages;
 
     private List<Message> sortedMessages;
-    
+
     @Before
     public void setUp() throws Exception
     {
@@ -105,21 +93,21 @@ public class GetApplicationMessagesOperationTest
 
         request.applicationId = appId;
         request.token.userId = userId;
-        
+
         app.owners.add(userId);
-        
+
         sortedMessages = messages.stream()
-            .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
-            .limit(request.limit)
-            .collect(toList());
+                                 .sorted(Comparator.comparingLong(Message::getTimeMessageReceived).reversed())
+                                 .limit(request.limit)
+                                 .collect(toList());
     }
 
     private void setupMocks() throws Exception
     {
         when(appRepo.getById(appId)).thenReturn(app);
-        
+
         when(messageRepo.getByApplication(appId))
-            .thenReturn(messages);
+                .thenReturn(messages);
     }
 
     @DontRepeat
@@ -130,7 +118,7 @@ public class GetApplicationMessagesOperationTest
         assertThrows(() -> new GetApplicationMessagesOperation(appRepo, null, messageRepo));
         assertThrows(() -> new GetApplicationMessagesOperation(appRepo, followerRepo, null));
     }
-    
+
     @Test
     public void testProcess() throws Exception
     {
@@ -139,102 +127,102 @@ public class GetApplicationMessagesOperationTest
 
         assertThat(response.messages, is(sortedMessages));
     }
-    
+
     @DontRepeat
     @Test
     public void testWhenNoMessages() throws Exception
     {
         when(messageRepo.getByApplication(appId))
-            .thenReturn(Lists.emptyList());
-        
+                .thenReturn(Lists.emptyList());
+
         GetApplicationMessagesResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.messages, is(empty()));
     }
-    
+
     @DontRepeat
     @Test
     public void testWhenMessageRepoFails() throws Exception
     {
         when(messageRepo.getByApplication(appId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testWhenUserIsAnOwnerButNotAFollower() throws Exception
     {
         when(followerRepo.followingExists(userId, appId))
-            .thenReturn(false);
-        
+                .thenReturn(false);
+
         GetApplicationMessagesResponse response = instance.process(request);
         assertThat(response.messages, is(sortedMessages));
     }
-    
+
     @Test
     public void testWhenUserIsNotAnOwnerButIsAFollower() throws Exception
     {
         app.owners.remove(userId);
-        
+
         when(followerRepo.followingExists(userId, appId)).thenReturn(true);
-        
+
         GetApplicationMessagesResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.messages, not(empty()));
         assertThat(response.messages, is(sortedMessages));
     }
-    
+
     @DontRepeat
     @Test
     public void testWhenAppRepoFails() throws Exception
     {
         when(appRepo.getById(appId))
-            .thenThrow(new DoesNotExistException());
-        
+                .thenThrow(new DoesNotExistException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(DoesNotExistException.class);
+                .isInstanceOf(DoesNotExistException.class);
     }
-    
+
     @Test
     public void testWhenFollowerRepoFails() throws Exception
     {
         app.owners.remove(userId);
-        
+
         when(followerRepo.followingExists(userId, appId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @DontRepeat
     @Test
     public void testWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         GetApplicationMessagesRequest emptyRequest = new GetApplicationMessagesRequest();
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         GetApplicationMessagesRequest requestWithoutAppId = new GetApplicationMessagesRequest(request);
         requestWithoutAppId.unsetApplicationId();
         assertThrows(() -> instance.process(requestWithoutAppId))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         GetApplicationMessagesRequest requestWithBadLimit = new GetApplicationMessagesRequest(request)
-            .setLimit(one(negativeIntegers()));
+                .setLimit(one(negativeIntegers()));
         assertThrows(() -> instance.process(requestWithBadLimit))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         String badId = one(alphabeticString());
         GetApplicationMessagesRequest requestWithBadId = new GetApplicationMessagesRequest(request)
-            .setApplicationId(badId);
+                .setApplicationId(badId);
         assertThrows(() -> instance.process(requestWithoutAppId))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

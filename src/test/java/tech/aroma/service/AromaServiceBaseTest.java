@@ -23,96 +23,24 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import tech.aroma.thrift.AromaConstants;
 import tech.aroma.thrift.authentication.UserToken;
-import tech.aroma.thrift.exceptions.DoesNotExistException;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.InvalidCredentialsException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UnauthorizedException;
-import tech.aroma.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.generators.TokenGenerators;
-import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
-import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
-import tech.aroma.thrift.service.DeleteApplicationRequest;
-import tech.aroma.thrift.service.DeleteApplicationResponse;
-import tech.aroma.thrift.service.DeleteMessageRequest;
-import tech.aroma.thrift.service.DeleteMessageResponse;
-import tech.aroma.thrift.service.DismissMessageRequest;
-import tech.aroma.thrift.service.DismissMessageResponse;
-import tech.aroma.thrift.service.FollowApplicationRequest;
-import tech.aroma.thrift.service.FollowApplicationResponse;
-import tech.aroma.thrift.service.GetActivityRequest;
-import tech.aroma.thrift.service.GetActivityResponse;
-import tech.aroma.thrift.service.GetApplicationInfoRequest;
-import tech.aroma.thrift.service.GetApplicationInfoResponse;
-import tech.aroma.thrift.service.GetApplicationMessagesRequest;
-import tech.aroma.thrift.service.GetApplicationMessagesResponse;
-import tech.aroma.thrift.service.GetApplicationsFollowedByRequest;
-import tech.aroma.thrift.service.GetApplicationsFollowedByResponse;
-import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
-import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
-import tech.aroma.thrift.service.GetBuzzRequest;
-import tech.aroma.thrift.service.GetBuzzResponse;
-import tech.aroma.thrift.service.GetDashboardRequest;
-import tech.aroma.thrift.service.GetDashboardResponse;
-import tech.aroma.thrift.service.GetFullMessageRequest;
-import tech.aroma.thrift.service.GetFullMessageResponse;
-import tech.aroma.thrift.service.GetInboxRequest;
-import tech.aroma.thrift.service.GetInboxResponse;
-import tech.aroma.thrift.service.GetMediaRequest;
-import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetReactionsRequest;
-import tech.aroma.thrift.service.GetReactionsResponse;
-import tech.aroma.thrift.service.GetRegisteredDevicesRequest;
-import tech.aroma.thrift.service.GetRegisteredDevicesResponse;
-import tech.aroma.thrift.service.GetUserInfoRequest;
-import tech.aroma.thrift.service.GetUserInfoResponse;
-import tech.aroma.thrift.service.ProvisionApplicationRequest;
-import tech.aroma.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
-import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
-import tech.aroma.thrift.service.RegisterDeviceRequest;
-import tech.aroma.thrift.service.RegisterDeviceResponse;
-import tech.aroma.thrift.service.RegisterHealthCheckRequest;
-import tech.aroma.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.thrift.service.SearchForApplicationsRequest;
-import tech.aroma.thrift.service.SearchForApplicationsResponse;
-import tech.aroma.thrift.service.SignInRequest;
-import tech.aroma.thrift.service.SignInResponse;
-import tech.aroma.thrift.service.SignUpRequest;
-import tech.aroma.thrift.service.SignUpResponse;
-import tech.aroma.thrift.service.UnfollowApplicationRequest;
-import tech.aroma.thrift.service.UnfollowApplicationResponse;
-import tech.aroma.thrift.service.UnregisterDeviceRequest;
-import tech.aroma.thrift.service.UnregisterDeviceResponse;
-import tech.aroma.thrift.service.UpdateApplicationRequest;
-import tech.aroma.thrift.service.UpdateApplicationResponse;
-import tech.aroma.thrift.service.UpdateReactionsRequest;
-import tech.aroma.thrift.service.UpdateReactionsResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.aroma.thrift.service.*;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.aroma.thrift.generators.ChannelGenerators.mobileDevices;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.BooleanGenerators.booleans;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -156,10 +84,10 @@ public class AromaServiceBaseTest
 
     @Mock
     private ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse> updateApplicationOperation;
-    
+
     @Mock
     private ThriftOperation<UpdateReactionsRequest, UpdateReactionsResponse> updateReactionsOperation;
-    
+
     @Mock
     private ThriftOperation<UnfollowApplicationRequest, UnfollowApplicationResponse> unfollowApplicationOperation;
 
@@ -196,24 +124,24 @@ public class AromaServiceBaseTest
 
     @Mock
     private ThriftOperation<GetReactionsRequest, GetReactionsResponse> getReactionsOperation;
-    
+
     @Mock
     private ThriftOperation<GetUserInfoRequest, GetUserInfoResponse> getUserInfoOperation;
- 
+
     @Mock
     private ThriftOperation<CheckIfDeviceIsRegisteredRequest, CheckIfDeviceIsRegisteredResponse> checkIfDeviceIsRegisteredOperation;
-    
+
     @Mock
     private ThriftOperation<GetRegisteredDevicesRequest, GetRegisteredDevicesResponse> getRegisteredDevicesOperation;
-    
+
     @Mock
     private ThriftOperation<RegisterDeviceRequest, RegisterDeviceResponse> registerDeviceOperation;
-    
+
     @Mock
     private ThriftOperation<UnregisterDeviceRequest, UnregisterDeviceResponse> unregisterDeviceOperation;
 
     private AromaServiceBase instance;
-    
+
     private UserToken token;
 
     @Before
@@ -279,7 +207,7 @@ public class AromaServiceBaseTest
                                updateApplicationOperation,
                                updateReactionsOperation);
 
-        
+
         setupData();
     }
 
@@ -287,7 +215,7 @@ public class AromaServiceBaseTest
     {
         token = one(TokenGenerators.userTokens());
     }
-    
+
     @Test
     public void testGetDashboard() throws Exception
     {
@@ -301,7 +229,7 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.getDashboard(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -317,15 +245,15 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.getApplicationsFollowedBy(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
-    
+
     @DontRepeat
     @Test
     public void testGetApplicationsFollowedByWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.getApplicationsFollowedBy(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
         verifyZeroInteractions(getApplicationsFollowedByOperation);
     }
 
@@ -342,7 +270,7 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.getApplicationsOwnedBy(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @DontRepeat
@@ -350,11 +278,11 @@ public class AromaServiceBaseTest
     public void testGetApplicationsOwnedByWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.getApplicationsOwnedBy(null))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         verifyZeroInteractions(getApplicationsOwnedByOperation);
     }
-    
+
     @Test
     public void testGetApplicationInfo() throws Exception
     {
@@ -363,7 +291,7 @@ public class AromaServiceBaseTest
         GetApplicationInfoResponse expectedResponse = pojos(GetApplicationInfoResponse.class).get();
 
         when(getApplicationInfoOperation.process(request))
-            .thenReturn(expectedResponse);
+                .thenReturn(expectedResponse);
 
         GetApplicationInfoResponse response = instance.getApplicationInfo(request);
         assertThat(response, notNullValue());
@@ -372,7 +300,7 @@ public class AromaServiceBaseTest
         verify(getApplicationInfoOperation).process(request);
 
         assertThrows(() -> instance.getApplicationInfo(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -388,7 +316,7 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.provisionApplication(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -397,7 +325,7 @@ public class AromaServiceBaseTest
         RecreateApplicationTokenRequest request = pojos(RecreateApplicationTokenRequest.class).get();
         RecreateApplicationTokenResponse expectedResponse = mock(RecreateApplicationTokenResponse.class);
         when(recreateApplicationTokenOperation.process(request))
-            .thenReturn(expectedResponse);
+                .thenReturn(expectedResponse);
 
         RecreateApplicationTokenResponse result = instance.recreateToken(request);
         assertThat(result, is(expectedResponse));
@@ -405,13 +333,13 @@ public class AromaServiceBaseTest
 
         //Edge Cases
         assertThrows(() -> instance.recreateToken(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         when(recreateApplicationTokenOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.recreateToken(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -420,7 +348,7 @@ public class AromaServiceBaseTest
         RegisterHealthCheckRequest request = pojos(RegisterHealthCheckRequest.class).get();
         RegisterHealthCheckResponse response = mock(RegisterHealthCheckResponse.class);
         when(registerHealthCheckOperation.process(request))
-            .thenReturn(response);
+                .thenReturn(response);
 
         RegisterHealthCheckResponse result = instance.registerHealthCheck(request);
         assertThat(result, is(response));
@@ -428,12 +356,12 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.registerHealthCheck(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         when(registerHealthCheckOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
         assertThrows(() -> instance.registerHealthCheck(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
 
@@ -443,7 +371,7 @@ public class AromaServiceBaseTest
         RenewApplicationTokenRequest request = one(pojos(RenewApplicationTokenRequest.class));
         RenewApplicationTokenResponse response = mock(RenewApplicationTokenResponse.class);
         when(renewApplicationTokenOperation.process(request))
-            .thenReturn(response);
+                .thenReturn(response);
 
         RenewApplicationTokenResponse result = instance.renewApplicationToken(request);
         assertThat(result, is(response));
@@ -451,12 +379,12 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.renewApplicationToken(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         when(renewApplicationTokenOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
         assertThrows(() -> instance.renewApplicationToken(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
 
@@ -466,7 +394,7 @@ public class AromaServiceBaseTest
         SearchForApplicationsRequest request = one(pojos(SearchForApplicationsRequest.class));
         SearchForApplicationsResponse response = mock(SearchForApplicationsResponse.class);
         when(searchForApplicationsOperation.process(request))
-            .thenReturn(response);
+                .thenReturn(response);
 
         SearchForApplicationsResponse result = instance.searchForApplications(request);
         assertThat(result, is(response));
@@ -474,13 +402,13 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.searchForApplications(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         when(searchForApplicationsOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.searchForApplications(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -506,10 +434,10 @@ public class AromaServiceBaseTest
     {
         SignInRequest request = new SignInRequest();
         when(signInOperation.process(request))
-            .thenThrow(new UserDoesNotExistException());
+                .thenThrow(new UserDoesNotExistException());
 
         assertThrows(() -> instance.signIn(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
     }
 
     @DontRepeat
@@ -517,7 +445,7 @@ public class AromaServiceBaseTest
     public void testSignInWithBadRequest() throws Exception
     {
         assertThrows(() -> instance.signIn(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -526,7 +454,7 @@ public class AromaServiceBaseTest
         SignUpRequest request = one(pojos(SignUpRequest.class));
         SignUpResponse response = mock(SignUpResponse.class);
         when(signUpOperation.process(request))
-            .thenReturn(response);
+                .thenReturn(response);
 
         SignUpResponse result = instance.signUp(request);
         assertThat(result, is(response));
@@ -534,13 +462,13 @@ public class AromaServiceBaseTest
 
         //Edge cases
         assertThrows(() -> instance.signUp(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         when(signUpOperation.process(request))
-            .thenThrow(new InvalidCredentialsException());
+                .thenThrow(new InvalidCredentialsException());
 
         assertThrows(() -> instance.signUp(request))
-            .isInstanceOf(InvalidCredentialsException.class);
+                .isInstanceOf(InvalidCredentialsException.class);
     }
 
 
@@ -568,7 +496,7 @@ public class AromaServiceBaseTest
     public void testRecreateTokenWithBadArgs()
     {
         assertThrows(() -> instance.recreateToken(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -596,10 +524,10 @@ public class AromaServiceBaseTest
         GetActivityRequest request = one(pojos(GetActivityRequest.class));
 
         when(getActivityOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.getActivity(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -619,10 +547,10 @@ public class AromaServiceBaseTest
     {
         GetApplicationMessagesRequest request = one(pojos(GetApplicationMessagesRequest.class));
         when(getApplicationMessagesOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.getApplicationMessages(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -642,10 +570,10 @@ public class AromaServiceBaseTest
     {
         GetInboxRequest request = one(pojos(GetInboxRequest.class));
         when(getInboxOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.getInbox(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
 
@@ -666,10 +594,10 @@ public class AromaServiceBaseTest
     {
         GetMediaRequest request = one(pojos(GetMediaRequest.class));
         when(getMediaOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.getMedia(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -688,10 +616,10 @@ public class AromaServiceBaseTest
     {
         GetFullMessageRequest request = one(pojos(GetFullMessageRequest.class));
         when(getFullMessageOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.getFullMessage(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -713,13 +641,13 @@ public class AromaServiceBaseTest
         GetBuzzRequest request = pojos(GetBuzzRequest.class).get();
 
         assertThrows(() -> instance.getBuzz(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         when(getBuzzOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.getBuzz(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -729,7 +657,7 @@ public class AromaServiceBaseTest
 
         GetUserInfoResponse expectedResponse = mock(GetUserInfoResponse.class);
         when(getUserInfoOperation.process(request))
-            .thenReturn(expectedResponse);
+                .thenReturn(expectedResponse);
 
         GetUserInfoResponse result = instance.getUserInfo(request);
         assertThat(result, is(expectedResponse));
@@ -744,12 +672,12 @@ public class AromaServiceBaseTest
         GetUserInfoRequest request = pojos(GetUserInfoRequest.class).get();
 
         assertThrows(() -> instance.getUserInfo(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         when(getUserInfoOperation.process(request))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
         assertThrows(() -> instance.getUserInfo(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -768,12 +696,12 @@ public class AromaServiceBaseTest
     public void testDeleteApplicationWhenThrows() throws Exception
     {
         when(deleteApplicationOperation.process(Mockito.any()))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.deleteApplication(new DeleteApplicationRequest()))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testDeleteMessage() throws Exception
     {
@@ -790,10 +718,10 @@ public class AromaServiceBaseTest
     public void testDeleteMessageWhenThrows() throws Exception
     {
         when(deleteMessageOperation.process(Mockito.any()))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.deleteMessage(new DeleteMessageRequest()))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -812,10 +740,10 @@ public class AromaServiceBaseTest
     public void testDismissMessageWhenThrows() throws Exception
     {
         when(dismissMessageOperation.process(Mockito.any()))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.dismissMessage(new DismissMessageRequest()))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -824,20 +752,20 @@ public class AromaServiceBaseTest
         UpdateApplicationRequest request = one(pojos(UpdateApplicationRequest.class));
         UpdateApplicationResponse expected = one(pojos(UpdateApplicationResponse.class));
         when(updateApplicationOperation.process(request)).thenReturn(expected);
-        
+
         UpdateApplicationResponse response = instance.updateApplication(request);
         assertThat(response, is(expected));
         verify(updateApplicationOperation).process(request);
     }
-    
+
     @Test
     public void testUpdateApplicationWhenFails() throws Exception
     {
         when(updateApplicationOperation.process(Mockito.any()))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.updateApplication(new UpdateApplicationRequest()))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -846,10 +774,10 @@ public class AromaServiceBaseTest
         UnfollowApplicationRequest request = one(pojos(UnfollowApplicationRequest.class));
         UnfollowApplicationResponse expected = one(pojos(UnfollowApplicationResponse.class));
         when(unfollowApplicationOperation.process(request)).thenReturn(expected);
-        
+
         UnfollowApplicationResponse response = instance.unfollowApplication(request);
         assertThat(response, is(expected));
-        
+
         verify(unfollowApplicationOperation).process(request);
     }
 
@@ -857,10 +785,10 @@ public class AromaServiceBaseTest
     public void testUnfollowApplicationWhenFails() throws Exception
     {
         when(unfollowApplicationOperation.process(Mockito.any()))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.unfollowApplication(new UnfollowApplicationRequest()))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -869,7 +797,7 @@ public class AromaServiceBaseTest
         UpdateReactionsRequest request = new UpdateReactionsRequest().setToken(token);
         UpdateReactionsResponse expected = new UpdateReactionsResponse().setReactions(listOf(reactions(), 3));
         when(updateReactionsOperation.process(request)).thenReturn(expected);
-        
+
         UpdateReactionsResponse response = instance.updateReactions(request);
         assertThat(response, is(expected));
     }
@@ -878,19 +806,19 @@ public class AromaServiceBaseTest
     public void testUpdateReactionsWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.updateReactions(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
     public void testUpdateReactionsWhenFails() throws Exception
     {
         UpdateReactionsRequest request = new UpdateReactionsRequest().setToken(token);
-        
+
         when(updateReactionsOperation.process(request))
-            .thenThrow(new DoesNotExistException());
-        
+                .thenThrow(new DoesNotExistException());
+
         assertThrows(() -> instance.updateReactions(request))
-            .isInstanceOf(DoesNotExistException.class);
+                .isInstanceOf(DoesNotExistException.class);
     }
 
     @Test
@@ -899,7 +827,7 @@ public class AromaServiceBaseTest
         GetReactionsRequest request = new GetReactionsRequest(token);
         GetReactionsResponse expected = new GetReactionsResponse(listOf(reactions(), 4));
         when(getReactionsOperation.process(request)).thenReturn(expected);
-        
+
         GetReactionsResponse response = instance.getReactions(request);
         assertThat(response, is(expected));
     }
@@ -908,7 +836,7 @@ public class AromaServiceBaseTest
     public void testGetReactionsWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.getReactions(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -916,40 +844,40 @@ public class AromaServiceBaseTest
     {
         GetReactionsRequest request = new GetReactionsRequest().setToken(token);
         when(getReactionsOperation.process(request))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.getReactions(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
     public void testCheckIfDeviceIsRegistered() throws Exception
     {
         CheckIfDeviceIsRegisteredRequest request = new CheckIfDeviceIsRegisteredRequest()
-            .setToken(token);
+                .setToken(token);
         CheckIfDeviceIsRegisteredResponse expected = new CheckIfDeviceIsRegisteredResponse()
-            .setIsRegistered(one(booleans()));
-        
+                .setIsRegistered(one(booleans()));
+
         when(checkIfDeviceIsRegisteredOperation.process(request))
-            .thenReturn(expected);
-        
+                .thenReturn(expected);
+
         CheckIfDeviceIsRegisteredResponse response = instance.checkIfDeviceIsRegistered(request);
         assertThat(response, is(expected));
         verify(checkIfDeviceIsRegisteredOperation).process(request);
     }
-    
+
     @DontRepeat
     @Test
     public void testCheckIfDeviceIsRegisteredWhenFails() throws Exception
     {
         CheckIfDeviceIsRegisteredRequest request = new CheckIfDeviceIsRegisteredRequest()
-        .setToken(token);
-        
+                .setToken(token);
+
         when(checkIfDeviceIsRegisteredOperation.process(request))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.checkIfDeviceIsRegistered(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @DontRepeat
@@ -957,7 +885,7 @@ public class AromaServiceBaseTest
     public void testCheckIfDeviceIsRegisteredWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.checkIfDeviceIsRegistered(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
@@ -965,11 +893,11 @@ public class AromaServiceBaseTest
     {
         GetRegisteredDevicesRequest request = new GetRegisteredDevicesRequest(token);
         GetRegisteredDevicesResponse expected = new GetRegisteredDevicesResponse()
-            .setDevices(listOf(mobileDevices(), 10));
-        
+                .setDevices(listOf(mobileDevices(), 10));
+
         when(getRegisteredDevicesOperation.process(request))
-            .thenReturn(expected);
-        
+                .thenReturn(expected);
+
         GetRegisteredDevicesResponse response = instance.getRegisteredDevices(request);
         assertThat(response, is(expected));
         verify(getRegisteredDevicesOperation).process(request);
@@ -981,10 +909,10 @@ public class AromaServiceBaseTest
     {
         GetRegisteredDevicesRequest request = new GetRegisteredDevicesRequest().setToken(token);
         when(getRegisteredDevicesOperation.process(request))
-            .thenThrow(new DoesNotExistException());
+                .thenThrow(new DoesNotExistException());
 
         assertThrows(() -> instance.getRegisteredDevices(request))
-            .isInstanceOf(DoesNotExistException.class);
+                .isInstanceOf(DoesNotExistException.class);
     }
 
     @DontRepeat
@@ -992,21 +920,21 @@ public class AromaServiceBaseTest
     public void testGetRegisteredDevicesWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.getRegisteredDevices(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
     public void testRegisterDevice() throws Exception
     {
         RegisterDeviceRequest request = new RegisterDeviceRequest()
-            .setToken(token)
-            .setDevice(one(mobileDevices()));
-        
+                .setToken(token)
+                .setDevice(one(mobileDevices()));
+
         RegisterDeviceResponse expected = one(pojos(RegisterDeviceResponse.class));
-        
+
         when(registerDeviceOperation.process(request))
-            .thenReturn(expected);
-        
+                .thenReturn(expected);
+
         RegisterDeviceResponse response = instance.registerDevice(request);
         assertThat(response, is(expected));
         verify(registerDeviceOperation).process(request);
@@ -1017,34 +945,34 @@ public class AromaServiceBaseTest
     public void testRegisterDeviceWhenFails() throws Exception
     {
         RegisterDeviceRequest request = new RegisterDeviceRequest()
-            .setToken(token);
+                .setToken(token);
         when(registerDeviceOperation.process(request))
-            .thenThrow(new UnauthorizedException());
-        
+                .thenThrow(new UnauthorizedException());
+
         assertThrows(() -> instance.registerDevice(request))
-            .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(UnauthorizedException.class);
     }
 
     @Test
     public void testRegisterDeviceWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.registerDevice(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     @Test
     public void testUnregisterDevice() throws Exception
     {
         UnregisterDeviceRequest request = new UnregisterDeviceRequest()
-            .setToken(token)
-            .setDevice(one(mobileDevices()));
-        
+                .setToken(token)
+                .setDevice(one(mobileDevices()));
+
         UnregisterDeviceResponse expected = new UnregisterDeviceResponse()
-            .setRemovedDevice(one(mobileDevices()));
-        
+                .setRemovedDevice(one(mobileDevices()));
+
         when(unregisterDeviceOperation.process(request))
-            .thenReturn(expected);
-        
+                .thenReturn(expected);
+
         UnregisterDeviceResponse response = instance.unregisterDevice(request);
         assertThat(response, is(expected));
         verify(unregisterDeviceOperation).process(request);
@@ -1055,21 +983,21 @@ public class AromaServiceBaseTest
     public void testUnregisterDeviceWhenFails() throws Exception
     {
         UnregisterDeviceRequest request = new UnregisterDeviceRequest()
-            .setToken(token)
-            .setDevice(one(mobileDevices()));
-        
+                .setToken(token)
+                .setDevice(one(mobileDevices()));
+
         when(unregisterDeviceOperation.process(request))
-            .thenThrow(new DoesNotExistException());
-        
+                .thenThrow(new DoesNotExistException());
+
         assertThrows(() -> instance.unregisterDevice(request))
-            .isInstanceOf(DoesNotExistException.class);
+                .isInstanceOf(DoesNotExistException.class);
     }
 
     @Test
     public void testUnregisterDeviceWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.unregisterDevice(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
- 
+
 }

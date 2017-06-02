@@ -19,12 +19,11 @@ package tech.aroma.service.operations;
 import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.UserRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetApplicationsFollowedByRequest;
@@ -36,90 +35,89 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.isNullOrEmpty;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class GetApplicationsFollowedByOperation implements ThriftOperation<GetApplicationsFollowedByRequest, GetApplicationsFollowedByResponse>
 {
 
     private final static Logger LOG = LoggerFactory.getLogger(GetApplicationsFollowedByOperation.class);
-    
+
     private final ApplicationRepository appRepo;
     private final FollowerRepository followerRepo;
     private final UserRepository userRepo;
-    
+
     @Inject
     GetApplicationsFollowedByOperation(ApplicationRepository appRepo,
                                        FollowerRepository followerRepo,
                                        UserRepository userRepo)
     {
         checkThat(appRepo, followerRepo, userRepo)
-            .are(notNull());
-        
+                .are(notNull());
+
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
         this.userRepo = userRepo;
     }
-    
+
     @Override
     public GetApplicationsFollowedByResponse process(GetApplicationsFollowedByRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         String userId = request.userId;
-        
+
         if (isNullOrEmpty(userId))
         {
             userId = request.token.userId;
         }
-        
+
         checkThat(userId)
-            .throwing(InvalidArgumentException.class)
-            .usingMessage("userID is invalid")
-            .is(validUserId());
-        
+                .throwing(InvalidArgumentException.class)
+                .usingMessage("userID is invalid")
+                .is(validUserId());
+
         List<Application> apps = followerRepo.getApplicationsFollowedBy(userId)
-            .parallelStream()
-            .map(this::getFullInfo)
-            .filter(Objects::nonNull)
-            .sorted(comparing(app -> app.name))
-            .collect(toList());
-        
+                                             .parallelStream()
+                                             .map(this::getFullInfo)
+                                             .filter(Objects::nonNull)
+                                             .sorted(comparing(app -> app.name))
+                                             .collect(toList());
+
         LOG.debug("Found {} apps followed by [{]]", apps.size(), userId);
-        
+
         return new GetApplicationsFollowedByResponse(apps);
     }
-    
+
     private AlchemyAssertion<GetApplicationsFollowedByRequest> good()
     {
         return request ->
         {
             checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
+                    .usingMessage("request is null")
+                    .is(notNull());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .usingMessage("userId in token is invalid")
-                .is(validUserId());
-            
+                    .usingMessage("userId in token is invalid")
+                    .is(validUserId());
+
             if (request.isSetUserId())
             {
                 checkThat(request.userId)
-                    .is(validUserId());
+                        .is(validUserId());
             }
         };
     }
-  
+
     private Application getFullInfo(Application app)
     {
         try

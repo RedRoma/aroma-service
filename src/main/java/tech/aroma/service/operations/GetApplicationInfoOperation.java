@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,17 +33,16 @@ import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class GetApplicationInfoOperation implements ThriftOperation<GetApplicationInfoRequest, GetApplicationInfoResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetApplicationInfoOperation.class);
-    
+
     private final ApplicationRepository appRepo;
     private final FollowerRepository followerRepo;
 
@@ -50,8 +50,8 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
     GetApplicationInfoOperation(ApplicationRepository appRepo, FollowerRepository followerRepo)
     {
         checkThat(appRepo, followerRepo)
-            .are(notNull());
-        
+                .are(notNull());
+
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
     }
@@ -60,20 +60,20 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
     public GetApplicationInfoResponse process(GetApplicationInfoRequest request) throws TException
     {
         checkThat(request)
-            .throwing(InvalidArgumentException.class)
-            .is(good());
-        
+                .throwing(InvalidArgumentException.class)
+                .is(good());
+
         String appId = request.applicationId;
         Application app = appRepo.getById(appId);
-        
+
         String userId = request.token.ownerId;
-        
+
         if (request.includeFollowingInfo)
         {
             boolean isFollowing = tryToDetermineIfUserFollowingApp(userId, appId);
             app.setIsFollowing(isFollowing);
         }
-        
+
         return new GetApplicationInfoResponse().setApplicationInfo(app);
     }
 
@@ -82,15 +82,15 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
         return request ->
         {
             checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
+                    .usingMessage("request is null")
+                    .is(notNull());
+
             checkThat(request.applicationId)
-                .is(validApplicationId());
-            
+                    .is(validApplicationId());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
+                    .usingMessage("request missing token")
+                    .is(notNull());
         };
     }
 
@@ -100,12 +100,12 @@ final class GetApplicationInfoOperation implements ThriftOperation<GetApplicatio
         {
             return followerRepo.followingExists(userId, appId);
         }
-        catch(TException ex)
+        catch (TException ex)
         {
             LOG.error("Failed to determine if user [{]] follows app [{}]", userId, appId, ex);
             return false;
         }
-        
+
     }
 
 }

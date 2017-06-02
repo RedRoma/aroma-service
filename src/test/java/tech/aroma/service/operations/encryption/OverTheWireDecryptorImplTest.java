@@ -23,38 +23,34 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import tech.aroma.thrift.exceptions.InvalidCredentialsException;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static org.mockito.Mockito.*;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.HEXADECIMAL;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
 @RunWith(AlchemyTestRunner.class)
-public class OverTheWireDecryptorImplTest 
+public class OverTheWireDecryptorImplTest
 {
 
     @Mock
     private PBEStringEncryptor decryptor;
-    
+
     private OverTheWireDecryptorImpl instance;
-    
+
     @GenerateString(ALPHABETIC)
     private String message;
-    
+
     @GenerateString(HEXADECIMAL)
     private String encrypted;
-    
+
     @Before
     public void setUp() throws Exception
     {
@@ -70,7 +66,7 @@ public class OverTheWireDecryptorImplTest
     private void setupMocks() throws Exception
     {
         when(decryptor.decrypt(encrypted))
-            .thenReturn(message);
+                .thenReturn(message);
     }
 
     @Test
@@ -79,27 +75,27 @@ public class OverTheWireDecryptorImplTest
         String result = instance.decrypt(encrypted);
         assertThat(result, is(message));
     }
-    
+
     @DontRepeat
     @Test
     public void testDecryptWhenFails() throws Exception
     {
         when(decryptor.decrypt(encrypted))
-            .thenThrow(new RuntimeException());
-        
+                .thenThrow(new RuntimeException());
+
         assertThrows(() -> instance.decrypt(encrypted))
-            .isInstanceOf(TException.class);
+                .isInstanceOf(TException.class);
     }
-    
+
     @DontRepeat
     @Test
     public void testDecryptWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.decrypt(null))
-            .isInstanceOf(InvalidCredentialsException.class);
-        
+                .isInstanceOf(InvalidCredentialsException.class);
+
         assertThrows(() -> instance.decrypt(""))
-            .isInstanceOf(InvalidCredentialsException.class);
+                .isInstanceOf(InvalidCredentialsException.class);
     }
 
 }

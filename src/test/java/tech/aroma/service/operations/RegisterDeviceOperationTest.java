@@ -23,37 +23,27 @@ import org.mockito.Mock;
 import tech.aroma.data.UserPreferencesRepository;
 import tech.aroma.data.UserRepository;
 import tech.aroma.thrift.channels.MobileDevice;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.service.RegisterDeviceRequest;
 import tech.aroma.thrift.service.RegisterDeviceResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.aroma.thrift.generators.ChannelGenerators.mobileDevices;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class RegisterDeviceOperationTest 
+public class RegisterDeviceOperationTest
 {
-   
+
     @Mock
     private UserPreferencesRepository userPreferencesRepo;
 
@@ -61,10 +51,10 @@ public class RegisterDeviceOperationTest
     private UserRepository userRepo;
 
     private RegisterDeviceOperation instance;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
     @GeneratePojo
     private RegisterDeviceRequest request;
 
@@ -73,7 +63,7 @@ public class RegisterDeviceOperationTest
     @Before
     public void setUp() throws Exception
     {
-        
+
         setupData();
         setupMocks();
 
@@ -85,7 +75,7 @@ public class RegisterDeviceOperationTest
     private void setupData() throws Exception
     {
         device = one(mobileDevices());
-        
+
         request.device = device;
         request.token.userId = userId;
     }
@@ -93,9 +83,9 @@ public class RegisterDeviceOperationTest
     private void setupMocks() throws Exception
     {
         when(userRepo.containsUser(userId)).thenReturn(true);
-        
+
     }
-    
+
     @DontRepeat
     @Test
     public void testConstructor() throws Exception
@@ -112,58 +102,58 @@ public class RegisterDeviceOperationTest
 
         verify(userRepo).containsUser(userId);
         verify(userPreferencesRepo).saveMobileDevice(userId, device);
-        
+
     }
-    
+
     @Test
     public void testProcessWhenUserDoesNotExist() throws Exception
     {
         when(userRepo.containsUser(userId))
-            .thenReturn(false);
-        
+                .thenReturn(false);
+
         assertThrows(() -> instance.process(request)).isInstanceOf(UserDoesNotExistException.class);
         verifyZeroInteractions(userPreferencesRepo);
     }
-    
+
     @Test
     public void testWhenDeviceRepoFails() throws Exception
     {
         doThrow(new OperationFailedException())
-            .when(userPreferencesRepo)
-            .saveMobileDevice(userId, device);
-        
+                .when(userPreferencesRepo)
+                .saveMobileDevice(userId, device);
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testWhenUserRepoFails() throws Exception
     {
         when(userRepo.containsUser(userId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
-        
+                .isInstanceOf(OperationFailedException.class);
+
         verifyZeroInteractions(userPreferencesRepo);
     }
-    
+
     @DontRepeat
     @Test
     public void testProcessWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null)).isInstanceOf(InvalidArgumentException.class);
-        
+
         RegisterDeviceRequest requestWithoutDevice = new RegisterDeviceRequest(request);
         requestWithoutDevice.unsetDevice();
         assertThrows(() -> instance.process(requestWithoutDevice)).isInstanceOf(InvalidArgumentException.class);
-        
+
         RegisterDeviceRequest emptyRequest = new RegisterDeviceRequest();
         assertThrows(() -> instance.process(emptyRequest)).isInstanceOf(InvalidArgumentException.class);
-        
+
         RegisterDeviceRequest requestWithoutToken = new RegisterDeviceRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken)).isInstanceOf(InvalidArgumentException.class);
     }
- 
+
 }

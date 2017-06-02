@@ -17,6 +17,7 @@
 package tech.aroma.service.operations;
 
 import java.util.List;
+
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,46 +28,41 @@ import tech.aroma.thrift.Message;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetDashboardRequest;
 import tech.aroma.thrift.service.GetDashboardResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static org.mockito.Mockito.*;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class GetDashboardOperationTest 
+public class GetDashboardOperationTest
 {
     @Mock
     private InboxRepository inboxRepo;
-    
+
     @GenerateList(Message.class)
     private List<Message> messages;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
     @GeneratePojo
     private GetDashboardRequest request;
-    
+
     private GetDashboardOperation instance;
-    
+
     @Before
     public void setUp() throws Exception
     {
         instance = new GetDashboardOperation(inboxRepo);
-        
+
         setupData();
         setupMocks();
     }
@@ -76,21 +72,21 @@ public class GetDashboardOperationTest
     {
         GetDashboardResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         response.recentMessages.forEach(m -> assertThat(m, isIn(messages)));
     }
-    
+
     @Test
     public void testProcessEdgeCases()
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     private void setupMocks() throws TException
     {
         when(inboxRepo.getMessagesForUser(userId))
-            .thenReturn(messages);
+                .thenReturn(messages);
     }
 
     private void setupData()

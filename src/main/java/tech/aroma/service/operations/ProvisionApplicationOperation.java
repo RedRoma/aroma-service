@@ -16,56 +16,35 @@
 
 package tech.aroma.service.operations;
 
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.MediaRepository;
-import tech.aroma.data.UserRepository;
-import tech.aroma.thrift.Application;
-import tech.aroma.thrift.Image;
-import tech.aroma.thrift.LengthOfTime;
-import tech.aroma.thrift.TimeUnit;
-import tech.aroma.thrift.User;
-import tech.aroma.thrift.authentication.ApplicationToken;
-import tech.aroma.thrift.authentication.AuthenticationToken;
-import tech.aroma.thrift.authentication.TokenType;
-import tech.aroma.thrift.authentication.UserToken;
-import tech.aroma.thrift.authentication.service.AuthenticationService;
-import tech.aroma.thrift.authentication.service.CreateTokenRequest;
-import tech.aroma.thrift.authentication.service.CreateTokenResponse;
-import tech.aroma.thrift.authentication.service.GetTokenInfoRequest;
-import tech.aroma.thrift.authentication.service.GetTokenInfoResponse;
+import tech.aroma.data.*;
+import tech.aroma.thrift.*;
+import tech.aroma.thrift.authentication.*;
+import tech.aroma.thrift.authentication.service.*;
 import tech.aroma.thrift.email.EmailMessage;
 import tech.aroma.thrift.email.EmailNewApplication;
 import tech.aroma.thrift.email.service.EmailService;
 import tech.aroma.thrift.email.service.SendEmailRequest;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.InvalidTokenException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.service.AromaServiceConstants;
-import tech.aroma.thrift.service.ProvisionApplicationRequest;
-import tech.aroma.thrift.service.ProvisionApplicationResponse;
+import tech.aroma.thrift.exceptions.*;
+import tech.aroma.thrift.service.*;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static java.time.Instant.now;
 import static tech.aroma.data.assertions.AuthenticationAssertions.completeToken;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.stringWithLengthLessThanOrEqualTo;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 
 /**
- *
  * @author SirWellington
  */
 @Internal
@@ -93,12 +72,12 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
     {
         checkThat(appRepo,
                   followerRepo,
-                  mediaRepo, 
+                  mediaRepo,
                   userRepo,
-                  authenticationService, 
+                  authenticationService,
                   emailService,
                   appTokenMapper)
-            .are(notNull());
+                .are(notNull());
 
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
@@ -115,8 +94,8 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         LOG.info("Received request to provision an Application", request);
 
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         AuthenticationToken authTokenForUser = getUserTokenFrom(request.token);
         User user = userRepo.getUser(authTokenForUser.ownerId);
@@ -140,21 +119,21 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         app.setTimeOfTokenExpiration(appToken.timeOfExpiration);
 
         appRepo.saveApplication(app);
-        
+
         saveOwnersAsFollowers(app);
         sendOutEmail(user, app, appToken, authTokenForUser);
-        
+
         return new ProvisionApplicationResponse()
-            .setApplicationInfo(app)
-            .setApplicationToken(appToken);
+                .setApplicationInfo(app)
+                .setApplicationToken(appToken);
 
     }
 
     private AuthenticationToken getUserTokenFrom(UserToken token) throws InvalidTokenException, OperationFailedException
     {
         GetTokenInfoRequest request = new GetTokenInfoRequest()
-            .setTokenId(token.tokenId)
-            .setTokenType(TokenType.USER);
+                .setTokenId(token.tokenId)
+                .setTokenType(TokenType.USER);
 
         GetTokenInfoResponse response;
 
@@ -173,9 +152,9 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         }
 
         checkThat(response.token)
-            .throwing(OperationFailedException.class)
-            .usingMessage("Auth service returned null response")
-            .is(notNull());
+                .throwing(OperationFailedException.class)
+                .usingMessage("Auth service returned null response")
+                .is(notNull());
 
         return response.token;
     }
@@ -188,29 +167,29 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         String appId = UUID.randomUUID().toString();
 
         return new Application()
-            .setApplicationId(appId)
-            .setName(request.applicationName)
-            .setApplicationDescription(request.applicationDescription)
-            .setOrganizationId(request.organizationId)
-            .setTier(request.tier)
-            .setProgrammingLanguage(request.programmingLanguage)
-            .setTimeOfProvisioning(now().toEpochMilli())
-            .setTotalMessagesSent(0L)
-            .setOwners(owners);
+                .setApplicationId(appId)
+                .setName(request.applicationName)
+                .setApplicationDescription(request.applicationDescription)
+                .setOrganizationId(request.organizationId)
+                .setTier(request.tier)
+                .setProgrammingLanguage(request.programmingLanguage)
+                .setTimeOfProvisioning(now().toEpochMilli())
+                .setTotalMessagesSent(0L)
+                .setOwners(owners);
     }
 
     private AuthenticationToken createAppTokenFor(Application app) throws OperationFailedException
     {
         LengthOfTime lifetime = new LengthOfTime()
-            .setUnit(TimeUnit.DAYS)
-            .setValue(180);
+                .setUnit(TimeUnit.DAYS)
+                .setValue(180);
 
         CreateTokenRequest request = new CreateTokenRequest()
-            .setDesiredTokenType(TokenType.APPLICATION)
-            .setLifetime(lifetime)
-            .setOrganizationId(app.organizationId)
-            .setOwnerId(app.applicationId)
-            .setOwnerName(app.name);
+                .setDesiredTokenType(TokenType.APPLICATION)
+                .setLifetime(lifetime)
+                .setOrganizationId(app.organizationId)
+                .setOwnerId(app.applicationId)
+                .setOwnerName(app.name);
 
         CreateTokenResponse response;
 
@@ -225,14 +204,14 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         }
 
         checkThat(response)
-            .throwing(OperationFailedException.class)
-            .usingMessage("Authentication Service returned null")
-            .is(notNull());
+                .throwing(OperationFailedException.class)
+                .usingMessage("Authentication Service returned null")
+                .is(notNull());
 
         checkThat(response.token)
-            .usingMessage("Auth Service returned incomplete token")
-            .throwing(OperationFailedException.class)
-            .is(completeToken());
+                .usingMessage("Auth Service returned incomplete token")
+                .throwing(OperationFailedException.class)
+                .is(completeToken());
 
         return response.token;
     }
@@ -242,18 +221,18 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
         return request ->
         {
             checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
+                    .usingMessage("request is null")
+                    .is(notNull());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.applicationName)
-                .usingMessage("Application name is required")
-                .is(nonEmptyString())
-                .usingMessage("Application name is too long")
-                .is(stringWithLengthLessThanOrEqualTo(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH));
+                    .usingMessage("Application name is required")
+                    .is(nonEmptyString())
+                    .usingMessage("Application name is too long")
+                    .is(stringWithLengthLessThanOrEqualTo(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH));
         };
     }
 
@@ -310,22 +289,22 @@ final class ProvisionApplicationOperation implements ThriftOperation<ProvisionAp
             LOG.warn("Could not save Following Information between Owner [{}] and App [{}]", owner, app, ex);
         }
     }
-    
+
     private void sendOutEmail(User user, Application app, ApplicationToken appToken, AuthenticationToken token)
     {
         EmailNewApplication newApplicationEmail = new EmailNewApplication()
-            .setApp(app)
-            .setCreator(user)
-            .setAppToken(appToken);
-        
+                .setApp(app)
+                .setCreator(user)
+                .setAppToken(appToken);
+
         EmailMessage message = new EmailMessage();
         message.setNewApp(newApplicationEmail);
-        
+
         SendEmailRequest request = new SendEmailRequest()
-            .setEmailAddress(user.email)
-            .setEmailMessage(message)
-            .setToken(token);
-        
+                .setEmailAddress(user.email)
+                .setEmailMessage(message)
+                .setToken(token);
+
         try
         {
             emailService.sendEmail(request);

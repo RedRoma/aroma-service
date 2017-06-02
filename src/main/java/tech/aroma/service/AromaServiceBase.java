@@ -17,90 +17,20 @@
 package tech.aroma.service;
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aroma.thrift.AromaConstants;
-import tech.aroma.thrift.exceptions.AccountAlreadyExistsException;
-import tech.aroma.thrift.exceptions.ApplicationAlreadyRegisteredException;
-import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
-import tech.aroma.thrift.exceptions.CustomChannelUnreachableException;
-import tech.aroma.thrift.exceptions.DoesNotExistException;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.InvalidCredentialsException;
-import tech.aroma.thrift.exceptions.InvalidTokenException;
-import tech.aroma.thrift.exceptions.MessageDoesNotExistException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UnauthorizedException;
-import tech.aroma.thrift.exceptions.UserDoesNotExistException;
-import tech.aroma.thrift.service.AromaService;
-import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
-import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
-import tech.aroma.thrift.service.DeleteApplicationRequest;
-import tech.aroma.thrift.service.DeleteApplicationResponse;
-import tech.aroma.thrift.service.DeleteMessageRequest;
-import tech.aroma.thrift.service.DeleteMessageResponse;
-import tech.aroma.thrift.service.DismissMessageRequest;
-import tech.aroma.thrift.service.DismissMessageResponse;
-import tech.aroma.thrift.service.FollowApplicationRequest;
-import tech.aroma.thrift.service.FollowApplicationResponse;
-import tech.aroma.thrift.service.GetActivityRequest;
-import tech.aroma.thrift.service.GetActivityResponse;
-import tech.aroma.thrift.service.GetApplicationInfoRequest;
-import tech.aroma.thrift.service.GetApplicationInfoResponse;
-import tech.aroma.thrift.service.GetApplicationMessagesRequest;
-import tech.aroma.thrift.service.GetApplicationMessagesResponse;
-import tech.aroma.thrift.service.GetApplicationsFollowedByRequest;
-import tech.aroma.thrift.service.GetApplicationsFollowedByResponse;
-import tech.aroma.thrift.service.GetApplicationsOwnedByRequest;
-import tech.aroma.thrift.service.GetApplicationsOwnedByResponse;
-import tech.aroma.thrift.service.GetBuzzRequest;
-import tech.aroma.thrift.service.GetBuzzResponse;
-import tech.aroma.thrift.service.GetDashboardRequest;
-import tech.aroma.thrift.service.GetDashboardResponse;
-import tech.aroma.thrift.service.GetFullMessageRequest;
-import tech.aroma.thrift.service.GetFullMessageResponse;
-import tech.aroma.thrift.service.GetInboxRequest;
-import tech.aroma.thrift.service.GetInboxResponse;
-import tech.aroma.thrift.service.GetMediaRequest;
-import tech.aroma.thrift.service.GetMediaResponse;
-import tech.aroma.thrift.service.GetReactionsRequest;
-import tech.aroma.thrift.service.GetReactionsResponse;
-import tech.aroma.thrift.service.GetRegisteredDevicesRequest;
-import tech.aroma.thrift.service.GetRegisteredDevicesResponse;
-import tech.aroma.thrift.service.GetUserInfoRequest;
-import tech.aroma.thrift.service.GetUserInfoResponse;
-import tech.aroma.thrift.service.ProvisionApplicationRequest;
-import tech.aroma.thrift.service.ProvisionApplicationResponse;
-import tech.aroma.thrift.service.RecreateApplicationTokenRequest;
-import tech.aroma.thrift.service.RecreateApplicationTokenResponse;
-import tech.aroma.thrift.service.RegisterDeviceRequest;
-import tech.aroma.thrift.service.RegisterDeviceResponse;
-import tech.aroma.thrift.service.RegisterHealthCheckRequest;
-import tech.aroma.thrift.service.RegisterHealthCheckResponse;
-import tech.aroma.thrift.service.RenewApplicationTokenRequest;
-import tech.aroma.thrift.service.RenewApplicationTokenResponse;
-import tech.aroma.thrift.service.SearchForApplicationsRequest;
-import tech.aroma.thrift.service.SearchForApplicationsResponse;
-import tech.aroma.thrift.service.SignInRequest;
-import tech.aroma.thrift.service.SignInResponse;
-import tech.aroma.thrift.service.SignUpRequest;
-import tech.aroma.thrift.service.SignUpResponse;
-import tech.aroma.thrift.service.UnfollowApplicationRequest;
-import tech.aroma.thrift.service.UnfollowApplicationResponse;
-import tech.aroma.thrift.service.UnregisterDeviceRequest;
-import tech.aroma.thrift.service.UnregisterDeviceResponse;
-import tech.aroma.thrift.service.UpdateApplicationRequest;
-import tech.aroma.thrift.service.UpdateApplicationResponse;
-import tech.aroma.thrift.service.UpdateReactionsRequest;
-import tech.aroma.thrift.service.UpdateReactionsResponse;
+import tech.aroma.thrift.exceptions.*;
+import tech.aroma.thrift.service.*;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.service.AromaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.annotations.designs.patterns.DecoratorPattern.Role.COMPONENT;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
@@ -239,7 +169,7 @@ final class AromaServiceBase implements AromaService.Iface
                   updateApplicationOperation,
                   updateReactionsOperation,
                   deleteMessageOperation)
-            .are(notNull());
+                .are(notNull());
 
         this.checkIfDeviceIsRegisteredOperation = checkIfDeviceIsRegisteredOperation;
         this.deleteApplicationOperation = deleteApplicationOperation;
@@ -272,23 +202,20 @@ final class AromaServiceBase implements AromaService.Iface
         this.updateApplicationOperation = updateApplicationOperation;
         this.updateReactionsOperation = updateReactionsOperation;
     }
-    
-    
-    
-    
-    
+
+
     @Override
     public double getApiVersion() throws TException
     {
         return AromaConstants.API_VERSION;
     }
- 
+
     @Override
     public DeleteApplicationResponse deleteApplication(DeleteApplicationRequest request) throws OperationFailedException,
                                                                                                 InvalidArgumentException,
                                                                                                 InvalidTokenException,
                                                                                                 ApplicationDoesNotExistException,
-                                                                                                UnauthorizedException, 
+                                                                                                UnauthorizedException,
                                                                                                 TException
     {
         checkNotNull(request);
@@ -297,19 +224,19 @@ final class AromaServiceBase implements AromaService.Iface
 
         return deleteApplicationOperation.process(request);
     }
-   
+
     @Override
     public DeleteMessageResponse deleteMessage(DeleteMessageRequest request) throws OperationFailedException,
                                                                                     InvalidArgumentException,
                                                                                     InvalidTokenException,
                                                                                     MessageDoesNotExistException,
-                                                                                    UnauthorizedException, 
+                                                                                    UnauthorizedException,
                                                                                     TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to delete message {}", request);
-        
+
         return deleteMessageOperation.process(request);
     }
 
@@ -318,17 +245,17 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                        InvalidArgumentException,
                                                                                        InvalidTokenException,
                                                                                        MessageDoesNotExistException,
-                                                                                       UnauthorizedException, 
+                                                                                       UnauthorizedException,
                                                                                        TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to dismiss message {}", request);
-        
+
         return dismissMessageOperation.process(request);
     }
 
-    
+
     @Override
     public FollowApplicationResponse followApplication(FollowApplicationRequest request) throws OperationFailedException,
                                                                                                 InvalidArgumentException,
@@ -339,9 +266,9 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                 TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to follow Application {}", request);
-        
+
         return followApplicationOperation.process(request);
     }
 
@@ -362,11 +289,11 @@ final class AromaServiceBase implements AromaService.Iface
 
     @Override
     public RecreateApplicationTokenResponse recreateToken(RecreateApplicationTokenRequest request) throws OperationFailedException,
-                                                                                                                InvalidArgumentException,
-                                                                                                                InvalidCredentialsException,
-                                                                                                                ApplicationDoesNotExistException,
-                                                                                                                UnauthorizedException,
-                                                                                                                TException
+                                                                                                          InvalidArgumentException,
+                                                                                                          InvalidCredentialsException,
+                                                                                                          ApplicationDoesNotExistException,
+                                                                                                          UnauthorizedException,
+                                                                                                          TException
     {
         checkNotNull(request);
 
@@ -415,10 +342,10 @@ final class AromaServiceBase implements AromaService.Iface
     {
         checkNotNull(request);
         ensureEmailIsLowerCased(request);
-        
+
         LOG.info("Received request to sign in: {}", request);
 
-        
+
         return signInOperation.process(request);
     }
 
@@ -431,13 +358,13 @@ final class AromaServiceBase implements AromaService.Iface
     {
         checkNotNull(request);
         ensureEmailIsLowerCased(request);
-        
+
         LOG.info("Received request to Sign Up: {}", request);
 
         return signUpOperation.process(request);
     }
 
-       
+
     @Override
     public UpdateApplicationResponse updateApplication(UpdateApplicationRequest request) throws OperationFailedException,
                                                                                                 InvalidArgumentException,
@@ -447,12 +374,12 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                 TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to update Application: {}", request);
-        
+
         return updateApplicationOperation.process(request);
     }
-    
+
     @Override
     public UnfollowApplicationResponse unfollowApplication(UnfollowApplicationRequest request) throws OperationFailedException,
                                                                                                       InvalidArgumentException,
@@ -462,9 +389,9 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                       TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to Unfollow Application: {}", request);
-        
+
         return unfollowApplicationOperation.process(request);
     }
 
@@ -499,7 +426,7 @@ final class AromaServiceBase implements AromaService.Iface
     @Override
     public GetDashboardResponse getDashboard(GetDashboardRequest request) throws OperationFailedException,
                                                                                  InvalidArgumentException,
-                                                                                 InvalidCredentialsException, 
+                                                                                 InvalidCredentialsException,
                                                                                  TException
     {
         checkNotNull(request);
@@ -517,12 +444,12 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                                TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to Get Application Messages: {}", request);
-        
+
         return getApplicationMessagesOperation.process(request);
     }
-    
+
 
     @Override
     public GetInboxResponse getInbox(GetInboxRequest request) throws OperationFailedException,
@@ -533,37 +460,37 @@ final class AromaServiceBase implements AromaService.Iface
         checkNotNull(request);
 
         LOG.info("Received request to Get Inbox: {}", request);
-        
+
         return getInboxOperation.process(request);
     }
 
     @Override
-    public GetMediaResponse getMedia(GetMediaRequest request) throws OperationFailedException, 
+    public GetMediaResponse getMedia(GetMediaRequest request) throws OperationFailedException,
                                                                      InvalidArgumentException,
-                                                                     InvalidTokenException, 
+                                                                     InvalidTokenException,
                                                                      DoesNotExistException,
                                                                      UnauthorizedException,
                                                                      TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to Get Media: {}", request);
-        
+
         return getMediaOperation.process(request);
     }
 
-    
+
     @Override
     public GetFullMessageResponse getFullMessage(GetFullMessageRequest request) throws OperationFailedException,
                                                                                        InvalidArgumentException,
-                                                                                       InvalidCredentialsException, 
+                                                                                       InvalidCredentialsException,
                                                                                        TException
     {
         checkNotNull(request);
 
         LOG.info("Received request to Get Full Message: {}", request);
 
-        
+
         return getFullMessageOperation.process(request);
     }
 
@@ -574,17 +501,17 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                                         TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to get Applications Followed By: {}", request);
-        
+
         return getApplicationsFollowedByOperation.process(request);
     }
 
     @Override
     public GetApplicationsOwnedByResponse getApplicationsOwnedBy(GetApplicationsOwnedByRequest request) throws OperationFailedException,
-                                                                                                InvalidArgumentException,
-                                                                                                InvalidCredentialsException,
-                                                                                                TException
+                                                                                                               InvalidArgumentException,
+                                                                                                               InvalidCredentialsException,
+                                                                                                               TException
     {
         checkNotNull(request);
 
@@ -604,12 +531,12 @@ final class AromaServiceBase implements AromaService.Iface
 
         LOG.info("Received request to Search for applications: {}", request);
 
-        
+
         return searchForApplicationsOperation.process(request);
     }
 
     @Override
-    public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException, 
+    public GetBuzzResponse getBuzz(GetBuzzRequest request) throws OperationFailedException,
                                                                   InvalidArgumentException,
                                                                   InvalidTokenException,
                                                                   ApplicationDoesNotExistException,
@@ -617,25 +544,25 @@ final class AromaServiceBase implements AromaService.Iface
                                                                   TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to get Buzz: {}", request);
-        
+
         return getBuzzOperation.process(request);
     }
 
     @Override
-    public GetUserInfoResponse getUserInfo(GetUserInfoRequest request) throws OperationFailedException, 
+    public GetUserInfoResponse getUserInfo(GetUserInfoRequest request) throws OperationFailedException,
                                                                               InvalidArgumentException,
                                                                               InvalidTokenException,
                                                                               UnauthorizedException,
-                                                                              UserDoesNotExistException, 
+                                                                              UserDoesNotExistException,
                                                                               TException
     {
         checkNotNull(request);
         ensureEmailIsLowerCasedIfPresent(request);
-        
+
         LOG.info("Received request to get User Info: {}", request);
-        
+
         return getUserInfoOperation.process(request);
     }
 
@@ -644,13 +571,13 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                           InvalidArgumentException,
                                                                                           InvalidTokenException,
                                                                                           ApplicationDoesNotExistException,
-                                                                                          UnauthorizedException, 
+                                                                                          UnauthorizedException,
                                                                                           TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to update Reactions: {}", request);
-        
+
         return updateReactionsOperation.process(request);
     }
 
@@ -659,17 +586,16 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                  InvalidArgumentException,
                                                                                  InvalidTokenException,
                                                                                  ApplicationDoesNotExistException,
-                                                                                 UnauthorizedException, 
+                                                                                 UnauthorizedException,
                                                                                  TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to get Reactions: {}", request);
-        
+
         return getReactionsOperation.process(request);
     }
-    
-   
+
 
     //==========================================================
     // DEVICE OPERATIONS
@@ -683,9 +609,9 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                                         TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to check if device is registered: {}", request.device);
-        
+
         return checkIfDeviceIsRegisteredOperation.process(request);
     }
 
@@ -697,9 +623,9 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                                          TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to GetRegisteredDevices by {}", request.token.userId);
-        
+
         return getRegisteredDevicesOperation.process(request);
     }
 
@@ -711,9 +637,9 @@ final class AromaServiceBase implements AromaService.Iface
                                                                                        TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received request to register a device: {}", request.device);
-        
+
         return registerDeviceOperation.process(request);
     }
 
@@ -721,16 +647,16 @@ final class AromaServiceBase implements AromaService.Iface
     public UnregisterDeviceResponse unregisterDevice(UnregisterDeviceRequest request) throws OperationFailedException,
                                                                                              InvalidArgumentException,
                                                                                              InvalidTokenException,
-                                                                                             UnauthorizedException, 
+                                                                                             UnauthorizedException,
                                                                                              TException
     {
         checkNotNull(request);
-        
+
         LOG.info("Received a request to unregister a device: {}", request.device);
-        
+
         return unregisterDeviceOperation.process(request);
     }
-    
+
 
     //==========================================================
     // INTERNAL OPERATIONS

@@ -19,44 +19,30 @@ package tech.aroma.service.operations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import tech.aroma.data.ActivityRepository;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.UserRepository;
+import org.mockito.*;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
 import tech.aroma.thrift.authentication.UserToken;
 import tech.aroma.thrift.events.Event;
-import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.service.UnfollowApplicationRequest;
 import tech.aroma.thrift.service.UnfollowApplicationResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static org.mockito.Mockito.*;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -65,13 +51,13 @@ public class UnfollowApplicationOperationTest
 {
     @Mock
     private ActivityRepository activityRepo;
-    
+
     @Mock
     private ApplicationRepository appRepo;
-    
+
     @Mock
     private FollowerRepository followerRepo;
-    
+
     @Mock
     private UserRepository userRepo;
 
@@ -83,7 +69,7 @@ public class UnfollowApplicationOperationTest
 
     @GenerateString(UUID)
     private String userId;
-    
+
     @GeneratePojo
     private User user;
 
@@ -92,9 +78,9 @@ public class UnfollowApplicationOperationTest
 
     @GeneratePojo
     private Application app;
-    
+
     private UnfollowApplicationOperation instance;
-    
+
     @Captor
     private ArgumentCaptor<Event> captor;
 
@@ -113,7 +99,7 @@ public class UnfollowApplicationOperationTest
         request.setApplicationId(appId);
 
         app.applicationId = appId;
-        
+
         user.userId = userId;
     }
 
@@ -138,15 +124,15 @@ public class UnfollowApplicationOperationTest
     {
         UnfollowApplicationResponse response = instance.process(request);
         assertThat(response, notNullValue());
-        
+
         verify(followerRepo).deleteFollowing(userId, appId);
-        
+
         for (String ownerId : app.owners)
         {
             User owner = new User().setUserId(ownerId);
-            
+
             verify(activityRepo).saveEvent(captor.capture(), eq(owner));
-            
+
             Event event = captor.getValue();
             checkEvent(event);
         }
@@ -156,50 +142,50 @@ public class UnfollowApplicationOperationTest
     public void testWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         UnfollowApplicationRequest emptyRequest = new UnfollowApplicationRequest();
         assertThrows(() -> instance.process(emptyRequest))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         UnfollowApplicationRequest requestMissingToken = new UnfollowApplicationRequest(request);
         requestMissingToken.unsetToken();
         assertThrows(() -> instance.process(requestMissingToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         UnfollowApplicationRequest requestWithBadAppId = new UnfollowApplicationRequest(request)
-            .setApplicationId(badId);
+                .setApplicationId(badId);
         assertThrows(() -> instance.process(requestWithBadAppId))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         UserToken badToken = new UserToken(request.token).setUserId(badId);
         UnfollowApplicationRequest requestWithBadToken = new UnfollowApplicationRequest(request)
-            .setToken(badToken);
+                .setToken(badToken);
         assertThrows(() -> instance.process(requestWithBadToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
-    
+
     @Test
     public void testWhenUserDoesNotExist() throws Exception
     {
         when(userRepo.getUser(userId))
-            .thenThrow(UserDoesNotExistException.class);
-        
+                .thenThrow(UserDoesNotExistException.class);
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
         verifyZeroInteractions(followerRepo, activityRepo);
-        
+
     }
-    
+
     @Test
     public void testWhenApplicationDoesNotExist() throws Exception
     {
         when(appRepo.getById(appId))
-            .thenThrow(new ApplicationDoesNotExistException());
-        
+                .thenThrow(new ApplicationDoesNotExistException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(ApplicationDoesNotExistException.class);
-            
+                .isInstanceOf(ApplicationDoesNotExistException.class);
+
         verifyZeroInteractions(followerRepo, activityRepo);
     }
 

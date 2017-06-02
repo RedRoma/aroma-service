@@ -26,24 +26,19 @@ import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredRequest;
 import tech.aroma.thrift.service.CheckIfDeviceIsRegisteredResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.aroma.thrift.generators.ChannelGenerators.mobileDevices;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.BooleanGenerators.booleans;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
@@ -99,7 +94,7 @@ public class CheckIfDeviceIsRegisteredOperationTest
     {
         boolean deviceExists = one(booleans());
         when(userPreferencesRepo.containsMobileDevice(userId, device))
-            .thenReturn(deviceExists);
+                .thenReturn(deviceExists);
 
         CheckIfDeviceIsRegisteredResponse response = instance.process(request);
         assertThat(response.isRegistered, is(deviceExists));
@@ -111,10 +106,10 @@ public class CheckIfDeviceIsRegisteredOperationTest
     public void testProcessWhenDeviceRepoFails() throws Exception
     {
         when(userPreferencesRepo.containsMobileDevice(userId, device))
-            .thenThrow(new OperationFailedException());
+                .thenThrow(new OperationFailedException());
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
 
     @Test
@@ -122,10 +117,10 @@ public class CheckIfDeviceIsRegisteredOperationTest
     {
         assertThrows(() -> instance.process(null)).isInstanceOf(InvalidArgumentException.class);
         assertThrows(() -> instance.process(new CheckIfDeviceIsRegisteredRequest())).isInstanceOf(InvalidArgumentException.class);
-        
+
         CheckIfDeviceIsRegisteredRequest requestWithoutToken = new CheckIfDeviceIsRegisteredRequest();
         assertThrows(() -> instance.process(requestWithoutToken)).isInstanceOf(InvalidArgumentException.class);
-        
+
         CheckIfDeviceIsRegisteredRequest requestWithoutDevice = new CheckIfDeviceIsRegisteredRequest(request);
         requestWithoutDevice.unsetDevice();
         assertThrows(() -> instance.process(requestWithoutDevice)).isInstanceOf(InvalidArgumentException.class);

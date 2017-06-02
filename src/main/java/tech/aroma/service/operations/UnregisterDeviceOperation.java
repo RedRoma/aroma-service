@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +34,10 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validMobileDevice;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class UnregisterDeviceOperation implements ThriftOperation<UnregisterDeviceRequest, UnregisterDeviceResponse>
@@ -51,7 +51,7 @@ final class UnregisterDeviceOperation implements ThriftOperation<UnregisterDevic
     UnregisterDeviceOperation(UserRepository userRepo, UserPreferencesRepository userPreferencesRepo)
     {
         checkThat(userRepo, userPreferencesRepo)
-            .is(notNull());
+                .is(notNull());
 
         this.userRepo = userRepo;
         this.userPreferencesRepo = userPreferencesRepo;
@@ -61,14 +61,14 @@ final class UnregisterDeviceOperation implements ThriftOperation<UnregisterDevic
     public UnregisterDeviceResponse process(UnregisterDeviceRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         String userId = request.token.userId;
         ensureUserIdExists(userId);
-        
+
         userPreferencesRepo.deleteMobileDevice(userId, request.device);
-        
+
         return new UnregisterDeviceResponse();
     }
 
@@ -77,16 +77,16 @@ final class UnregisterDeviceOperation implements ThriftOperation<UnregisterDevic
         return request ->
         {
             checkThat(request).is(notNull());
-            
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
-            
+                    .is(validUserId());
+
             checkThat(request.device)
-                .is(validMobileDevice());
+                    .is(validMobileDevice());
         };
     }
 

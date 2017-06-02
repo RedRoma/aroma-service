@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,26 +33,25 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.isNullOrEmpty;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.BooleanAssertions.trueStatement;
 import static tech.sirwellington.alchemy.arguments.assertions.PeopleAssertions.validEmailAddress;
 
 /**
- *
  * @author SirWellington
  */
 final class GetUserInfoOperation implements ThriftOperation<GetUserInfoRequest, GetUserInfoResponse>
 {
     private final static Logger LOG = LoggerFactory.getLogger(GetUserInfoOperation.class);
-    
+
     private final UserRepository userRepo;
 
     @Inject
     GetUserInfoOperation(UserRepository userRepo)
     {
         checkThat(userRepo).is(notNull());
-        
+
         this.userRepo = userRepo;
     }
 
@@ -59,9 +59,9 @@ final class GetUserInfoOperation implements ThriftOperation<GetUserInfoRequest, 
     public GetUserInfoResponse process(GetUserInfoRequest request) throws TException
     {
         checkThat(request)
-            .throwing(InvalidArgumentException.class)
-            .is(good());
-            
+                .throwing(InvalidArgumentException.class)
+                .is(good());
+
         User user;
         if (shouldFindByEmail(request))
         {
@@ -73,7 +73,7 @@ final class GetUserInfoOperation implements ThriftOperation<GetUserInfoRequest, 
             String userId = request.userId;
             user = userRepo.getUser(userId);
         }
-        
+
         return new GetUserInfoResponse().setUserInfo(user);
     }
 
@@ -82,27 +82,27 @@ final class GetUserInfoOperation implements ThriftOperation<GetUserInfoRequest, 
         return request ->
         {
             checkThat(request)
-                .is(notNull());
-            
+                    .is(notNull());
+
             checkThat(request.token)
-                .is(notNull());
-            
+                    .is(notNull());
+
             checkThat(request.isSetEmail() || request.isSetUserId())
-                .usingMessage("Request must have either email or userId set")
-                .is(trueStatement());
-            
+                    .usingMessage("Request must have either email or userId set")
+                    .is(trueStatement());
+
             if (request.isSetUserId())
             {
                 checkThat(request.userId)
-                    .is(validUserId());
+                        .is(validUserId());
             }
-            
-            if(request.isSetEmail())
+
+            if (request.isSetEmail())
             {
                 checkThat(request.email)
-                    .is(validEmailAddress());
+                        .is(validEmailAddress());
             }
-            
+
         };
     }
 

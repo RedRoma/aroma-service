@@ -20,20 +20,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sir.wellington.alchemy.collections.sets.Sets;
-import tech.aroma.data.ActivityRepository;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.MediaRepository;
-import tech.aroma.data.UserRepository;
-import tech.aroma.thrift.Application;
-import tech.aroma.thrift.Image;
-import tech.aroma.thrift.User;
-import tech.aroma.thrift.events.ApplicationUpdated;
-import tech.aroma.thrift.events.Event;
-import tech.aroma.thrift.events.EventType;
+import tech.aroma.data.*;
+import tech.aroma.thrift.*;
+import tech.aroma.thrift.events.*;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.UnauthorizedException;
 import tech.aroma.thrift.service.UpdateApplicationRequest;
@@ -46,14 +40,13 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static tech.aroma.data.assertions.RequestAssertions.validApplication;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.CollectionAssertions.nonEmptySet;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
 /**
- *
  * @author SirWellington
  */
 final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicationRequest, UpdateApplicationResponse>
@@ -73,7 +66,7 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
                                UserRepository userRepo)
     {
         checkThat(activityRepo, appRepo, mediaRepo, userRepo)
-            .are(notNull());
+                .are(notNull());
 
         this.activityRepo = activityRepo;
         this.appRepo = appRepo;
@@ -85,19 +78,19 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
     public UpdateApplicationResponse process(UpdateApplicationRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String appId = request.updatedApplication.applicationId;
-        
+
         //Throws if the app does not exist
         Application latestApp = appRepo.getById(appId);
 
         checkThat(request.token.userId)
-            .throwing(UnauthorizedException.class)
-            .is(ownerOf(latestApp));
-        
-        
+                .throwing(UnauthorizedException.class)
+                .is(ownerOf(latestApp));
+
+
         if (hasIcon(request))
         {
             String newIconId = saveNewAppIcon(request);
@@ -106,10 +99,10 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         }
 
         appRepo.saveApplication(request.updatedApplication);
-        
+
         User userPerformingUpdate = userRepo.getUser(request.token.userId);
         notifyApplicationUpdated(latestApp, userPerformingUpdate);
-        
+
         return new UpdateApplicationResponse(request.updatedApplication);
     }
 
@@ -118,34 +111,34 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         return request ->
         {
             checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
+                    .usingMessage("request is null")
+                    .is(notNull());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
-            
+                    .is(validUserId());
+
             checkThat(request.updatedApplication)
-                .usingMessage("request missing updated application")
-                .is(notNull());
-            
+                    .usingMessage("request missing updated application")
+                    .is(notNull());
+
             checkThat(request.updatedApplication)
-                .is(validApplication());
-            
+                    .is(validApplication());
+
             checkThat(request.updatedApplication.owners)
-                .usingMessage("Application must have at least 1 owner")
-                .is(nonEmptySet());
-            
+                    .usingMessage("Application must have at least 1 owner")
+                    .is(nonEmptySet());
+
             for (String ownerId : request.updatedApplication.owners)
             {
                 checkThat(ownerId)
-                    .usingMessage("Owner ID is Invalid: " + ownerId)
-                    .is(validUserId())
-                    .usingMessage("Application Owner Does not exist: " + ownerId)
-                    .is(existingUser());
+                        .usingMessage("Owner ID is Invalid: " + ownerId)
+                        .is(validUserId())
+                        .usingMessage("Application Owner Does not exist: " + ownerId)
+                        .is(existingUser());
             }
         };
     }
@@ -160,11 +153,11 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
             {
                 throw new FailedAssertionException(format("Application with ID [%s] has no Owners", appId));
             }
-            
+
             if (!application.owners.contains(userId))
             {
                 throw new FailedAssertionException(format("User [%s] is not an Owner of Application with ID [%s]", userId,
-                                                                                                                       appId));
+                                                          appId));
             }
         };
     }
@@ -175,7 +168,7 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         {
             try
             {
-                if (!userRepo.containsUser(userId))                
+                if (!userRepo.containsUser(userId))
                 {
                     throw new FailedAssertionException(format("User [%s] does not exist", userId));
                 }
@@ -249,16 +242,16 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         updatedApplication.setApplicationIconMediaId(newIconId);
         updatedApplication.unsetIcon();
     }
-    
+
     private void notifyApplicationUpdated(Application app, User actor) throws TException
     {
         Event event = createAppUpdatedEvent(app, actor);
-        
+
         List<User> owners = Sets.nullToEmpty(app.owners)
-            .stream()
-            .map(id -> new User().setUserId(id))
-            .collect(toList());
-        
+                                .stream()
+                                .map(id -> new User().setUserId(id))
+                                .collect(toList());
+
         try
         {
             activityRepo.saveEvents(event, owners);
@@ -275,12 +268,12 @@ final class UpdateApplicationOperation implements ThriftOperation<UpdateApplicat
         eventType.setApplicationUpdated(new ApplicationUpdated().setMessage(app.name + " Updated"));
 
         Event event = new Event()
-            .setActor(actor)
-            .setApplication(app)
-            .setApplicationId(app.applicationId)
-            .setEventId(one(uuids))
-            .setTimestamp(Instant.now().toEpochMilli())
-            .setUserIdOfActor(actor.userId);
+                .setActor(actor)
+                .setApplication(app)
+                .setApplicationId(app.applicationId)
+                .setEventId(one(uuids))
+                .setTimestamp(Instant.now().toEpochMilli())
+                .setUserIdOfActor(actor.userId);
 
         event.setEventType(eventType);
 

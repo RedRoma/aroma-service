@@ -16,11 +16,12 @@
 
 package tech.aroma.service;
 
-import com.google.inject.AbstractModule;
-import decorice.DecoratorModule;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Singleton;
+
+import com.google.inject.AbstractModule;
+import decorice.DecoratorModule;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import tech.aroma.thrift.service.AromaService;
 import tech.sirwellington.alchemy.http.AlchemyHttp;
 
 /**
- *
  * @author SirWellington
  */
 public class ModuleAromaService extends AbstractModule
@@ -51,12 +51,12 @@ public class ModuleAromaService extends AbstractModule
     AlchemyHttp provideAlchemyHttpClient()
     {
         HttpClient apacheHttpClient = HttpClientBuilder.create()
-            .build();
+                                                       .build();
 
         return AlchemyHttp.newBuilder()
-            .usingApacheHttpClient(apacheHttpClient)
-            .enableAsyncCallbacks()
-            .build();
+                          .usingApacheHttpClient(apacheHttpClient)
+                          .enableAsyncCallbacks()
+                          .build();
     }
 
     private static class ServiceModule extends DecoratorModule
@@ -64,8 +64,8 @@ public class ModuleAromaService extends AbstractModule
 
         {
             bind(AromaService.Iface.class)
-                .to(AromaServiceBase.class)
-                .decoratedBy(AuthenticationLayer.class);
+                    .to(AromaServiceBase.class)
+                    .decoratedBy(AuthenticationLayer.class);
         }
     }
 

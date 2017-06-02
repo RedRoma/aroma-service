@@ -26,24 +26,23 @@ import org.junit.runner.RunWith;
 import tech.sirwellington.alchemy.annotations.testing.IntegrationTest;
 import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /**
- *
  * @author SirWellington
  */
 @IntegrationTest
 @RunWith(AlchemyTestRunner.class)
-public class ModuleEncryptionMaterialsDevTest 
+public class ModuleEncryptionMaterialsDevTest
 {
-    
+
     private ModuleEncryptionMaterialsDev instance;
-    
+
     @Before
     public void setUp() throws Exception
     {
-        
+
         setupData();
         setupMocks();
     }
@@ -64,7 +63,7 @@ public class ModuleEncryptionMaterialsDevTest
         Injector injector = Guice.createInjector(instance);
         AromaPasswordEncryptor encryptor = injector.getInstance(AromaPasswordEncryptor.class);
         assertThat(encryptor, notNullValue());
-        
+
         OverTheWireDecryptor decryptor = injector.getInstance(OverTheWireDecryptor.class);
         assertThat(decryptor, notNullValue());
     }

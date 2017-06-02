@@ -18,6 +18,7 @@ package tech.aroma.service.operations;
 
 import java.util.List;
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +33,10 @@ import tech.sirwellington.alchemy.arguments.AlchemyAssertion;
 import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class GetActivityOperation implements ThriftOperation<GetActivityRequest, GetActivityResponse>
@@ -51,8 +51,8 @@ final class GetActivityOperation implements ThriftOperation<GetActivityRequest, 
     GetActivityOperation(ActivityRepository activityRepo, UserRepository userRepo)
     {
         checkThat(activityRepo, userRepo)
-            .are(notNull());
-        
+                .are(notNull());
+
         this.activityRepo = activityRepo;
         this.userRepo = userRepo;
     }
@@ -61,16 +61,16 @@ final class GetActivityOperation implements ThriftOperation<GetActivityRequest, 
     public GetActivityResponse process(GetActivityRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String userId = request.token.userId;
         User user = new User().setUserId(userId);
-        
+
         List<Event> events = activityRepo.getAllEventsFor(user);
-        
+
         LOG.debug("Found {} events for User {}", events.size(), user);
-        
+
         return new GetActivityResponse(events);
     }
 
@@ -79,15 +79,15 @@ final class GetActivityOperation implements ThriftOperation<GetActivityRequest, 
         return request ->
         {
             checkThat(request)
-                .usingMessage("request is null")
-                .is(notNull());
-            
+                    .usingMessage("request is null")
+                    .is(notNull());
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
+                    .is(validUserId());
         };
     }
 

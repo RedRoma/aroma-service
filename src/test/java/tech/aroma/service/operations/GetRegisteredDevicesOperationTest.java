@@ -18,6 +18,7 @@ package tech.aroma.service.operations;
 
 import java.util.List;
 import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,51 +31,46 @@ import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.aroma.thrift.service.GetRegisteredDevicesRequest;
 import tech.aroma.thrift.service.GetRegisteredDevicesResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.aroma.thrift.generators.ChannelGenerators.mobileDevices;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(50)
 @RunWith(AlchemyTestRunner.class)
-public class GetRegisteredDevicesOperationTest 
+public class GetRegisteredDevicesOperationTest
 {
-    
+
     @Mock
     private UserPreferencesRepository userPreferencesRepo;
-    
+
     private GetRegisteredDevicesOperation instance;
 
     @GeneratePojo
     private GetRegisteredDevicesRequest request;
-    
+
     @GenerateString(UUID)
     private String userId;
-    
+
     private List<MobileDevice> devices;
-    
+
 
     @Before
     public void setUp() throws Exception
     {
-        
+
         setupData();
         setupMocks();
         instance = new GetRegisteredDevicesOperation(userPreferencesRepo);
@@ -84,18 +80,18 @@ public class GetRegisteredDevicesOperationTest
     private void setupData() throws Exception
     {
         request.token.userId = userId;
-        
+
         devices = listOf(mobileDevices(), 25);
-        
+
         when(userPreferencesRepo.getMobileDevices(userId))
-            .thenReturn(Sets.emptySet());
+                .thenReturn(Sets.emptySet());
     }
 
     private void setupMocks() throws Exception
     {
-        
+
     }
-    
+
     @DontRepeat
     @Test
     public void tesConstructor()
@@ -107,14 +103,14 @@ public class GetRegisteredDevicesOperationTest
     public void testProcess() throws Exception
     {
         Set<MobileDevice> expected = Sets.copyOf(devices);
-        
+
         when(userPreferencesRepo.getMobileDevices(userId))
-            .thenReturn(expected);
-            
+                .thenReturn(expected);
+
         GetRegisteredDevicesResponse response = instance.process(request);
         assertThat(Sets.copyOf(response.devices), is(expected));
     }
-    
+
     @Test
     public void testProcessWhenNone() throws Exception
     {
@@ -127,19 +123,19 @@ public class GetRegisteredDevicesOperationTest
     public void testWhenDeviceRepoFails() throws Exception
     {
         when(userPreferencesRepo.getMobileDevices(userId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testProcessWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null)).isInstanceOf(InvalidArgumentException.class);
-        
+
         assertThrows(() -> instance.process(new GetRegisteredDevicesRequest())).isInstanceOf(InvalidArgumentException.class);
-        
+
         UserToken badToken = one(pojos(UserToken.class));
         assertThrows(() -> instance.process(new GetRegisteredDevicesRequest(badToken))).isInstanceOf(InvalidArgumentException.class);
     }

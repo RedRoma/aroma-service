@@ -27,21 +27,16 @@ import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetApplicationInfoRequest;
 import tech.aroma.thrift.service.GetApplicationInfoResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static org.mockito.Mockito.*;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @RunWith(AlchemyTestRunner.class)
@@ -93,12 +88,12 @@ public class GetApplicationInfoOperationTest
     public void testWhenUserNotFollowingApp() throws Exception
     {
         app.isFollowing = false;
-        
+
         GetApplicationInfoResponse response = instance.process(request);
         assertThat(response, notNullValue());
         assertThat(response.applicationInfo, is(app));
     }
-    
+
     @Test
     public void testWhenFollowingInfoNotRequested() throws Exception
     {
@@ -111,31 +106,31 @@ public class GetApplicationInfoOperationTest
         verifyZeroInteractions(followingRepo);
 
     }
-    
+
     @DontRepeat
     @Test
     public void testProcessWhenAppDoesNotExist() throws Exception
     {
         when(appRepo.getById(appId))
-            .thenThrow(new ApplicationDoesNotExistException());
+                .thenThrow(new ApplicationDoesNotExistException());
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(ApplicationDoesNotExistException.class);
+                .isInstanceOf(ApplicationDoesNotExistException.class);
     }
 
     @Test
     public void testProcessWithBadRequest()
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         assertThrows(() -> instance.process(new GetApplicationInfoRequest()))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         GetApplicationInfoRequest requestWithoutToken = new GetApplicationInfoRequest(request);
         requestWithoutToken.unsetToken();
         assertThrows(() -> instance.process(requestWithoutToken))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
     private void setupData()
@@ -150,7 +145,7 @@ public class GetApplicationInfoOperationTest
     {
         when(appRepo.getById(appId)).thenReturn(app);
         when(followingRepo.followingExists(userId, appId))
-            .thenReturn(false);
+                .thenReturn(false);
     }
 
 }

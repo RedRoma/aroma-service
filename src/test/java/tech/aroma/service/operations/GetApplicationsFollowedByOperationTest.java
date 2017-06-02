@@ -17,38 +17,29 @@
 package tech.aroma.service.operations;
 
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.UserRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
 import tech.aroma.thrift.service.GetApplicationsFollowedByRequest;
 import tech.aroma.thrift.service.GetApplicationsFollowedByResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateList;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static org.mockito.Mockito.*;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -69,7 +60,7 @@ public class GetApplicationsFollowedByOperationTest
 
     @GenerateList(Application.class)
     private List<Application> apps;
-    
+
     private List<Application> sortedApps;
 
     @GeneratePojo
@@ -98,21 +89,21 @@ public class GetApplicationsFollowedByOperationTest
     {
         request.token.userId = userIdOfCaller;
         request.userId = userId;
-        
+
         sortedApps = apps.stream()
-            .sorted(comparing(app -> app.name))
-            .collect(toList());
+                         .sorted(comparing(app -> app.name))
+                         .collect(toList());
     }
 
     private void setupMocks() throws Exception
     {
         when(followerRepo.getApplicationsFollowedBy(userId)).thenReturn(apps);
         when(followerRepo.getApplicationsFollowedBy(userIdOfCaller)).thenReturn(apps);
-        
+
         for (Application app : apps)
         {
             when(appRepo.getById(app.applicationId))
-                .thenReturn(app);
+                    .thenReturn(app);
         }
     }
 
@@ -121,13 +112,13 @@ public class GetApplicationsFollowedByOperationTest
     public void testConstructor()
     {
         assertThrows(() -> new GetApplicationsFollowedByOperation(null, followerRepo, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThrows(() -> new GetApplicationsFollowedByOperation(appRepo, null, userRepo))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThrows(() -> new GetApplicationsFollowedByOperation(appRepo, followerRepo, null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
 
     }
 
@@ -158,25 +149,25 @@ public class GetApplicationsFollowedByOperationTest
     public void testWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         //Empty Request
         assertThrows(() -> instance.process(new GetApplicationsFollowedByRequest()))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
 
         //Request missing token
         GetApplicationsFollowedByRequest requestMissingToken = new GetApplicationsFollowedByRequest(request);
         requestMissingToken.unsetToken();
         assertThrows(() -> instance.process(requestMissingToken))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         //Request with bad userId
         GetApplicationsFollowedByRequest requestWithBadId = new GetApplicationsFollowedByRequest(request);
         requestWithBadId.setUserId(badId);
         assertThrows(() -> instance.process(requestWithBadId))
-            .isInstanceOf(InvalidArgumentException.class);
- 
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
+
     }
 
 }

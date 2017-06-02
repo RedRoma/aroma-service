@@ -24,44 +24,40 @@ import tech.sirwellington.alchemy.annotations.access.Internal;
 import tech.sirwellington.alchemy.annotations.arguments.NonEmpty;
 import tech.sirwellington.alchemy.annotations.arguments.Required;
 
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 
 /**
  * Digests and Encrypts a Password in a safe manner.
- * 
+ *
  * @author SirWellington
  */
 @Internal
 @ImplementedBy(AromaPasswordEncryptorImpl.class)
-public interface AromaPasswordEncryptor 
+public interface AromaPasswordEncryptor
 {
     /**
-     * 
      * @param password The password to encrypt.
      * @return The Digested and securely encrypted password.
-     * 
-     * @throws TException 
+     * @throws TException
      */
     String encryptPassword(@NonEmpty String password) throws TException;
-    
+
     /**
      * Determines if the raw candidate password matches the digested password.
-     * 
-     * @param plainPassword The password to check.
+     *
+     * @param plainPassword            The password to check.
      * @param existingDigestedPassword The encrypted digest of the known accurate password.
-     * 
      * @return True if they match, false otherwise.
-     * 
      * @throws TException If the Operation Failes.
      */
     boolean match(@NonEmpty String plainPassword, @NonEmpty String existingDigestedPassword) throws TException;
-    
+
     public static AromaPasswordEncryptor newInstance(@Required PasswordEncryptor jasyptEncryptor)
     {
         checkThat(jasyptEncryptor).is(notNull());
-        
+
         return new AromaPasswordEncryptorImpl(jasyptEncryptor);
     }
 }

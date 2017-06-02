@@ -17,32 +17,20 @@
 package tech.aroma.service.operations;
 
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import tech.aroma.data.ActivityRepository;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.ReactionRepository;
-import tech.aroma.data.UserRepository;
+import org.mockito.*;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.User;
 import tech.aroma.thrift.events.Event;
-import tech.aroma.thrift.exceptions.ApplicationDoesNotExistException;
-import tech.aroma.thrift.exceptions.InvalidArgumentException;
-import tech.aroma.thrift.exceptions.OperationFailedException;
-import tech.aroma.thrift.exceptions.UnauthorizedException;
-import tech.aroma.thrift.exceptions.UserDoesNotExistException;
+import tech.aroma.thrift.exceptions.*;
 import tech.aroma.thrift.reactions.Reaction;
 import tech.aroma.thrift.service.UpdateReactionsRequest;
 import tech.aroma.thrift.service.UpdateReactionsResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.is;
@@ -50,28 +38,23 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
 import static tech.aroma.thrift.generators.UserGenerators.users;
 import static tech.aroma.thrift.service.AromaServiceConstants.MAXIMUM_REACTIONS;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.validUUID;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(100)
@@ -81,7 +64,7 @@ public class UpdateReactionsOperationTest
 
     @Mock
     private ActivityRepository activityRepo;
-    
+
     @Mock
     private ApplicationRepository appRepo;
 
@@ -107,8 +90,8 @@ public class UpdateReactionsOperationTest
 
     @GenerateString(ALPHABETIC)
     private String badId;
-    
-    
+
+
     @Captor
     private ArgumentCaptor<Event> eventCaptor;
 
@@ -127,14 +110,14 @@ public class UpdateReactionsOperationTest
     private void setupData() throws Exception
     {
         reactions = listOf(reactions(), 10);
-        
+
         user = one(users());
         userId = user.userId;
-        
+
         request.token.userId = userId;
         request.unsetForAppId();
         request.setReactions(reactions);
-        
+
         app.applicationId = appId;
         app.owners.add(userId);
     }
@@ -161,7 +144,7 @@ public class UpdateReactionsOperationTest
     {
         UpdateReactionsResponse response = instance.process(request);
         assertThat(response.reactions, is(reactions));
-        
+
         verify(reactionsRepo).saveReactionsForUser(userId, reactions);
         verify(reactionsRepo, never()).saveReactionsForApplication(anyString(), any());
         verifyZeroInteractions(activityRepo, appRepo);
@@ -173,118 +156,118 @@ public class UpdateReactionsOperationTest
         request.forAppId = appId;
         UpdateReactionsResponse response = instance.process(request);
         assertThat(response.reactions, is(reactions));
-        
+
         verify(reactionsRepo).saveReactionsForApplication(appId, reactions);
         verify(reactionsRepo, never()).saveReactionsForUser(anyString(), any());
-        
+
         List<User> owners = app.owners
-            .stream()
-            .map(id -> new User().setUserId(id))
-            .collect(toList());
+                .stream()
+                .map(id -> new User().setUserId(id))
+                .collect(toList());
 
         verify(activityRepo).saveEvents(eventCaptor.capture(), eq(owners));
-        
+
         Event event = eventCaptor.getValue();
         checkEvent(event);
     }
-    
+
     @Test
     public void testWhenActivityRepoFails() throws Exception
     {
         doThrow(new OperationFailedException())
-            .when(activityRepo)
-            .saveEvents(any(), any());
+                .when(activityRepo)
+                .saveEvents(any(), any());
 
         request.forAppId = appId;
-        
+
         UpdateReactionsResponse response = instance.process(request);
         assertThat(response.reactions, is(reactions));
-        
+
         verify(reactionsRepo).saveReactionsForApplication(appId, reactions);
     }
-    
+
     @Test
     public void testWhenUserDoesNotExist() throws Exception
     {
         when(userRepo.containsUser(userId)).thenReturn(false);
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
     }
-    
+
     @Test
     public void testWhenUserRepoFails() throws Exception
     {
         when(userRepo.containsUser(userId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
-        
+                .isInstanceOf(OperationFailedException.class);
+
         verifyZeroInteractions(reactionsRepo);
     }
-    
+
     @Test
     public void testWhenAppDoesNotExist() throws Exception
     {
         when(appRepo.getById(appId))
-            .thenThrow(new ApplicationDoesNotExistException());
-        
+                .thenThrow(new ApplicationDoesNotExistException());
+
         request.forAppId = appId;
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(ApplicationDoesNotExistException.class);
+                .isInstanceOf(ApplicationDoesNotExistException.class);
 
         verifyZeroInteractions(reactionsRepo);
     }
-    
+
     @Test
     public void testWhenAppRepoFails() throws Exception
     {
         when(appRepo.getById(appId))
-            .thenThrow(new OperationFailedException());
-        
+                .thenThrow(new OperationFailedException());
+
         request.forAppId = appId;
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testWhenReactionsRepoFails() throws Exception
     {
         doThrow(new OperationFailedException())
-            .when(reactionsRepo)
-            .saveReactionsForUser(userId, reactions);
-        
+                .when(reactionsRepo)
+                .saveReactionsForUser(userId, reactions);
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(OperationFailedException.class);
+                .isInstanceOf(OperationFailedException.class);
     }
-    
+
     @Test
     public void testProcessWithBadArgs() throws Exception
     {
         assertThrows(() -> instance.process(null))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         //bad app id
         request.forAppId = badId;
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
-        
+                .isInstanceOf(InvalidArgumentException.class);
+
         //Missing token.
         request.unsetToken();
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
-    
+
     @Test
     public void testProcessWhenUserIsNotAnOwner() throws Exception
     {
         app.owners.remove(userId);
         request.forAppId = appId;
-        
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UnauthorizedException.class);
-        
+                .isInstanceOf(UnauthorizedException.class);
+
         verifyZeroInteractions(reactionsRepo);
     }
 
@@ -306,7 +289,7 @@ public class UpdateReactionsOperationTest
         request.reactions = listOf(reactions(), numberOfReactions);
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(InvalidArgumentException.class);
+                .isInstanceOf(InvalidArgumentException.class);
     }
 
 }

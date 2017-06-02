@@ -26,25 +26,18 @@ import tech.aroma.thrift.User;
 import tech.aroma.thrift.exceptions.UserDoesNotExistException;
 import tech.aroma.thrift.service.GetUserInfoRequest;
 import tech.aroma.thrift.service.GetUserInfoResponse;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.DontRepeat;
-import tech.sirwellington.alchemy.test.junit.runners.GeneratePojo;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
 import static tech.sirwellington.alchemy.generator.PeopleGenerators.emails;
-import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.assertThrows;
+import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
 
 /**
- *
  * @author SirWellington
  */
 @Repeat(10)
@@ -83,7 +76,7 @@ public class GetUserInfoOperationTest
     public void testConstructor()
     {
         assertThrows(() -> new GetUserInfoOperation(null))
-            .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -117,7 +110,7 @@ public class GetUserInfoOperationTest
     public void testWhenBothAreSet() throws Exception
     {
         request.setEmail(email)
-            .setUserId(userId);
+               .setUserId(userId);
 
         GetUserInfoResponse response = instance.process(request);
         assertThat(response, notNullValue());
@@ -128,24 +121,24 @@ public class GetUserInfoOperationTest
     public void testProcessWhenUserDoesNotExist() throws Exception
     {
         request.unsetEmail();
-        
+
         when(userRepo.getUser(userId))
-            .thenThrow(new UserDoesNotExistException());
+                .thenThrow(new UserDoesNotExistException());
 
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
     }
-    
+
     @Test
     public void testProcessWhenEmailDoesNotExist() throws Exception
     {
         request.unsetUserId();
-        
+
         when(userRepo.getUserByEmail(email))
-            .thenThrow(new UserDoesNotExistException());
-        
+                .thenThrow(new UserDoesNotExistException());
+
         assertThrows(() -> instance.process(request))
-            .isInstanceOf(UserDoesNotExistException.class);
+                .isInstanceOf(UserDoesNotExistException.class);
     }
 
     private void setupData() throws TException

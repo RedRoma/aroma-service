@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations.encryption;
 
 
@@ -26,20 +26,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author SirWellington
  */
-class TestMaterials 
+class TestMaterials
 {
     private final static Logger LOG = LoggerFactory.getLogger(TestMaterials.class);
-    
+
     private static final Injector GUICE = Guice.createInjector(new ModuleEncryptionMaterialsDev());
-    
+
     static PasswordEncryptor newPasswordEncryptor()
     {
         return GUICE.getInstance(PasswordEncryptor.class);
     }
-    
+
     static PBEStringEncryptor newStringEncryptor()
     {
         return GUICE.getInstance(PBEStringEncryptor.class);

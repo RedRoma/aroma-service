@@ -17,6 +17,7 @@
 package tech.aroma.service.operations.encryption;
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.slf4j.Logger;
@@ -25,12 +26,11 @@ import tech.aroma.thrift.exceptions.InvalidCredentialsException;
 import tech.aroma.thrift.exceptions.OperationFailedException;
 import tech.sirwellington.alchemy.annotations.access.Internal;
 
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.nonEmptyString;
+import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 
 /**
- *
  * @author SirWellington
  */
 @Internal
@@ -45,7 +45,7 @@ final class OverTheWireDecryptorImpl implements OverTheWireDecryptor
     OverTheWireDecryptorImpl(PBEStringEncryptor decryptor)
     {
         checkThat(decryptor)
-            .is(notNull());
+                .is(notNull());
 
         this.decryptor = decryptor;
     }
@@ -54,10 +54,10 @@ final class OverTheWireDecryptorImpl implements OverTheWireDecryptor
     public String decrypt(String encrypredString) throws TException
     {
         checkThat(encrypredString)
-            .throwing(InvalidCredentialsException.class)
-            .usingMessage("encrypted string is missing")
-            .is(nonEmptyString());
-        
+                .throwing(InvalidCredentialsException.class)
+                .usingMessage("encrypted string is missing")
+                .is(nonEmptyString());
+
         try
         {
             return decryptor.decrypt(encrypredString);

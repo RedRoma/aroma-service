@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aroma.data.ApplicationRepository;
-import tech.aroma.data.FollowerRepository;
-import tech.aroma.data.MessageRepository;
+import tech.aroma.data.*;
 import tech.aroma.thrift.Application;
 import tech.aroma.thrift.Message;
 import tech.aroma.thrift.exceptions.InvalidArgumentException;
@@ -36,11 +35,10 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validApplicationId;
 import static tech.aroma.data.assertions.RequestAssertions.validMessageId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class GetFullMessageOperation implements ThriftOperation<GetFullMessageRequest, GetFullMessageResponse>
@@ -55,7 +53,7 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
     GetFullMessageOperation(ApplicationRepository appRepo, FollowerRepository followerRepo, MessageRepository messageRepo)
     {
         checkThat(appRepo, followerRepo, messageRepo)
-            .are(notNull());
+                .are(notNull());
 
         this.appRepo = appRepo;
         this.followerRepo = followerRepo;
@@ -66,8 +64,8 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
     public GetFullMessageResponse process(GetFullMessageRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
 
         String appId = request.applicationId;
         String messageId = request.messageId;
@@ -90,14 +88,14 @@ final class GetFullMessageOperation implements ThriftOperation<GetFullMessageReq
         return request ->
         {
             checkThat(request)
-                .usingMessage("missing request")
-                .is(notNull());
-            
+                    .usingMessage("missing request")
+                    .is(notNull());
+
             checkThat(request.messageId)
-                .is(validMessageId());
-            
+                    .is(validMessageId());
+
             checkThat(request.applicationId)
-                .is(validApplicationId());
+                    .is(validApplicationId());
         };
 
     }

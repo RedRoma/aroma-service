@@ -21,9 +21,7 @@ import org.jasypt.util.password.PasswordEncryptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import tech.sirwellington.alchemy.test.junit.runners.AlchemyTestRunner;
-import tech.sirwellington.alchemy.test.junit.runners.GenerateString;
-import tech.sirwellington.alchemy.test.junit.runners.Repeat;
+import tech.sirwellington.alchemy.test.junit.runners.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -34,7 +32,6 @@ import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticSt
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 
 /**
- *
  * @author SirWellington
  */
 @RunWith(AlchemyTestRunner.class)
@@ -87,7 +84,7 @@ public class AromaPasswordEncryptorImplIT
     public void testMatch() throws Exception
     {
         this.digestedPassword = instance.encryptPassword(rawPassword);
-        
+
         String otherPassword = one(alphabeticString());
         String otherDigest = instance.encryptPassword(otherPassword);
 
@@ -100,19 +97,19 @@ public class AromaPasswordEncryptorImplIT
         result = instance.match(otherPassword, otherDigest);
         assertThat(result, is(true));
     }
-    
+
     @Repeat(2)
     @Test
     public void testConsistencyAccrossRuns() throws TException
     {
         int iterations = one(integers(10, 100));
-        
+
         digestedPassword = instance.encryptPassword(rawPassword);
-        
-        for(int i = 0; i < iterations; ++i)
+
+        for (int i = 0; i < iterations; ++i)
         {
             recreateInstance();
-            
+
             boolean matches = instance.match(rawPassword, digestedPassword);
             assertThat(matches, is(true));
         }

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
- 
+
 package tech.aroma.service.operations;
 
 
 import javax.inject.Inject;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +34,10 @@ import tech.sirwellington.alchemy.thrift.operations.ThriftOperation;
 
 import static tech.aroma.data.assertions.RequestAssertions.validMobileDevice;
 import static tech.aroma.data.assertions.RequestAssertions.validUserId;
-import static tech.sirwellington.alchemy.arguments.Arguments.checkThat;
+import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 
 /**
- *
  * @author SirWellington
  */
 final class RegisterDeviceOperation implements ThriftOperation<RegisterDeviceRequest, RegisterDeviceResponse>
@@ -51,24 +51,24 @@ final class RegisterDeviceOperation implements ThriftOperation<RegisterDeviceReq
     RegisterDeviceOperation(UserRepository userRepo, UserPreferencesRepository userPreferencesRepo)
     {
         checkThat(userRepo, userPreferencesRepo)
-            .is(notNull());
-        
+                .is(notNull());
+
         this.userPreferencesRepo = userPreferencesRepo;
         this.userRepo = userRepo;
     }
-    
+
     @Override
     public RegisterDeviceResponse process(RegisterDeviceRequest request) throws TException
     {
         checkThat(request)
-            .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
-            .is(good());
-        
+                .throwing(ex -> new InvalidArgumentException(ex.getMessage()))
+                .is(good());
+
         String userId = request.token.userId;
         ensureUserIdExists(userId);
-        
+
         userPreferencesRepo.saveMobileDevice(userId, request.device);
-        
+
         return new RegisterDeviceResponse();
     }
 
@@ -77,16 +77,16 @@ final class RegisterDeviceOperation implements ThriftOperation<RegisterDeviceReq
         return request ->
         {
             checkThat(request).is(notNull());
-            
+
             checkThat(request.token)
-                .usingMessage("request missing token")
-                .is(notNull());
-            
+                    .usingMessage("request missing token")
+                    .is(notNull());
+
             checkThat(request.token.userId)
-                .is(validUserId());
-            
+                    .is(validUserId());
+
             checkThat(request.device)
-                .is(validMobileDevice());
+                    .is(validMobileDevice());
         };
     }
 
