@@ -43,10 +43,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.Get.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
-import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticStrings;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
@@ -275,7 +275,7 @@ public class ProvisionApplicationOperationTest
     private void setupData()
     {
         request.token.unsetUserId();
-        request.applicationName = one(alphabeticString(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH - 1));
+        request.applicationName = one(alphabeticStrings(AromaServiceConstants.APPLICATION_NAME_MAX_LENGTH - 1));
         request.owners.clear();
 
         authToken.ownerId = userId;

@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.toList;
 import static tech.aroma.service.AromaAssertions.checkNotNull;
 import static tech.sirwellington.alchemy.arguments.Arguments.*;
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.Get.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 
@@ -95,7 +95,7 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
         AlchemyGenerator<String> domains = PeopleGenerators.popularEmailDomains();
 
         return new StringBuilder()
-                .append(StringGenerators.alphabeticString(7).get())
+                .append(StringGenerators.alphabeticStrings(7).get())
                 .append(".")
                 .append(domains.get())
                 .toString();
@@ -106,7 +106,7 @@ final class GetDashboardOperation implements ThriftOperation<GetDashboardRequest
 
         return new Message()
                 .setApplicationName(names.get())
-                .setBody(StringGenerators.alphabeticString().get())
+                .setBody(StringGenerators.alphabeticStrings().get())
                 .setTimeMessageReceived(times.get().toEpochMilli())
                 .setMessageId(one(uuids))
                 .setTimeOfCreation(times.get().toEpochMilli())

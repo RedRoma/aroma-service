@@ -36,7 +36,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 import static tech.aroma.thrift.generators.ApplicationGenerators.applications;
 import static tech.aroma.thrift.generators.ReactionGenerators.reactions;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.Get.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;

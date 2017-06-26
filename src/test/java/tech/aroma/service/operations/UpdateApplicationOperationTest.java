@@ -46,9 +46,9 @@ import static tech.sirwellington.alchemy.arguments.assertions.Assertions.equalTo
 import static tech.sirwellington.alchemy.arguments.assertions.Assertions.notNull;
 import static tech.sirwellington.alchemy.arguments.assertions.StringAssertions.*;
 import static tech.sirwellington.alchemy.arguments.assertions.TimeAssertions.epochNowWithinDelta;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.Get.one;
 import static tech.sirwellington.alchemy.generator.EnumGenerators.enumValueOf;
-import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticStrings;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.ALPHABETIC;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -180,7 +180,7 @@ public class UpdateApplicationOperationTest
     @Test
     public void testWhenDescriptionChanges() throws Exception
     {
-        String newDescription = one(alphabeticString());
+        String newDescription = one(alphabeticStrings());
         newApp.setApplicationDescription(newDescription);
 
         Application savedApp = instance.process(request).getApplication();

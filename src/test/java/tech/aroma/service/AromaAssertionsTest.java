@@ -29,9 +29,9 @@ import tech.sirwellington.alchemy.test.junit.runners.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.Get.one;
 import static tech.sirwellington.alchemy.generator.ObjectGenerators.pojos;
-import static tech.sirwellington.alchemy.generator.StringGenerators.alphanumericString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphanumericStrings;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 
 /**
@@ -79,7 +79,7 @@ public class AromaAssertionsTest
     @Test
     public void testWithMessage()
     {
-        String message = one(alphanumericString());
+        String message = one(alphanumericStrings());
 
         ExceptionMapper<InvalidArgumentException> result = AromaAssertions.withMessage(message);
         assertThat(result, notNullValue());

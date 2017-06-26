@@ -40,9 +40,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.Get.one;
 import static tech.sirwellington.alchemy.generator.PeopleGenerators.emails;
-import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticStrings;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.*;
 
@@ -294,9 +294,9 @@ public class SignUpOperationTest
     {
         authResponse = new CreateTokenResponse(authToken);
 
-        String first = one(alphabeticString(10));
-        String middle = one(alphabeticString(10));
-        String last = one(alphabeticString(10));
+        String first = one(alphabeticStrings(10));
+        String middle = one(alphabeticStrings(10));
+        String last = one(alphabeticStrings(10));
         String full = first + " " + middle + " " + last;
 
         request.name = full;

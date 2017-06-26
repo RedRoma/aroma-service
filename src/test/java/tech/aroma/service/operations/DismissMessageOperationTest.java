@@ -34,10 +34,10 @@ import tech.sirwellington.alchemy.test.junit.runners.*;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
-import static tech.sirwellington.alchemy.generator.AlchemyGenerator.one;
+import static tech.sirwellington.alchemy.generator.AlchemyGenerator.Get.one;
 import static tech.sirwellington.alchemy.generator.CollectionGenerators.listOf;
 import static tech.sirwellington.alchemy.generator.NumberGenerators.integers;
-import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticString;
+import static tech.sirwellington.alchemy.generator.StringGenerators.alphabeticStrings;
 import static tech.sirwellington.alchemy.generator.StringGenerators.uuids;
 import static tech.sirwellington.alchemy.test.junit.ThrowableAssertion.*;
 import static tech.sirwellington.alchemy.test.junit.runners.GenerateString.Type.UUID;
@@ -140,7 +140,7 @@ public class DismissMessageOperationTest
 
         assertThrows(() -> instance.process(requestWithoutUserId)).isInstanceOf(InvalidArgumentException.class);
 
-        List<String> badIds = listOf(alphabeticString());
+        List<String> badIds = listOf(alphabeticStrings());
         DismissMessageRequest requestWithBadMessageIds = new DismissMessageRequest(request);
         requestWithBadMessageIds.setMessageIds(badIds);
 
