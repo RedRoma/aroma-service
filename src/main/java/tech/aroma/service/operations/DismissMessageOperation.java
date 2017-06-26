@@ -18,6 +18,7 @@ package tech.aroma.service.operations;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.thrift.TException;
@@ -123,13 +124,15 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
         Set<String> result = Sets.copyOf(request.messageIds);
         result.add(request.messageId);
 
-        return result;
+        return result.stream()
+                     .filter(Objects::nonNull)
+                     .filter(s -> !s.isEmpty())
+                     .collect(Collectors.toSet());
     }
 
     private void deleteMessages(String userId, Set<String> messageIds)
     {
         messageIds.parallelStream()
-                  .filter(Objects::nonNull)
                   .forEach(msgId -> this.deleteMessage(userId, msgId));
     }
 
