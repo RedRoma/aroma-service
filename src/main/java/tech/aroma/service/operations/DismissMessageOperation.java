@@ -16,6 +16,7 @@
 
 package tech.aroma.service.operations;
 
+import java.util.Objects;
 import java.util.Set;
 import javax.inject.Inject;
 
@@ -128,6 +129,7 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
     private void deleteMessages(String userId, Set<String> messageIds)
     {
         messageIds.parallelStream()
+                  .filter(Objects::nonNull)
                   .forEach(msgId -> this.deleteMessage(userId, msgId));
     }
 
@@ -137,7 +139,7 @@ final class DismissMessageOperation implements ThriftOperation<DismissMessageReq
         {
             inboxRepo.deleteMessageForUser(userId, msgId);
         }
-        catch (TException ex)
+        catch (Exception ex)
         {
             LOG.warn("Failed to delete message {} for user {}", msgId, userId, ex);
         }
